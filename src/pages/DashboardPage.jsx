@@ -19,6 +19,15 @@ export default function DashboardPage() {
   const rotaLessonIds = new Set(rotaEntries.map(r => r.lesson_id));
   const maxLessonOrder = Math.max(0, ...rotaEntries.map(r => r.lesson_order));
 
+  // Map lesson_order → { lesson_id, lesson_title, lesson_number }
+  const rotaOrderMap = {};
+  for (const r of rotaEntries) {
+    const lesson = LESSONS.find(l => l.lesson_id === r.lesson_id);
+    rotaOrderMap[r.lesson_order] = lesson
+      ? { lesson_id: r.lesson_id, lesson_title: lesson.lesson_title, lesson_number: lesson.lesson_number }
+      : { lesson_id: r.lesson_id, lesson_title: r.lesson_id, lesson_number: String(r.lesson_order) };
+  }
+
   const rotaQuestions = QUESTIONS.filter(q => rotaLessonIds.has(q.lesson_id));
   const totalSeen = classLog.filter(e => e.times_seen > 0).length;
   const totalFlagged = classLog.filter(e => e.flagged).length;
@@ -76,6 +85,7 @@ export default function DashboardPage() {
               questionLog={questionLog}
               classId={decodedClassId}
               maxLessonOrder={maxLessonOrder}
+              rotaOrderMap={rotaOrderMap}
             />
           ))}
         </div>

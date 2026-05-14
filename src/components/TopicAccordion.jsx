@@ -1,12 +1,16 @@
 import { useState } from 'react';
 
-export default function TopicAccordion({ topicName, lessons, questionLog, classId, maxLessonOrder }) {
+export default function TopicAccordion({ topicName, lessons, questionLog, classId, maxLessonOrder, rotaOrderMap }) {
   const [open, setOpen] = useState(false);
 
   const logMap = {};
   for (const e of questionLog) {
     if (e.class_id === classId) logMap[e.question_id] = e;
   }
+
+  const totalQs = lessons.reduce((n, l) => n + l.questions.length, 0);
+  const seenQs = lessons.reduce((n, l) =>
+    n + l.questions.filter(q => logMap[q.id]?.times_seen > 0).length, 0);
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden mb-3">
@@ -15,7 +19,10 @@ export default function TopicAccordion({ topicName, lessons, questionLog, classI
         className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 hover:bg-gray-100 text-left"
       >
         <span className="font-semibold text-gray-800">{topicName}</span>
-        <span className="text-gray-400 text-lg">{open ? '▲' : '▼'}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-400">{seenQs}/{totalQs} seen</span>
+          <span className="text-gray-400 text-lg">{open ? '▲' : '▼'}</span>
+        </div>
       </button>
 
       {open && (
@@ -26,6 +33,7 @@ export default function TopicAccordion({ topicName, lessons, questionLog, classI
               lesson={lesson}
               logMap={logMap}
               maxLessonOrder={maxLessonOrder}
+              rotaOrderMap={rotaOrderMap}
             />
           ))}
         </div>
@@ -34,7 +42,14 @@ export default function TopicAccordion({ topicName, lessons, questionLog, classI
   );
 }
 
-function LessonSection({ lesson, logMap, maxLessonOrder }) {
+function lessonLabel(order, rotaOrderMap) {
+  if (!rotaOrderMap || !rotaOrderMap[order]) return `lesson ${order}`;
+  const { lesson_number, lesson_title } = rotaOrderMap[order];
+  const num = lesson_number && lesson_number !== 'Assessment' ? `L${lesson_number}` : 'Assessment';
+  return `${num} — ${lesson_title}`;
+}
+
+function LessonSection({ lesson, logMap, maxLessonOrder, rotaOrderMap }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -51,31 +66,60 @@ function LessonSection({ lesson, logMap, maxLessonOrder }) {
       </button>
 
       {open && (
-        <div className="px-5 pb-4 space-y-2">
+        <div className="px-5 pb-4 space-y-3">
           {lesson.questions.map(q => {
             const entry = logMap[q.id];
+            const nextLabel = entry ? lessonLabel(entry.next_due_lesson, rotaOrderMap) : null;
+            const lastLabel = entry ? lessonLabel(entry.last_seen_lesson, rotaOrderMap) : null;
+            const isOverdue = entry && entry.next_due_lesson <= (entry.last_seen_lesson ?? 0);
+
             return (
-              <div key={q.id} className="bg-gray-50 rounded-lg p-3">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm text-gray-700 flex-1 truncate">{q.question}</p>
+              <div key={q.id} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                {/* Question text + badges */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <p className="text-sm text-gray-800 flex-1 leading-snug">{q.question}</p>
                   <div className="flex items-center gap-2 shrink-0">
                     {entry?.flagged && <span title="Flagged">🚩</span>}
-                    {!entry?.flagged && entry?.flag_resolved && <span title="Previously flagged" className="opacity-30">🚩</span>}
-                    {entry && (
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                        ×{entry.times_seen}
+                    {!entry?.flagged && entry?.flag_resolved && (
+                      <span title="Previously flagged" className="opacity-30">🚩</span>
+                    )}
+                    {entry ? (
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                        seen ×{entry.times_seen}
+                      </span>
+                    ) : (
+                      <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">
+                        not seen
                       </span>
                     )}
                   </div>
                 </div>
-                {entry && (
-                  <div className="mt-1 flex gap-4 text-xs text-gray-400">
-                    <span>Last seen: L{entry.last_seen_lesson}</span>
-                    <span>Next due: L{entry.next_due_lesson}</span>
-                  </div>
-                )}
+
+                {/* Schedule row */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  {entry ? (
+                    <>
+                      <SchedulePill
+                        label="Last seen"
+                        value={lastLabel}
+                        color="blue"
+                      />
+                      <span className="text-gray-300 text-xs">→</span>
+                      <SchedulePill
+                        label="Next due"
+                        value={nextLabel}
+                        color={entry.flagged ? 'amber' : 'green'}
+                        bold
+                      />
+                    </>
+                  ) : (
+                    <span className="text-xs text-gray-400 italic">Will appear once this lesson has been taught</span>
+                  )}
+                </div>
+
+                {/* Timeline */}
                 {entry && maxLessonOrder > 0 && (
-                  <TimelineDots entry={entry} max={maxLessonOrder} />
+                  <TimelineDots entry={entry} max={maxLessonOrder} rotaOrderMap={rotaOrderMap} />
                 )}
               </div>
             );
@@ -86,20 +130,39 @@ function LessonSection({ lesson, logMap, maxLessonOrder }) {
   );
 }
 
-function TimelineDots({ entry, max }) {
+function SchedulePill({ label, value, color, bold }) {
+  const colours = {
+    blue: 'bg-blue-50 text-blue-700',
+    green: 'bg-green-50 text-green-700',
+    amber: 'bg-amber-50 text-amber-700',
+  };
+  return (
+    <div className={`flex items-baseline gap-1.5 px-3 py-1 rounded-lg text-xs ${colours[color]}`}>
+      <span className="opacity-60">{label}:</span>
+      <span className={bold ? 'font-semibold' : ''}>{value}</span>
+    </div>
+  );
+}
+
+function TimelineDots({ entry, max, rotaOrderMap }) {
   const dots = [];
-  for (let i = 1; i <= Math.min(max, 60); i++) {
+  for (let i = 1; i <= Math.min(max, 80); i++) {
     const seen = entry.last_seen_lesson === i;
     const due = entry.next_due_lesson === i;
+    const title = seen
+      ? `Last seen: ${lessonLabel(i, rotaOrderMap)}`
+      : due
+      ? `Next due: ${lessonLabel(i, rotaOrderMap)}`
+      : lessonLabel(i, rotaOrderMap);
     dots.push(
       <div
         key={i}
-        title={seen ? `Seen L${i}` : due ? `Due L${i}` : `L${i}`}
-        className={`h-2 rounded-full ${
-          seen ? 'bg-blue-500 w-3' : due ? 'bg-amber-400 w-2' : 'bg-gray-200 w-1.5'
+        title={title}
+        className={`h-2 rounded-full flex-shrink-0 ${
+          seen ? 'bg-blue-500 w-3' : due ? 'bg-green-500 w-3' : 'bg-gray-200 w-1.5'
         }`}
       />
     );
   }
-  return <div className="flex items-center gap-0.5 mt-2 flex-wrap">{dots}</div>;
+  return <div className="flex items-center gap-0.5 mt-3 flex-wrap">{dots}</div>;
 }
