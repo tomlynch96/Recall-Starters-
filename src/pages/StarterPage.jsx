@@ -113,7 +113,7 @@ export default function StarterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="h-screen overflow-hidden bg-white flex flex-col">
       {showResolution && (
         <FlagResolutionModal
           question={flagQueue[currentFlagIdx]}
@@ -122,32 +122,31 @@ export default function StarterPage() {
         />
       )}
 
-      {/* Top bar: date left, class centre-ish, timer right */}
-      <header className="flex items-center justify-between px-6 pt-4 pb-2">
-        <span className="text-gray-500 text-sm w-48">{formatDate(new Date())}</span>
+      {/* Header: date left | title centre | timer+end right */}
+      <header className="flex items-center justify-between px-8 pt-5 pb-2 shrink-0">
+        <span className="text-gray-400 text-xl w-72">{formatDate(new Date())}</span>
 
-        {/* Lesson title — centred */}
-        <h1 className="text-4xl font-light text-gray-900 tracking-tight text-center flex-1">
+        <h1 className="text-6xl font-light text-gray-900 tracking-tight text-center flex-1 leading-tight">
           {lessonTitle}
         </h1>
 
-        <div className="flex items-center justify-end gap-3 w-48">
+        <div className="flex items-center justify-end gap-4 w-72">
           <Timer />
           <button
             onClick={handleEndSession}
-            className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-base font-medium hover:bg-gray-200 transition-colors"
           >
             End
           </button>
         </div>
       </header>
 
-      {/* Instruction sub-line */}
-      <p className="text-center text-gray-500 text-sm mb-4 font-medium">
+      <p className="text-center text-gray-400 text-lg mb-2 shrink-0">
         Answer these questions in your book
       </p>
 
-      <main className="flex-1 px-4 pb-6 grid grid-cols-1 md:grid-cols-2 gap-3 content-start">
+      {/* Grid: 2 cols × 4 rows — fills all remaining height */}
+      <main className="flex-1 min-h-0 grid grid-cols-2 grid-rows-4 gap-3 px-4 pb-4">
         {questions.map((q, i) => (
           <QuestionCard
             key={q.id}
@@ -159,9 +158,11 @@ export default function StarterPage() {
           />
         ))}
         {questions.length === 0 && (
-          <div className="col-span-2 text-center py-20 text-gray-400">
-            <p className="text-xl">No questions available yet.</p>
-            <p className="text-sm mt-2">Start teaching lessons to build up the question bank.</p>
+          <div className="col-span-2 row-span-4 flex items-center justify-center text-gray-400">
+            <div className="text-center">
+              <p className="text-3xl">No questions available yet.</p>
+              <p className="text-xl mt-2">Start teaching lessons to build up the question bank.</p>
+            </div>
           </div>
         )}
       </main>
