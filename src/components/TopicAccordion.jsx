@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function TopicAccordion({ topicName, lessons, questionLog, classId, maxLessonOrder, rotaOrderMap }) {
+export default function TopicAccordion({ topicName, lessons, questionLog, classId, maxLessonOrder, rotaOrderMap, lessonIdToOrder }) {
   const [open, setOpen] = useState(false);
 
   const logMap = {};
@@ -34,6 +34,7 @@ export default function TopicAccordion({ topicName, lessons, questionLog, classI
               logMap={logMap}
               maxLessonOrder={maxLessonOrder}
               rotaOrderMap={rotaOrderMap}
+              lessonIdToOrder={lessonIdToOrder}
             />
           ))}
         </div>
@@ -52,10 +53,10 @@ function lessonLabel(order, rotaOrderMap) {
 // Midpoint intervals: index = times_seen AFTER the visit
 const INTERVALS = [0, 1, 4, 12, 40];
 
-function projectFutureVisits(entry, maxLessonOrder) {
+function projectFromOrder(startOrder, startTimesSeen, maxLessonOrder) {
   const visits = [];
-  let order = entry.next_due_lesson;
-  let seen = entry.times_seen;
+  let order = startOrder;
+  let seen = startTimesSeen;
   while (order <= maxLessonOrder && visits.length < 12) {
     visits.push(order);
     seen++;
@@ -65,7 +66,19 @@ function projectFutureVisits(entry, maxLessonOrder) {
   return visits;
 }
 
-function LessonSection({ lesson, logMap, maxLessonOrder, rotaOrderMap }) {
+function projectFutureVisits(entry, maxLessonOrder) {
+  return projectFromOrder(entry.next_due_lesson, entry.times_seen, maxLessonOrder);
+}
+
+// For unseen questions: project starting from the lesson after theirs is taught
+function projectUnseenVisits(lessonId, lessonIdToOrder, maxLessonOrder) {
+  const lessonOrder = lessonIdToOrder?.[lessonId];
+  if (!lessonOrder) return [];
+  // First eligible appearance is the lesson after it's taught
+  return projectFromOrder(lessonOrder + 1, 0, maxLessonOrder);
+}
+
+function LessonSection({ lesson, logMap, maxLessonOrder, rotaOrderMap, lessonIdToOrder }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -85,7 +98,9 @@ function LessonSection({ lesson, logMap, maxLessonOrder, rotaOrderMap }) {
         <div className="px-5 pb-4 space-y-3">
           {lesson.questions.map(q => {
             const entry = logMap[q.id];
-            const futureVisits = entry ? projectFutureVisits(entry, maxLessonOrder) : [];
+            const futureVisits = entry
+              ? projectFutureVisits(entry, maxLessonOrder)
+              : projectUnseenVisits(q.lesson_id, lessonIdToOrder, maxLessonOrder);
             const lastLabel = entry ? lessonLabel(entry.last_seen_lesson, rotaOrderMap) : null;
 
             return (
@@ -104,53 +119,52 @@ function LessonSection({ lesson, logMap, maxLessonOrder, rotaOrderMap }) {
                       </span>
                     ) : (
                       <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">
-                        not seen
+                        not seen yet
                       </span>
                     )}
                   </div>
                 </div>
 
                 {/* Full schedule chain */}
-                {entry ? (
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {/* Last seen */}
-                    <div className="flex items-baseline gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs">
-                      <span className="opacity-60">last:</span>
-                      <span className="font-medium">{lastLabel}</span>
-                    </div>
-
-                    {futureVisits.length > 0 && <span className="text-gray-300 text-xs">→</span>}
-
-                    {futureVisits.map((order, i) => (
-                      <div key={order} className="flex items-center gap-2">
-                        <div className={`flex items-baseline gap-1 px-2.5 py-1 rounded-lg text-xs ${
-                          i === 0
-                            ? entry.flagged
-                              ? 'bg-amber-100 text-amber-700 font-semibold ring-1 ring-amber-300'
-                              : 'bg-green-100 text-green-700 font-semibold ring-1 ring-green-300'
-                            : 'bg-gray-100 text-gray-500'
-                        }`}>
-                          {i === 0 && <span className="opacity-60 mr-1">next:</span>}
-                          <span>{lessonLabel(order, rotaOrderMap)}</span>
-                        </div>
-                        {i < futureVisits.length - 1 && (
-                          <span className="text-gray-300 text-xs">→</span>
-                        )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Last seen pill — only if the question has been seen */}
+                  {entry && (
+                    <>
+                      <div className="flex items-baseline gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs">
+                        <span className="opacity-60">last:</span>
+                        <span className="font-medium">{lastLabel}</span>
                       </div>
-                    ))}
+                      {futureVisits.length > 0 && <span className="text-gray-300 text-xs">→</span>}
+                    </>
+                  )}
 
-                    {futureVisits.length === 0 && (
-                      <span className="text-xs text-gray-400 italic">no further visits within this rota</span>
-                    )}
-                  </div>
-                ) : (
-                  <span className="text-xs text-gray-400 italic">Will appear once this lesson has been taught</span>
-                )}
+                  {futureVisits.map((order, i) => (
+                    <div key={order} className="flex items-center gap-2">
+                      <div className={`flex items-baseline gap-1 px-2.5 py-1 rounded-lg text-xs ${
+                        i === 0 && entry
+                          ? entry.flagged
+                            ? 'bg-amber-100 text-amber-700 font-semibold ring-1 ring-amber-300'
+                            : 'bg-green-100 text-green-700 font-semibold ring-1 ring-green-300'
+                          : 'bg-gray-100 text-gray-500'
+                      }`}>
+                        {i === 0 && entry && <span className="opacity-60 mr-1">next:</span>}
+                        <span>{lessonLabel(order, rotaOrderMap)}</span>
+                      </div>
+                      {i < futureVisits.length - 1 && (
+                        <span className="text-gray-300 text-xs">→</span>
+                      )}
+                    </div>
+                  ))}
+
+                  {futureVisits.length === 0 && (
+                    <span className="text-xs text-gray-400 italic">no further visits within this rota</span>
+                  )}
+                </div>
 
                 {/* Timeline */}
-                {entry && maxLessonOrder > 0 && (
+                {maxLessonOrder > 0 && (
                   <TimelineDots
-                    lastSeen={entry.last_seen_lesson}
+                    lastSeen={entry?.last_seen_lesson ?? null}
                     futureVisits={futureVisits}
                     max={maxLessonOrder}
                     rotaOrderMap={rotaOrderMap}

@@ -21,11 +21,14 @@ export default function DashboardPage() {
 
   // Map lesson_order → { lesson_id, lesson_title, lesson_number }
   const rotaOrderMap = {};
+  // Map lesson_id → lesson_order (for projecting unseen questions)
+  const lessonIdToOrder = {};
   for (const r of rotaEntries) {
     const lesson = LESSONS.find(l => l.lesson_id === r.lesson_id);
     rotaOrderMap[r.lesson_order] = lesson
       ? { lesson_id: r.lesson_id, lesson_title: lesson.lesson_title, lesson_number: lesson.lesson_number }
       : { lesson_id: r.lesson_id, lesson_title: r.lesson_id, lesson_number: String(r.lesson_order) };
+    lessonIdToOrder[r.lesson_id] = r.lesson_order;
   }
 
   const rotaQuestions = QUESTIONS.filter(q => rotaLessonIds.has(q.lesson_id));
@@ -86,6 +89,7 @@ export default function DashboardPage() {
               classId={decodedClassId}
               maxLessonOrder={maxLessonOrder}
               rotaOrderMap={rotaOrderMap}
+              lessonIdToOrder={lessonIdToOrder}
             />
           ))}
         </div>
