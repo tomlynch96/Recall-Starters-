@@ -113,7 +113,7 @@ export default function StarterPage() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-white flex flex-col">
+    <div className="group/page h-screen overflow-hidden bg-white flex flex-col">
       {showResolution && (
         <FlagResolutionModal
           question={flagQueue[currentFlagIdx]}
@@ -122,24 +122,30 @@ export default function StarterPage() {
         />
       )}
 
-      {/* Header: date left | title centre | timer+end right */}
-      <header className="flex items-center justify-between px-8 pt-5 pb-2 shrink-0">
-        <span className="text-gray-400 text-5xl w-96">{formatDate(new Date())}</span>
+      {/* × end button — fixed top-right, invisible until page hover */}
+      <button
+        onClick={handleEndSession}
+        className="fixed top-4 right-5 text-4xl text-gray-300 hover:text-gray-600 opacity-0 group-hover/page:opacity-100 transition-opacity z-10 leading-none"
+        title="End session"
+      >
+        ×
+      </button>
 
-        <h1 className="text-7xl font-light text-gray-900 tracking-tight text-center flex-1 leading-tight">
+      {/* Header: date left | title centre | timer right — use absolute positioning for true centering */}
+      <header className="relative flex items-center px-8 pt-6 pb-4 shrink-0">
+        <span className="text-gray-400 text-5xl">{formatDate(new Date())}</span>
+
+        <h1 className="absolute inset-x-0 text-7xl font-light text-gray-900 tracking-tight text-center leading-tight pointer-events-none">
           {lessonTitle}
         </h1>
 
-        <div className="flex items-center justify-end gap-4 w-72">
+        <div className="ml-auto">
           <Timer />
-          <button
-            onClick={handleEndSession}
-            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-base font-medium hover:bg-gray-200 transition-colors"
-          >
-            End
-          </button>
         </div>
       </header>
+
+      {/* Extra space between header and grid */}
+      <div className="shrink-0 h-4" />
 
       {/* Grid: 2 cols × 4 rows — fills all remaining height */}
       <main className="flex-1 min-h-0 grid grid-cols-2 grid-rows-4 gap-3 px-4 pb-4">
