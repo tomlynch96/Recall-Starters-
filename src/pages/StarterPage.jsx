@@ -124,7 +124,7 @@ export default function StarterPage() {
 
       {/* Header: date left | title centre | timer+end right */}
       <header className="flex items-center justify-between px-8 pt-5 pb-2 shrink-0">
-        <span className="text-gray-400 text-2xl w-80">{formatDate(new Date())}</span>
+        <span className="text-gray-400 text-5xl w-96">{formatDate(new Date())}</span>
 
         <h1 className="text-7xl font-light text-gray-900 tracking-tight text-center flex-1 leading-tight">
           {lessonTitle}
@@ -140,10 +140,6 @@ export default function StarterPage() {
           </button>
         </div>
       </header>
-
-      <p className="text-center text-gray-400 text-lg mb-2 shrink-0">
-        Answer these questions in your book
-      </p>
 
       {/* Grid: 2 cols × 4 rows — fills all remaining height */}
       <main className="flex-1 min-h-0 grid grid-cols-2 grid-rows-4 gap-3 px-4 pb-4">
