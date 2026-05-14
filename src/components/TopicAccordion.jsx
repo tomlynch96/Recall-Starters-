@@ -43,10 +43,26 @@ export default function TopicAccordion({ topicName, lessons, questionLog, classI
 }
 
 function lessonLabel(order, rotaOrderMap) {
-  if (!rotaOrderMap || !rotaOrderMap[order]) return `lesson ${order}`;
+  if (!rotaOrderMap || !rotaOrderMap[order]) return `#${order}`;
   const { lesson_number, lesson_title } = rotaOrderMap[order];
   const num = lesson_number && lesson_number !== 'Assessment' ? `L${lesson_number}` : 'Assessment';
   return `${num} — ${lesson_title}`;
+}
+
+// Midpoint intervals: index = times_seen AFTER the visit
+const INTERVALS = [0, 1, 4, 12, 40];
+
+function projectFutureVisits(entry, maxLessonOrder) {
+  const visits = [];
+  let order = entry.next_due_lesson;
+  let seen = entry.times_seen;
+  while (order <= maxLessonOrder && visits.length < 12) {
+    visits.push(order);
+    seen++;
+    const interval = seen >= INTERVALS.length ? INTERVALS[INTERVALS.length - 1] : INTERVALS[seen];
+    order += interval;
+  }
+  return visits;
 }
 
 function LessonSection({ lesson, logMap, maxLessonOrder, rotaOrderMap }) {
@@ -69,9 +85,8 @@ function LessonSection({ lesson, logMap, maxLessonOrder, rotaOrderMap }) {
         <div className="px-5 pb-4 space-y-3">
           {lesson.questions.map(q => {
             const entry = logMap[q.id];
-            const nextLabel = entry ? lessonLabel(entry.next_due_lesson, rotaOrderMap) : null;
+            const futureVisits = entry ? projectFutureVisits(entry, maxLessonOrder) : [];
             const lastLabel = entry ? lessonLabel(entry.last_seen_lesson, rotaOrderMap) : null;
-            const isOverdue = entry && entry.next_due_lesson <= (entry.last_seen_lesson ?? 0);
 
             return (
               <div key={q.id} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
@@ -95,31 +110,51 @@ function LessonSection({ lesson, logMap, maxLessonOrder, rotaOrderMap }) {
                   </div>
                 </div>
 
-                {/* Schedule row */}
-                <div className="flex items-center gap-3 flex-wrap">
-                  {entry ? (
-                    <>
-                      <SchedulePill
-                        label="Last seen"
-                        value={lastLabel}
-                        color="blue"
-                      />
-                      <span className="text-gray-300 text-xs">→</span>
-                      <SchedulePill
-                        label="Next due"
-                        value={nextLabel}
-                        color={entry.flagged ? 'amber' : 'green'}
-                        bold
-                      />
-                    </>
-                  ) : (
-                    <span className="text-xs text-gray-400 italic">Will appear once this lesson has been taught</span>
-                  )}
-                </div>
+                {/* Full schedule chain */}
+                {entry ? (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {/* Last seen */}
+                    <div className="flex items-baseline gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs">
+                      <span className="opacity-60">last:</span>
+                      <span className="font-medium">{lastLabel}</span>
+                    </div>
+
+                    {futureVisits.length > 0 && <span className="text-gray-300 text-xs">→</span>}
+
+                    {futureVisits.map((order, i) => (
+                      <div key={order} className="flex items-center gap-2">
+                        <div className={`flex items-baseline gap-1 px-2.5 py-1 rounded-lg text-xs ${
+                          i === 0
+                            ? entry.flagged
+                              ? 'bg-amber-100 text-amber-700 font-semibold ring-1 ring-amber-300'
+                              : 'bg-green-100 text-green-700 font-semibold ring-1 ring-green-300'
+                            : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          {i === 0 && <span className="opacity-60 mr-1">next:</span>}
+                          <span>{lessonLabel(order, rotaOrderMap)}</span>
+                        </div>
+                        {i < futureVisits.length - 1 && (
+                          <span className="text-gray-300 text-xs">→</span>
+                        )}
+                      </div>
+                    ))}
+
+                    {futureVisits.length === 0 && (
+                      <span className="text-xs text-gray-400 italic">no further visits within this rota</span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs text-gray-400 italic">Will appear once this lesson has been taught</span>
+                )}
 
                 {/* Timeline */}
                 {entry && maxLessonOrder > 0 && (
-                  <TimelineDots entry={entry} max={maxLessonOrder} rotaOrderMap={rotaOrderMap} />
+                  <TimelineDots
+                    lastSeen={entry.last_seen_lesson}
+                    futureVisits={futureVisits}
+                    max={maxLessonOrder}
+                    rotaOrderMap={rotaOrderMap}
+                  />
                 )}
               </div>
             );
@@ -144,22 +179,31 @@ function SchedulePill({ label, value, color, bold }) {
   );
 }
 
-function TimelineDots({ entry, max, rotaOrderMap }) {
+function TimelineDots({ lastSeen, futureVisits, max, rotaOrderMap }) {
+  const futureSet = new Set(futureVisits);
+  const nextVisit = futureVisits[0];
   const dots = [];
   for (let i = 1; i <= Math.min(max, 80); i++) {
-    const seen = entry.last_seen_lesson === i;
-    const due = entry.next_due_lesson === i;
-    const title = seen
-      ? `Last seen: ${lessonLabel(i, rotaOrderMap)}`
-      : due
-      ? `Next due: ${lessonLabel(i, rotaOrderMap)}`
-      : lessonLabel(i, rotaOrderMap);
+    const isLast = lastSeen === i;
+    const isNext = nextVisit === i;
+    const isFuture = !isNext && futureSet.has(i);
+    const label = lessonLabel(i, rotaOrderMap);
+    const title = isLast
+      ? `Last seen: ${label}`
+      : isNext
+      ? `Next due: ${label}`
+      : isFuture
+      ? `Scheduled: ${label}`
+      : label;
     dots.push(
       <div
         key={i}
         title={title}
-        className={`h-2 rounded-full flex-shrink-0 ${
-          seen ? 'bg-blue-500 w-3' : due ? 'bg-green-500 w-3' : 'bg-gray-200 w-1.5'
+        className={`h-2 rounded-full flex-shrink-0 transition-colors ${
+          isLast  ? 'bg-blue-500 w-3' :
+          isNext  ? 'bg-green-500 w-3' :
+          isFuture ? 'bg-green-300 w-2' :
+          'bg-gray-200 w-1.5'
         }`}
       />
     );
