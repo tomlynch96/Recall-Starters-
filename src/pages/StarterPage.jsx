@@ -124,9 +124,9 @@ export default function StarterPage() {
 
       {/* Header: date left | title centre | timer+end right */}
       <header className="flex items-center justify-between px-8 pt-5 pb-2 shrink-0">
-        <span className="text-gray-400 text-xl w-72">{formatDate(new Date())}</span>
+        <span className="text-gray-400 text-2xl w-80">{formatDate(new Date())}</span>
 
-        <h1 className="text-6xl font-light text-gray-900 tracking-tight text-center flex-1 leading-tight">
+        <h1 className="text-7xl font-light text-gray-900 tracking-tight text-center flex-1 leading-tight">
           {lessonTitle}
         </h1>
 

@@ -42,17 +42,15 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
         </button>
       </div>
 
-      <p className="text-gray-900 text-2xl font-semibold leading-snug pr-24">
+      <p className="text-gray-900 text-3xl font-semibold leading-snug pr-24">
         <span className="font-bold mr-2">{index + 1})</span>
         {question.question}
       </p>
 
-      {revealed ? (
-        <p className="mt-3 pt-3 border-t-2 border-orange-200 text-green-800 text-xl font-medium">
+      {revealed && (
+        <p className="mt-3 pt-3 border-t-2 border-orange-200 text-green-800 text-2xl font-medium">
           {question.answer}
         </p>
-      ) : (
-        <p className="mt-2 text-orange-300 text-sm">tap to reveal answer</p>
       )}
 
       {question.flagged && (

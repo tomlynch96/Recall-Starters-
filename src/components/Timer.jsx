@@ -33,7 +33,7 @@ export default function Timer() {
   return (
     <div className="flex items-center gap-2">
       {(active || seconds < TOTAL) && (
-        <span className={`font-mono text-4xl font-bold tabular-nums ${isRed ? 'text-red-500' : 'text-gray-700'}`}>
+        <span className={`font-mono text-5xl font-bold tabular-nums ${isRed ? 'text-red-500' : 'text-gray-700'}`}>
           {mm}:{ss}
         </span>
       )}
