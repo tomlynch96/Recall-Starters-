@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getTeachers, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry } from '../utils/storage.js';
-import { generateStarterQuestions, updateQuestionLog, calculateNextDue } from '../utils/scheduler.js';
-import { QUESTIONS } from '../data/staticData.js';
+import { generateStarterQuestions, updateQuestionLog } from '../utils/scheduler.js';
+import { ROTAS, LESSONS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
 import Timer from '../components/Timer.jsx';
 import FlagResolutionModal from '../components/FlagResolutionModal.jsx';
+
+function formatDate(date) {
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 
 export default function StarterPage() {
   const { classId, lessonOrder } = useParams();
@@ -15,6 +19,12 @@ export default function StarterPage() {
 
   const teachers = getTeachers();
   const teacher = teachers.find(t => t.class_id === decodedClassId);
+
+  const rotaEntry = teacher
+    ? ROTAS.find(r => r.rota_id === teacher.rota_id && r.lesson_order === currentLessonOrder)
+    : null;
+  const lessonData = rotaEntry ? LESSONS.find(l => l.lesson_id === rotaEntry.lesson_id) : null;
+  const lessonTitle = lessonData?.lesson_title || `Lesson ${currentLessonOrder}`;
 
   const [questions, setQuestions] = useState([]);
   const [sessionEnded, setSessionEnded] = useState(false);
@@ -103,7 +113,7 @@ export default function StarterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {showResolution && (
         <FlagResolutionModal
           question={flagQueue[currentFlagIdx]}
@@ -112,23 +122,32 @@ export default function StarterPage() {
         />
       )}
 
-      <header className="flex items-center justify-between px-6 py-3 bg-gray-900 border-b border-gray-700">
-        <div className="flex items-center gap-4">
-          <span className="font-bold text-blue-400 text-lg">{decodedClassId}</span>
-          <span className="text-gray-500 text-sm">Lesson {currentLessonOrder}</span>
-        </div>
-        <div className="flex items-center gap-4">
+      {/* Top bar: date left, class centre-ish, timer right */}
+      <header className="flex items-center justify-between px-6 pt-4 pb-2">
+        <span className="text-gray-500 text-sm w-48">{formatDate(new Date())}</span>
+
+        {/* Lesson title — centred */}
+        <h1 className="text-4xl font-light text-gray-900 tracking-tight text-center flex-1">
+          {lessonTitle}
+        </h1>
+
+        <div className="flex items-center justify-end gap-3 w-48">
           <Timer />
           <button
             onClick={handleEndSession}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
           >
-            End Session
+            End
           </button>
         </div>
       </header>
 
-      <main className="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 gap-4 content-start">
+      {/* Instruction sub-line */}
+      <p className="text-center text-gray-500 text-sm mb-4 font-medium">
+        Answer these questions in your book
+      </p>
+
+      <main className="flex-1 px-4 pb-6 grid grid-cols-1 md:grid-cols-2 gap-3 content-start">
         {questions.map((q, i) => (
           <QuestionCard
             key={q.id}
@@ -140,9 +159,9 @@ export default function StarterPage() {
           />
         ))}
         {questions.length === 0 && (
-          <div className="col-span-2 text-center py-20 text-gray-500">
+          <div className="col-span-2 text-center py-20 text-gray-400">
             <p className="text-xl">No questions available yet.</p>
-            <p className="text-sm mt-2">Start a lesson to build up the question bank.</p>
+            <p className="text-sm mt-2">Start teaching lessons to build up the question bank.</p>
           </div>
         )}
       </main>

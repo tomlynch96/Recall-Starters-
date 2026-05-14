@@ -32,19 +32,19 @@ export default function Timer() {
 
   return (
     <div className="flex items-center gap-2">
-      {active || seconds < TOTAL ? (
-        <span className={`font-mono text-2xl font-bold ${isRed ? 'text-red-400' : 'text-white'}`}>
+      {(active || seconds < TOTAL) && (
+        <span className={`font-mono text-2xl font-bold tabular-nums ${isRed ? 'text-red-500' : 'text-gray-700'}`}>
           {mm}:{ss}
         </span>
-      ) : null}
+      )}
       <button
         onClick={toggle}
-        className="px-3 py-1 rounded bg-gray-700 text-white text-sm hover:bg-gray-600"
+        className="px-3 py-1 rounded bg-gray-100 text-gray-600 text-sm hover:bg-gray-200 transition-colors"
       >
         {active ? 'Pause' : seconds < TOTAL ? 'Resume' : 'Timer'}
       </button>
       {seconds < TOTAL && !active && (
-        <button onClick={reset} className="px-2 py-1 rounded bg-gray-700 text-gray-300 text-sm hover:bg-gray-600">
+        <button onClick={reset} className="px-2 py-1 rounded bg-gray-100 text-gray-500 text-sm hover:bg-gray-200 transition-colors">
           Reset
         </button>
       )}
