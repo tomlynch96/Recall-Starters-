@@ -73,15 +73,15 @@ export function generateStarterQuestions(classId, currentLessonOrder, rotaId, qu
   const slotD = eligible.filter(q => !q.flagged && q.lesson_order >= currentLessonOrder - 15 && q.lesson_order <= currentLessonOrder - 10);
   const slotE = eligible.filter(q => !q.flagged && q.lesson_order <= currentLessonOrder - 38);
 
-  const TARGET = 8;
+  const TARGET = 6;
   const selected = [...flagged];
 
+  // 6-question slots: A=3, B=1, C=1, D=1 — preserves all four spaced-repetition horizons
   const slots = [
-    { pool: slotA, target: 4 },
-    { pool: slotB, target: 2 },
+    { pool: slotA, target: 3 },
+    { pool: slotB, target: 1 },
     { pool: slotC, target: 1 },
     { pool: slotD, target: 1 },
-    { pool: slotE, target: 1 },
   ];
 
   let unfilled = 0;
@@ -126,11 +126,13 @@ export function updateQuestionLog(classId, shownQuestions, currentLessonOrder, e
     const nextDue = calculateNextDue(timesSeen, currentLessonOrder);
 
     if (idx >= 0) {
+      const isFlagged = log[idx].flagged;
       log[idx] = {
         ...log[idx],
         times_seen: timesSeen,
         last_seen_lesson: currentLessonOrder,
-        next_due_lesson: nextDue,
+        // If still flagged, keep next_due at current+1; otherwise use normal schedule
+        next_due_lesson: isFlagged ? currentLessonOrder + 1 : nextDue,
         updated_at: now,
       };
     } else {
@@ -140,7 +142,7 @@ export function updateQuestionLog(classId, shownQuestions, currentLessonOrder, e
         times_seen: timesSeen,
         last_seen_lesson: currentLessonOrder,
         next_due_lesson: nextDue,
-        flagged: false,
+        flagged: q.flagged || false,
         flag_resolved: false,
         created_at: now,
         updated_at: now,

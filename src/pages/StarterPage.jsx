@@ -45,8 +45,14 @@ export default function StarterPage() {
   }
 
   function handleFlag(question) {
+    const nowFlagged = !question.flagged;
+    // Persist immediately so both teachers sharing this class see it
+    upsertQuestionLogEntry(decodedClassId, question.id, {
+      flagged: nowFlagged,
+      ...(nowFlagged ? { next_due_lesson: currentLessonOrder + 1 } : {}),
+    });
     setQuestions(qs => qs.map(q =>
-      q.id === question.id ? { ...q, flagged: !q.flagged } : q
+      q.id === question.id ? { ...q, flagged: nowFlagged } : q
     ));
   }
 
@@ -147,8 +153,8 @@ export default function StarterPage() {
       {/* Extra space between header and grid */}
       <div className="shrink-0 h-4" />
 
-      {/* Grid: 2 cols × 4 rows — fills all remaining height */}
-      <main className="flex-1 min-h-0 grid grid-cols-2 grid-rows-4 gap-3 px-4 pb-4">
+      {/* Grid: 2 cols × 3 rows — fills all remaining height (6 questions) */}
+      <main className="flex-1 min-h-0 grid grid-cols-2 grid-rows-3 gap-3 px-4 pb-4">
         {questions.map((q, i) => (
           <QuestionCard
             key={q.id}
@@ -160,7 +166,7 @@ export default function StarterPage() {
           />
         ))}
         {questions.length === 0 && (
-          <div className="col-span-2 row-span-4 flex items-center justify-center text-gray-400">
+          <div className="col-span-2 row-span-3 flex items-center justify-center text-gray-400">
             <div className="text-center">
               <p className="text-3xl">No questions available yet.</p>
               <p className="text-xl mt-2">Start teaching lessons to build up the question bank.</p>

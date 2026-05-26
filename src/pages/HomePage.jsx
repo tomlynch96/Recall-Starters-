@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, clearCurrentTeacher, getSessionLog } from '../utils/storage.js';
+import { getTeachers, saveTeachers, getCurrentTeacher, clearCurrentTeacher, getSessionLog } from '../utils/storage.js';
 import { ROTAS } from '../data/staticData.js';
 
 function getRotaName(rotaId) {
@@ -17,7 +18,7 @@ function getLastSession(classId, sessionLog) {
 export default function HomePage() {
   const navigate = useNavigate();
   const email = getCurrentTeacher();
-  const teachers = getTeachers();
+  const [teachers, setTeachers] = useState(() => getTeachers());
   const sessionLog = getSessionLog();
   const currentTeacher = teachers.find(t => t.email === email);
 
@@ -39,12 +40,31 @@ export default function HomePage() {
     navigate('/login');
   }
 
+  function toggleHoD() {
+    const updated = teachers.map(t =>
+      t.email === email ? { ...t, is_hod: !t.is_hod } : t
+    );
+    saveTeachers(updated);
+    setTeachers(updated);
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-blue-800">Recall Starter</h1>
         <div className="flex items-center gap-4">
           <span className="text-gray-500 text-sm">{email}</span>
+          <button
+            onClick={toggleHoD}
+            title={currentTeacher?.is_hod ? 'Click to leave HoD mode' : 'Click to enable HoD mode'}
+            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+              currentTeacher?.is_hod
+                ? 'bg-blue-700 text-white border-blue-700 hover:bg-blue-800'
+                : 'text-gray-400 border-gray-200 hover:border-blue-400 hover:text-blue-600'
+            }`}
+          >
+            {currentTeacher?.is_hod ? 'HoD ✓' : 'HoD'}
+          </button>
           <button onClick={logout} className="text-sm text-gray-500 hover:text-gray-700 underline">
             Log out
           </button>
@@ -87,16 +107,16 @@ export default function HomePage() {
         )}
       </main>
 
-      <footer className="text-center py-6">
-        {currentTeacher?.is_hod && (
+      {currentTeacher?.is_hod && (
+        <div className="max-w-4xl mx-auto px-6 pb-10">
           <button
             onClick={() => navigate('/hod')}
-            className="text-sm text-blue-600 hover:underline"
+            className="w-full py-4 border-2 border-dashed border-blue-200 rounded-2xl text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-colors font-medium"
           >
-            HoD Dashboard
+            Open HoD Dashboard — all classes overview →
           </button>
-        )}
-      </footer>
+        </div>
+      )}
     </div>
   );
 }

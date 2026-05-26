@@ -41,46 +41,6 @@ export const QUESTIONS = [
     "answer": "An organisms ability to get nutrients from food"
   },
   {
-    "id": "q0005",
-    "lesson_id": "7Aa",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "1",
-    "lesson_title": "Life processes",
-    "question": "Describe what the “S” means in MRS GREN",
-    "answer": "An organisms ability to feel"
-  },
-  {
-    "id": "q0006",
-    "lesson_id": "7Aa",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "1",
-    "lesson_title": "Life processes",
-    "question": "Describe what the first “R” means in MRS GREN",
-    "answer": "An organisms ability to respire to make energy"
-  },
-  {
-    "id": "q0007",
-    "lesson_id": "7Aa",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "1",
-    "lesson_title": "Life processes",
-    "question": "Describe what the second “R” means in MRS GREN",
-    "answer": "An organisms ability to reproduce"
-  },
-  {
-    "id": "q0008",
-    "lesson_id": "7Aa",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "1",
-    "lesson_title": "Life processes",
-    "question": "Name the 7 life processes (Think MRS GREN)",
-    "answer": "Movement, Reproduction, Sensitivity, Growth, Respiration, Excretion, Nutrition"
-  },
-  {
     "id": "q0009",
     "lesson_id": "7Ab",
     "topic_id": "7A",
@@ -181,246 +141,6 @@ export const QUESTIONS = [
     "answer": "Nucleus, cell membrane, ribosomes, cytoplasm, mitochondria, cell wall, chloroplast and vacuole"
   },
   {
-    "id": "q0019",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of ciliated cells",
-    "answer": "Move mucus out of airways"
-  },
-  {
-    "id": "q0020",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of muscle cells",
-    "answer": "Contract and relax"
-  },
-  {
-    "id": "q0021",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of nerve cells",
-    "answer": "Transmit electrical messages around the body"
-  },
-  {
-    "id": "q0022",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of ovum cells",
-    "answer": "Carry female genetic information"
-  },
-  {
-    "id": "q0023",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of palisade cells",
-    "answer": "Lots of chloroplasts"
-  },
-  {
-    "id": "q0024",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of red blood cells",
-    "answer": "Carry oxygen around the body"
-  },
-  {
-    "id": "q0025",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of root hair cells",
-    "answer": "Absorb water and minerals from the soil"
-  },
-  {
-    "id": "q0026",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of sperm cells",
-    "answer": "Carry male genetic information"
-  },
-  {
-    "id": "q0027",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the cell membrane of a cell",
-    "answer": "Controls what enters and leaves the cell"
-  },
-  {
-    "id": "q0028",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the cell wall of a cell",
-    "answer": "Provides support for the cell"
-  },
-  {
-    "id": "q0029",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the chloroplast of a cell",
-    "answer": "Absorbs light for photosynthesis"
-  },
-  {
-    "id": "q0030",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the cytoplasm of a cell",
-    "answer": "Where chemical reactions occur in a cell"
-  },
-  {
-    "id": "q0031",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the mitochondria of a cell",
-    "answer": "Where aerobic respiration occurs in a cell"
-  },
-  {
-    "id": "q0032",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the nucleus of a cell",
-    "answer": "Contains DNA and controls the function of the cell"
-  },
-  {
-    "id": "q0033",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the ribosome of a cell",
-    "answer": "Where protein synthesis occurs (proteins are made)"
-  },
-  {
-    "id": "q0034",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State three adaptations of a root hair cell",
-    "answer": "Large surface area, lots of mitochondria, large vacuole"
-  },
-  {
-    "id": "q0035",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State three adaptations of red blood cells",
-    "answer": "Large surface area, no nucleus, haemoglobin"
-  },
-  {
-    "id": "q0036",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State three adaptations of sperm cells",
-    "answer": "Contains half of the DNA, lots of mitochondria, tail"
-  },
-  {
-    "id": "q0037",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two adaptations of an ovum cells",
-    "answer": "Contains half of the DNA, lots of cytoplasm"
-  },
-  {
-    "id": "q0038",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two adaptations of ciliated cells",
-    "answer": "Tiny hairs (cilia)"
-  },
-  {
-    "id": "q0039",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two adaptations of muscle cells",
-    "answer": "Protein fibres to contract and relax and lots of mitochondria"
-  },
-  {
-    "id": "q0040",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two adaptations of nerve cells",
-    "answer": "Long, dendrites to connect to other cells"
-  },
-  {
-    "id": "q0041",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two functions of the vacuole of a cell",
-    "answer": "Stores minerals and sugars and gives structure"
-  },
-  {
-    "id": "q0042",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "What is a cell?",
-    "answer": "The simplest unit of living things"
-  },
-  {
     "id": "q0043",
     "lesson_id": "7Ae",
     "topic_id": "7A",
@@ -489,16 +209,6 @@ export const QUESTIONS = [
     "lesson_title": "Animal sexual reproduction",
     "question": "Explain what is meant by internal fertilisation.",
     "answer": "Fertilisation which occurs inside the body of the female"
-  },
-  {
-    "id": "q0050",
-    "lesson_id": "7Ba",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "1",
-    "lesson_title": "Animal sexual reproduction",
-    "question": "What is sexual reproduction?",
-    "answer": "When a male and female gamete fuse to form a zygote"
   },
   {
     "id": "q0051",
@@ -651,86 +361,6 @@ export const QUESTIONS = [
     "answer": "Progesterone"
   },
   {
-    "id": "q0066",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Name the hormone that stimulates ovulation",
-    "answer": "LH (luteinising hormone)"
-  },
-  {
-    "id": "q0067",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Name the hormone that stimulates the build-up of the uterus lining",
-    "answer": "Oestrogen"
-  },
-  {
-    "id": "q0068",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Name the main female reproductive hormone",
-    "answer": "Oestrogen"
-  },
-  {
-    "id": "q0069",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Name the process where a matured egg is released from the ovaries",
-    "answer": "Ovulation"
-  },
-  {
-    "id": "q0070",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "State the average length of the menstrual cycle",
-    "answer": "28 days"
-  },
-  {
-    "id": "q0071",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Which hormone stimulates the release of oestrogen?",
-    "answer": "FSH"
-  },
-  {
-    "id": "q0072",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Which two female hormones does the ovaries release during the menstrual cycle?",
-    "answer": "Oestrogen and progesterone"
-  },
-  {
-    "id": "q0073",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Which two female hormones does the pituitary gland secretes during the menstrual cycle?",
-    "answer": "FSH and LH"
-  },
-  {
     "id": "q0074",
     "lesson_id": "7Ca",
     "topic_id": "7C",
@@ -769,26 +399,6 @@ export const QUESTIONS = [
     "lesson_title": "Muscles and breathing",
     "question": "State the function of the ribcage.",
     "answer": "Protect the heart and lungs"
-  },
-  {
-    "id": "q0078",
-    "lesson_id": "7Ca",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "1",
-    "lesson_title": "Muscles and breathing",
-    "question": "What two structures change the pressure inside the chest cavity to ventilate lungs?",
-    "answer": "Intercostal muscles + Diaphragm"
-  },
-  {
-    "id": "q0079",
-    "lesson_id": "7Ca",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "1",
-    "lesson_title": "Muscles and breathing",
-    "question": "Why do red blood cells have a bi-concave shape?",
-    "answer": "Large surface area to carry more oxygen and low volume to reduce the risk of getting stuck in capillaries"
   },
   {
     "id": "q0080",
@@ -851,26 +461,6 @@ export const QUESTIONS = [
     "answer": "calcium"
   },
   {
-    "id": "q0086",
-    "lesson_id": "7Cc",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "3",
-    "lesson_title": "The skeleton",
-    "question": "Which of the following is a hinge joint - shoulder>Hip>Knee",
-    "answer": "Knee"
-  },
-  {
-    "id": "q0087",
-    "lesson_id": "7Cc",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "3",
-    "lesson_title": "The skeleton",
-    "question": "Which part of the skeleton protects the lungs",
-    "answer": "The rib cage"
-  },
-  {
     "id": "q0088",
     "lesson_id": "7Cd",
     "topic_id": "7C",
@@ -909,36 +499,6 @@ export const QUESTIONS = [
     "lesson_title": "Muscles and moving",
     "question": "How do muscles work?",
     "answer": "By getting shorter - contraction"
-  },
-  {
-    "id": "q0092",
-    "lesson_id": "7Cd",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "4",
-    "lesson_title": "Muscles and moving",
-    "question": "Name the two muscles in the upper arm",
-    "answer": "biceps and triceps"
-  },
-  {
-    "id": "q0093",
-    "lesson_id": "7Cd",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "4",
-    "lesson_title": "Muscles and moving",
-    "question": "What are antagonistic muscles?",
-    "answer": "A 'pair' of muscles that act on a joint. As one contracts, the other relaxes"
-  },
-  {
-    "id": "q0094",
-    "lesson_id": "7Cd",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "4",
-    "lesson_title": "Muscles and moving",
-    "question": "What is a synovial joint",
-    "answer": "A freely movable joint"
   },
   {
     "id": "q0095",
@@ -1121,136 +681,6 @@ export const QUESTIONS = [
     "answer": "Organisms that break down dead plant and animal material"
   },
   {
-    "id": "q0113",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"food chain\"",
-    "answer": "A diagram to show the direction of energy transfer between organisms"
-  },
-  {
-    "id": "q0114",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"herbivore\"",
-    "answer": "An organism that eats only plants"
-  },
-  {
-    "id": "q0115",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"interdependence\"",
-    "answer": "Organisms relying on each other for food and shelter"
-  },
-  {
-    "id": "q0116",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"omnivore\"",
-    "answer": "An organism that eats both animals and plants"
-  },
-  {
-    "id": "q0117",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"population\"",
-    "answer": "Group of the same species living in an area"
-  },
-  {
-    "id": "q0118",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"producer\"",
-    "answer": "A green plant or algae that makes its own food using sunlight"
-  },
-  {
-    "id": "q0119",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "State the type of organism that all food chains start with",
-    "answer": "Producer"
-  },
-  {
-    "id": "q0120",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "State three things that animals compete with each other for",
-    "answer": "Food, mates, territory"
-  },
-  {
-    "id": "q0121",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "State three things that organisms depend on each other for",
-    "answer": "Food, shelter and pollination"
-  },
-  {
-    "id": "q0122",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "State three things that plants compete with each other for",
-    "answer": "Light, space, water and mineral ions"
-  },
-  {
-    "id": "q0123",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "What does the arrow in a food chain represent?",
-    "answer": "The direction of energy transfer"
-  },
-  {
-    "id": "q0124",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "What will happen to the number of predators if the number of prey increases",
-    "answer": "The number of predators will increase"
-  },
-  {
-    "id": "q0125",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "What will happen to the number of prey if the number of predators increases",
-    "answer": "The number of prey will increase"
-  },
-  {
     "id": "q0126",
     "lesson_id": "7De",
     "topic_id": "7D",
@@ -1321,26 +751,6 @@ export const QUESTIONS = [
     "answer": "Filtration"
   },
   {
-    "id": "q0133",
-    "lesson_id": "7Ea",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "1",
-    "lesson_title": "Mixtures",
-    "question": "What is the liquid that has been filtered called?",
-    "answer": "Filtrate"
-  },
-  {
-    "id": "q0134",
-    "lesson_id": "7Ea",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "1",
-    "lesson_title": "Mixtures",
-    "question": "What is the substance left in the filter paper after filtration called?",
-    "answer": "Residue"
-  },
-  {
     "id": "q0135",
     "lesson_id": "7Eb",
     "topic_id": "7E",
@@ -1379,66 +789,6 @@ export const QUESTIONS = [
     "lesson_title": "Solutions",
     "question": "Is sugar soluble or insoluble?",
     "answer": "Soluble"
-  },
-  {
-    "id": "q0139",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What do we call a mixture of a solvent and solute together?",
-    "answer": "Solution"
-  },
-  {
-    "id": "q0140",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What do we call a substance that does dissolve?",
-    "answer": "Soluble"
-  },
-  {
-    "id": "q0141",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What do we call a substance that doesn't dissolve?",
-    "answer": "Insoluble"
-  },
-  {
-    "id": "q0142",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What do we call the point where no more solute will dissolve?",
-    "answer": "Saturation point"
-  },
-  {
-    "id": "q0143",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What is the liquid the substance dissolves in called?",
-    "answer": "Solvent"
-  },
-  {
-    "id": "q0144",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What is the solid that dissolves called?",
-    "answer": "Solute"
   },
   {
     "id": "q0145",
@@ -1641,36 +991,6 @@ export const QUESTIONS = [
     "answer": "pH 1-3"
   },
   {
-    "id": "q0165",
-    "lesson_id": "7Fc",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "3",
-    "lesson_title": "Acidity and alkalinity",
-    "question": "What is the pH of a strong alkali?",
-    "answer": "pH 11-14"
-  },
-  {
-    "id": "q0166",
-    "lesson_id": "7Fc",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "3",
-    "lesson_title": "Acidity and alkalinity",
-    "question": "What is the pH of a weak acid?",
-    "answer": "pH 4-6"
-  },
-  {
-    "id": "q0167",
-    "lesson_id": "7Fc",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "3",
-    "lesson_title": "Acidity and alkalinity",
-    "question": "What is the pH of a weak alkali?",
-    "answer": "pH 8-10"
-  },
-  {
     "id": "q0168",
     "lesson_id": "7Fd",
     "topic_id": "7F",
@@ -1709,26 +1029,6 @@ export const QUESTIONS = [
     "lesson_title": "Neutralisation",
     "question": "What is the formula for sodium hydroxide",
     "answer": "NaOH"
-  },
-  {
-    "id": "q0172",
-    "lesson_id": "7Fd",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "4",
-    "lesson_title": "Neutralisation",
-    "question": "What is the formula for sulphuric acid?",
-    "answer": "H2SO4"
-  },
-  {
-    "id": "q0173",
-    "lesson_id": "7Fd",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "4",
-    "lesson_title": "Neutralisation",
-    "question": "What makes an acid a concentrated acid?",
-    "answer": "Lots of acid particles in a given volume"
   },
   {
     "id": "q0174",
@@ -1829,196 +1129,6 @@ export const QUESTIONS = [
     "lesson_title": "Particles",
     "question": "How do the particles move in a solid?",
     "answer": "Vibrate"
-  },
-  {
-    "id": "q0184",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "In which state can particles NOT be compressed?",
-    "answer": "Solid and Liquid"
-  },
-  {
-    "id": "q0185",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "In which state do particles stay in a fixed position?",
-    "answer": "Solid"
-  },
-  {
-    "id": "q0186",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "In which state do the particles have no bonds between them?",
-    "answer": "Gas"
-  },
-  {
-    "id": "q0187",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "In which state do the particles have strong bonds between them?",
-    "answer": "Solid"
-  },
-  {
-    "id": "q0188",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "State an advantages of using the particle model",
-    "answer": "Allows you to predict the behaviour of a substance"
-  },
-  {
-    "id": "q0189",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "State two disadvantages of using the particle model",
-    "answer": "Assumes all particles are spheres, doesn't show the bonds between atoms"
-  },
-  {
-    "id": "q0190",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What happens to particles during contraction?",
-    "answer": "Particles vibrate less so move closer together"
-  },
-  {
-    "id": "q0191",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What happens to particles during expansion?",
-    "answer": "Particles vibrate more so move further apart"
-  },
-  {
-    "id": "q0192",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the boiling point of water?",
-    "answer": "100⁰C"
-  },
-  {
-    "id": "q0193",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the melting point of water?",
-    "answer": "0⁰C"
-  },
-  {
-    "id": "q0194",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a gas turning into a liquid?",
-    "answer": "Condensation"
-  },
-  {
-    "id": "q0195",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a gas turning into a solid?",
-    "answer": "Sublimation"
-  },
-  {
-    "id": "q0196",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a liquid turning into a gas?",
-    "answer": "Boiling"
-  },
-  {
-    "id": "q0197",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a liquid turning into a solid?",
-    "answer": "Freezing"
-  },
-  {
-    "id": "q0198",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a solid turning into a liquid?",
-    "answer": "Melting"
-  },
-  {
-    "id": "q0199",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name given to the process of a liquid turning into a gas at the surface of the liquid?",
-    "answer": "Evaporation"
-  },
-  {
-    "id": "q0200",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "Which state is the least dense?",
-    "answer": "Gas"
-  },
-  {
-    "id": "q0201",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "Which state is the most dense?",
-    "answer": "Solid"
-  },
-  {
-    "id": "q0202",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "Why are solids more dense than gases?",
-    "answer": "More particles in a given volume"
   },
   {
     "id": "q0203",
@@ -2161,66 +1271,6 @@ export const QUESTIONS = [
     "answer": "Compounds"
   },
   {
-    "id": "q0217",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What are substances made of two or more types of atoms NOT chemically bonded together called?",
-    "answer": "Mixtures"
-  },
-  {
-    "id": "q0218",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What is the formula for carbon dioxide?",
-    "answer": "CO2"
-  },
-  {
-    "id": "q0219",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What is the formula for Methane?",
-    "answer": "CH4"
-  },
-  {
-    "id": "q0220",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What is the formula for water?",
-    "answer": "H2O"
-  },
-  {
-    "id": "q0221",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What is the word for an element that always exists as two atoms bonded together? (extension only)",
-    "answer": "Diatomic"
-  },
-  {
-    "id": "q0222",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "Which elements exist diatomically?",
-    "answer": "Oxygen, hydrogen, nitrogen and all of group 7"
-  },
-  {
     "id": "q0223",
     "lesson_id": "7Hb",
     "topic_id": "7H",
@@ -2259,166 +1309,6 @@ export const QUESTIONS = [
     "lesson_title": "Earth's elements",
     "question": "What is the symbol for \"boron\"?",
     "answer": "B"
-  },
-  {
-    "id": "q0227",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"calcium\"?",
-    "answer": "Ca"
-  },
-  {
-    "id": "q0228",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"carbon\"?",
-    "answer": "C"
-  },
-  {
-    "id": "q0229",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"chlorine\"?",
-    "answer": "Cl"
-  },
-  {
-    "id": "q0230",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"fluorine\"?",
-    "answer": "F"
-  },
-  {
-    "id": "q0231",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"helium\"?",
-    "answer": "He"
-  },
-  {
-    "id": "q0232",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"hydrogen\"?",
-    "answer": "H"
-  },
-  {
-    "id": "q0233",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"lithium\"?",
-    "answer": "Li"
-  },
-  {
-    "id": "q0234",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"magnesium\"?",
-    "answer": "Mg"
-  },
-  {
-    "id": "q0235",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"neon\"?",
-    "answer": "Ne"
-  },
-  {
-    "id": "q0236",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"Nitrogen\"?",
-    "answer": "N"
-  },
-  {
-    "id": "q0237",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"oxygen\"?",
-    "answer": "O"
-  },
-  {
-    "id": "q0238",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"phosphorous\"?",
-    "answer": "P"
-  },
-  {
-    "id": "q0239",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"potassium\"?",
-    "answer": "K"
-  },
-  {
-    "id": "q0240",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"Silicon\"?",
-    "answer": "Si"
-  },
-  {
-    "id": "q0241",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"sodium\"?",
-    "answer": "Na"
-  },
-  {
-    "id": "q0242",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"sulphur\"?",
-    "answer": "S"
   },
   {
     "id": "q0243",
@@ -2621,96 +1511,6 @@ export const QUESTIONS = [
     "answer": "can be replaced, will not run out"
   },
   {
-    "id": "q0263",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Give some energy sources",
-    "answer": "fuels, food, stores (batteries or wind)"
-  },
-  {
-    "id": "q0264",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Give the main nuclear fuels used",
-    "answer": "uranium, plutonium"
-  },
-  {
-    "id": "q0265",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Give the two categories energy sources can be placed in",
-    "answer": "renewable, non-renewable (other possible answer is pathway and store)"
-  },
-  {
-    "id": "q0266",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Name 3 fossil fuels",
-    "answer": "Coal, oil, natural gas"
-  },
-  {
-    "id": "q0267",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "State four examples of non-renewable energy resources",
-    "answer": "Coal, oil, natural gas, nuclear power"
-  },
-  {
-    "id": "q0268",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "State the three fossil fuels",
-    "answer": "Coal, oil, natural gas"
-  },
-  {
-    "id": "q0269",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Suggest a negative affect of using fossil fuels",
-    "answer": "releases pollution, carbon dioxide, sulphur dioixde and nitrous oxides"
-  },
-  {
-    "id": "q0270",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "What are fossil fuels?",
-    "answer": "Natural, finite fuel formed from the remains of living organisms, eg. oil, coal, natural gas"
-  },
-  {
-    "id": "q0271",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "What is nuclear fuel?",
-    "answer": "fuel that releases energy through nuclear reactions"
-  },
-  {
     "id": "q0272",
     "lesson_id": "7Id",
     "topic_id": "7I",
@@ -2841,16 +1641,6 @@ export const QUESTIONS = [
     "answer": "a material that allows charge to move easily through it"
   },
   {
-    "id": "q0285",
-    "lesson_id": "7Jb",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "2",
-    "lesson_title": "Models for circuits",
-    "question": "What is an electrical insulator?",
-    "answer": "material that does not allow charge or heat to pass through it easily"
-  },
-  {
     "id": "q0286",
     "lesson_id": "7Jc",
     "topic_id": "7J",
@@ -2891,26 +1681,6 @@ export const QUESTIONS = [
     "answer": "The current is the same at every point in the circuit and in every component"
   },
   {
-    "id": "q0290",
-    "lesson_id": "7Jc",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "3",
-    "lesson_title": "Series and parallel circuits",
-    "question": "State the rule for potential difference in a parallel circuit",
-    "answer": "The potential difference across each branch in the circuit is the same"
-  },
-  {
-    "id": "q0291",
-    "lesson_id": "7Jc",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "3",
-    "lesson_title": "Series and parallel circuits",
-    "question": "State the rule for potential difference in a series circuit",
-    "answer": "The total potential difference of the power supply is shared between components"
-  },
-  {
     "id": "q0292",
     "lesson_id": "7Jd",
     "topic_id": "7J",
@@ -2949,26 +1719,6 @@ export const QUESTIONS = [
     "lesson_title": "Changing the current",
     "question": "State the units of potential difference",
     "answer": "Volt (V)"
-  },
-  {
-    "id": "q0296",
-    "lesson_id": "7Jd",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "4",
-    "lesson_title": "Changing the current",
-    "question": "State the units of resistance",
-    "answer": "Ohms"
-  },
-  {
-    "id": "q0297",
-    "lesson_id": "7Jd",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "4",
-    "lesson_title": "Changing the current",
-    "question": "What two things are needed for an electric current to flow",
-    "answer": "something to transfer energy to electrons(battery), a complete path for the electrons to flow (circuit)"
   },
   {
     "id": "q0298",
@@ -3041,46 +1791,6 @@ export const QUESTIONS = [
     "answer": "Push force acting between two solid objects"
   },
   {
-    "id": "q0305",
-    "lesson_id": "7Ka",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "1",
-    "lesson_title": "Different forces",
-    "question": "Name five examples of contact forces",
-    "answer": "Friction, air resistance, tension, compression, normal contact force"
-  },
-  {
-    "id": "q0306",
-    "lesson_id": "7Ka",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "1",
-    "lesson_title": "Different forces",
-    "question": "Name three examples of non-contact forces",
-    "answer": "Gravitational force, electrostatic force, magnetic force"
-  },
-  {
-    "id": "q0307",
-    "lesson_id": "7Ka",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "1",
-    "lesson_title": "Different forces",
-    "question": "What is the name of the diagram used to represent the forces acting on an object?",
-    "answer": "Free-body diagram"
-  },
-  {
-    "id": "q0308",
-    "lesson_id": "7Ka",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "1",
-    "lesson_title": "Different forces",
-    "question": "What is the unit for force?",
-    "answer": "Newton"
-  },
-  {
     "id": "q0309",
     "lesson_id": "7Kb",
     "topic_id": "7K",
@@ -3121,36 +1831,6 @@ export const QUESTIONS = [
     "answer": "Newton meter"
   },
   {
-    "id": "q0313",
-    "lesson_id": "7Kb",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "2",
-    "lesson_title": "Springs",
-    "question": "State the equation for Hooke's Law",
-    "answer": "Force = spring constant x extension"
-  },
-  {
-    "id": "q0314",
-    "lesson_id": "7Kb",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "2",
-    "lesson_title": "Springs",
-    "question": "State the units of spring constant",
-    "answer": "Newton per metre (N/m)"
-  },
-  {
-    "id": "q0315",
-    "lesson_id": "7Kb",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "2",
-    "lesson_title": "Springs",
-    "question": "What is meant by the extension of a spring?",
-    "answer": "It has how much the length of a spring has changed from its unloaded length."
-  },
-  {
     "id": "q0316",
     "lesson_id": "7Kc",
     "topic_id": "7K",
@@ -3189,16 +1869,6 @@ export const QUESTIONS = [
     "lesson_title": "Friction",
     "question": "State two examples of situations where it is useful to reduce friction",
     "answer": "Sports, vehicles"
-  },
-  {
-    "id": "q0320",
-    "lesson_id": "7Kc",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "3",
-    "lesson_title": "Friction",
-    "question": "State two ways of reducing friction or drag",
-    "answer": "Make objects streamlined, use lubricants"
   },
   {
     "id": "q0321",
@@ -3311,16 +1981,6 @@ export const QUESTIONS = [
     "answer": "How loud or quiet a sound is. A high volume has a high amplitude."
   },
   {
-    "id": "q0332",
-    "lesson_id": "7La",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "1",
-    "lesson_title": "Making sounds",
-    "question": "Define \"wavelength\"",
-    "answer": "Distance between two corresponding points on a wave.Measured in metres."
-  },
-  {
     "id": "q0333",
     "lesson_id": "7Lb",
     "topic_id": "7L",
@@ -3399,76 +2059,6 @@ export const QUESTIONS = [
     "lesson_title": "Detecting sounds",
     "question": "Name the three bones in the middle ear",
     "answer": "Hammer, anvil, stirrup"
-  },
-  {
-    "id": "q0341",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the auditory nerve",
-    "answer": "Carries signals from the ear to the brain"
-  },
-  {
-    "id": "q0342",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the cochlea",
-    "answer": "Long coiled tube filled with liquid that picks up vibrations and changes them to electrical signals"
-  },
-  {
-    "id": "q0343",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the ear drum",
-    "answer": "Thin layer of membrane that picks up the vibrations of sounds waves"
-  },
-  {
-    "id": "q0344",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the hammer, anvil and stirrup",
-    "answer": "Amplify the vibrations"
-  },
-  {
-    "id": "q0345",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the pinner",
-    "answer": "The outer ear; directs vibrations into the ear"
-  },
-  {
-    "id": "q0346",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the semi-circular canals",
-    "answer": "Detect movement in the head and help with balance"
-  },
-  {
-    "id": "q0347",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the unit of volume.",
-    "answer": "Decibels (dB)"
   },
   {
     "id": "q0348",
@@ -3601,16 +2191,6 @@ export const QUESTIONS = [
     "answer": "Fruit and vegetables"
   },
   {
-    "id": "q0361",
-    "lesson_id": "8Ab",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "2",
-    "lesson_title": "Uses of nutrients",
-    "question": "State 3 examples of food rich in protein",
-    "answer": "Fish, meat and eggs"
-  },
-  {
     "id": "q0362",
     "lesson_id": "8Ac",
     "topic_id": "8A",
@@ -3689,126 +2269,6 @@ export const QUESTIONS = [
     "lesson_title": "Digestion",
     "question": "What is produced when proteins are digested?",
     "answer": "Amino acids"
-  },
-  {
-    "id": "q0370",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "What is the role of the teeth in digestion?",
-    "answer": "Break down food into smaller pieces"
-  },
-  {
-    "id": "q0371",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "When faeces are passed out of the body, this is called?",
-    "answer": "Egestion"
-  },
-  {
-    "id": "q0372",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where does digestion start?",
-    "answer": "The mouth"
-  },
-  {
-    "id": "q0373",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is amylase produced?",
-    "answer": "Salivary glands and small intestine"
-  },
-  {
-    "id": "q0374",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is bile produced?",
-    "answer": "The liver"
-  },
-  {
-    "id": "q0375",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is lipase produced?",
-    "answer": "Pancreas and small intestine"
-  },
-  {
-    "id": "q0376",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is most food digested?",
-    "answer": "Small intestine"
-  },
-  {
-    "id": "q0377",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is protease produced?",
-    "answer": "Stomach, pancreas and small intestine"
-  },
-  {
-    "id": "q0378",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Which enzyme helps us to digest carbohydrates?",
-    "answer": "Amylase"
-  },
-  {
-    "id": "q0379",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Which enzyme helps us to digest fats?",
-    "answer": "Lipase"
-  },
-  {
-    "id": "q0380",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Which enzyme helps us to digest proteins?",
-    "answer": "Protease"
-  },
-  {
-    "id": "q0381",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Which nutrients do not need to be digested?",
-    "answer": "Minerals, vitamins and water"
   },
   {
     "id": "q0382",
@@ -3941,76 +2401,6 @@ export const QUESTIONS = [
     "answer": "Mass number - atomic number"
   },
   {
-    "id": "q0395",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "How do you calculate the number of protons for an element?",
-    "answer": "Use the atomic number"
-  },
-  {
-    "id": "q0396",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "How do you calculate the relative formula mass of a compound? (extension only)",
-    "answer": "Add up the mass numbers"
-  },
-  {
-    "id": "q0397",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "The column (group) in the periodic table tells us the …",
-    "answer": "Number of electrons in the outer shell"
-  },
-  {
-    "id": "q0398",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "What is the name for the bigger number given for each element?",
-    "answer": "Mass number"
-  },
-  {
-    "id": "q0399",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "What is the name for the smaller number given for each element?",
-    "answer": "Atomic number"
-  },
-  {
-    "id": "q0400",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "What is the name of the elements found in the middle of the periodic table that are not part of a group?",
-    "answer": "Transition metals"
-  },
-  {
-    "id": "q0401",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "Why did Mendeleev do when creating the modern periodic table? (extension only)",
-    "answer": "Left gaps to make the pattern fit"
-  },
-  {
     "id": "q0402",
     "lesson_id": "8Fd",
     "topic_id": "8F",
@@ -4051,76 +2441,6 @@ export const QUESTIONS = [
     "answer": "Astatine, Iodine, Bromine, Chlorine, Fluorine"
   },
   {
-    "id": "q0406",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "Name three noble gases (group 0) (extension only)",
-    "answer": "Helium, neon, argon"
-  },
-  {
-    "id": "q0407",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "State 3 properties of the halogens (group 7)",
-    "answer": "Non-metal, highly reactive, diatomic"
-  },
-  {
-    "id": "q0408",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "State 3 properties of the noble gases (group 0) (extension only)",
-    "answer": "Non-metal, inert, gases"
-  },
-  {
-    "id": "q0409",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "What happens to density as you move down the noble gases (group 0)? (extension only)",
-    "answer": "Increases"
-  },
-  {
-    "id": "q0410",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "What happens to reactivity as you move down the halogens (group 7)?",
-    "answer": "Decreases"
-  },
-  {
-    "id": "q0411",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "Which side of the periodic table contains metals?",
-    "answer": "Left"
-  },
-  {
-    "id": "q0412",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "Which side of the periodic table contains non-metals?",
-    "answer": "Right"
-  },
-  {
     "id": "q0413",
     "lesson_id": "8Fe",
     "topic_id": "8F",
@@ -4159,26 +2479,6 @@ export const QUESTIONS = [
     "lesson_title": "Chemical trends",
     "question": "When cut, how do alkali metals (group 1) appear?",
     "answer": "Shiny"
-  },
-  {
-    "id": "q0417",
-    "lesson_id": "8Fe",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "5",
-    "lesson_title": "Chemical trends",
-    "question": "Where are alkali metals found in the periodic table?",
-    "answer": "Group 1"
-  },
-  {
-    "id": "q0418",
-    "lesson_id": "8Fe",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "5",
-    "lesson_title": "Chemical trends",
-    "question": "Where are halogens found in the periodic table?",
-    "answer": "Group 7"
   }
 ];
 

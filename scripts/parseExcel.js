@@ -24,7 +24,7 @@ function parseExcel() {
   const lSheet = wb.Sheets['lessons'] || wb.Sheets[wb.SheetNames.find(n => n.toLowerCase() === 'lessons')];
   const rSheet = wb.Sheets['rotas'] || wb.Sheets[wb.SheetNames.find(n => n.toLowerCase() === 'rotas')];
 
-  const questions = qSheet ? utils.sheet_to_json(qSheet).map(row => ({
+  const rawQuestions = qSheet ? utils.sheet_to_json(qSheet).map(row => ({
     id: String(row['id'] || '').trim(),
     lesson_id: String(row['lesson_id'] || '').trim(),
     topic_id: String(row['topic_id'] || '').trim(),
@@ -34,6 +34,13 @@ function parseExcel() {
     question: String(row['question'] || '').trim(),
     answer: String(row['answer'] || '').trim(),
   })).filter(q => q.id && q.question) : [];
+
+  // Clip to max 4 questions per lesson_id
+  const lessonCounts = {};
+  const questions = rawQuestions.filter(q => {
+    lessonCounts[q.lesson_id] = (lessonCounts[q.lesson_id] || 0) + 1;
+    return lessonCounts[q.lesson_id] <= 4;
+  });
 
   const lessons = lSheet ? utils.sheet_to_json(lSheet).map(row => ({
     lesson_id: String(row['lesson_id'] || '').trim(),
