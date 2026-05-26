@@ -29,11 +29,14 @@ export default function HomePage() {
 
   const classSet = new Map();
   for (const t of teachers) {
-    if (!classSet.has(t.class_id)) {
+    if (t.class_id && !classSet.has(t.class_id)) {
       classSet.set(t.class_id, t);
     }
   }
   const classes = Array.from(classSet.values());
+
+  // HoD status: true if ANY teacher entry for this email has is_hod=true
+  const isHoD = teachers.some(t => t.email === email && t.is_hod);
 
   function logout() {
     clearCurrentTeacher();
@@ -42,7 +45,7 @@ export default function HomePage() {
 
   function toggleHoD() {
     const updated = teachers.map(t =>
-      t.email === email ? { ...t, is_hod: !t.is_hod } : t
+      t.email === email ? { ...t, is_hod: !isHoD } : t
     );
     saveTeachers(updated);
     setTeachers(updated);
@@ -56,14 +59,14 @@ export default function HomePage() {
           <span className="text-gray-500 text-sm">{email}</span>
           <button
             onClick={toggleHoD}
-            title={currentTeacher?.is_hod ? 'Click to leave HoD mode' : 'Click to enable HoD mode'}
+            title={isHoD ? 'Click to leave HoD mode' : 'Click to enable HoD mode'}
             className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-              currentTeacher?.is_hod
+              isHoD
                 ? 'bg-blue-700 text-white border-blue-700 hover:bg-blue-800'
                 : 'text-gray-400 border-gray-200 hover:border-blue-400 hover:text-blue-600'
             }`}
           >
-            {currentTeacher?.is_hod ? 'HoD ✓' : 'HoD'}
+            {isHoD ? 'HoD ✓' : 'HoD'}
           </button>
           <button onClick={logout} className="text-sm text-gray-500 hover:text-gray-700 underline">
             Log out
@@ -107,7 +110,7 @@ export default function HomePage() {
         )}
       </main>
 
-      {currentTeacher?.is_hod && (
+      {isHoD && (
         <div className="max-w-4xl mx-auto px-6 pb-10">
           <button
             onClick={() => navigate('/hod')}

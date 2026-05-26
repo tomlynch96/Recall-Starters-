@@ -9,7 +9,6 @@ export default function SetupPage() {
   const classOptions = getClassOptions();
   const [selectedId, setSelectedId] = useState(classOptions[0]?.id || '');
 
-  // Already enrolled in all available classes — nothing left to pick
   const teachers = getTeachers();
   const myClassIds = new Set(teachers.filter(t => t.email === email).map(t => t.class_id));
   const available = classOptions.filter(o => !myClassIds.has(o.class_id));
@@ -31,21 +30,46 @@ export default function SetupPage() {
     navigate('/');
   }
 
-  // No classes have been configured by the HoD yet
+  function registerAsHoD() {
+    const all = getTeachers();
+    // Only create the entry if not already present
+    if (!all.find(t => t.email === email && t.is_hod)) {
+      all.push({
+        id: generateUUID(),
+        email,
+        class_id: null,
+        rota_id: null,
+        is_hod: true,
+        created_at: new Date().toISOString(),
+      });
+      saveTeachers(all);
+    }
+    navigate('/hod');
+  }
+
+  // No classes configured yet — locked for regular teachers, but offer HoD bootstrap
   if (classOptions.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-md text-center">
           <div className="text-5xl mb-4">🔒</div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">No classes set up yet</h1>
-          <p className="text-gray-500 mb-6">
+          <p className="text-gray-500 mb-8">
             Your HoD needs to add the available classes before you can get started.
-            Ask them to log in and open the HoD Dashboard.
           </p>
-          <button
-            onClick={() => navigate('/login')}
-            className="text-blue-600 hover:underline text-sm"
-          >
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 text-left">
+            <p className="text-sm font-semibold text-gray-700 mb-1">Are you the HoD?</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Set up your account first, then add the class list from the HoD dashboard.
+            </p>
+            <button
+              onClick={registerAsHoD}
+              className="w-full py-3 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 transition-colors"
+            >
+              Set up as HoD →
+            </button>
+          </div>
+          <button onClick={() => navigate('/login')} className="mt-6 text-blue-600 hover:underline text-sm">
             ← Back to login
           </button>
         </div>

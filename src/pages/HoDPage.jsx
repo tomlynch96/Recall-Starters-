@@ -39,7 +39,9 @@ export default function HoDPage() {
   const [newClassName, setNewClassName] = useState('');
   const [newRotaId, setNewRotaId] = useState('rota-a');
 
-  if (!current?.is_hod) {
+  // Allow access if any entry for this email has is_hod=true
+  const isHoD = teachers.some(t => t.email === email && t.is_hod);
+  if (!isHoD) {
     navigate('/');
     return null;
   }
