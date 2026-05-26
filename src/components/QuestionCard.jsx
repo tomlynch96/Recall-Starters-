@@ -1,7 +1,19 @@
 import { useState } from 'react';
 
-export default function QuestionCard({ question, index, onFlag, onSwap, onRemove }) {
+// Build letter-blank pattern from answer: "Kinetic energy" → "_ _ _ _ _ _ _   _ _ _ _ _ _"
+function makeScaffold(answer) {
+  return answer
+    .split(' ')
+    .map(word => word.replace(/\S/g, '_').split('').join(' '))
+    .join('     ');
+}
+
+export default function QuestionCard({ question, index, onFlag, onSwap, onRemove, scaffoldAll }) {
   const [revealed, setRevealed] = useState(false);
+  const [localScaffold, setLocalScaffold] = useState(false);
+
+  const showScaffold = scaffoldAll || localScaffold;
+  const scaffold = makeScaffold(question.answer);
 
   return (
     <div
@@ -12,11 +24,20 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
       }`}
       onClick={() => setRevealed(r => !r)}
     >
-      {/* Buttons — invisible until hover */}
+      {/* Hover controls */}
       <div
         className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
         onClick={e => e.stopPropagation()}
       >
+        <button
+          onClick={() => { setLocalScaffold(s => !s); setRevealed(false); }}
+          title={localScaffold ? 'Show full question' : 'Scaffold this question'}
+          className={`text-sm px-2 py-1 rounded-lg hover:bg-orange-200 transition-colors font-mono ${
+            localScaffold ? 'text-blue-600 opacity-100' : 'opacity-50 hover:opacity-100 text-gray-600'
+          }`}
+        >
+          _ _
+        </button>
         <button
           onClick={() => onFlag(question)}
           title="Flag"
@@ -42,11 +63,20 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
         </button>
       </div>
 
+      {/* Question text */}
       <p className="text-gray-900 text-3xl font-semibold leading-snug pr-24">
         <span className="font-bold mr-2">{index + 1})</span>
         {question.question}
       </p>
 
+      {/* Scaffold blanks — shown below question before reveal */}
+      {showScaffold && !revealed && (
+        <p className="mt-3 font-mono text-2xl tracking-widest text-gray-500 leading-relaxed">
+          {scaffold}
+        </p>
+      )}
+
+      {/* Answer — revealed on click */}
       {revealed && (
         <p className="mt-3 pt-3 border-t-2 border-orange-200 text-green-800 text-2xl font-medium">
           {question.answer}

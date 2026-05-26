@@ -31,6 +31,7 @@ export default function StarterPage() {
   const [flagQueue, setFlagQueue] = useState([]);
   const [currentFlagIdx, setCurrentFlagIdx] = useState(0);
   const [showResolution, setShowResolution] = useState(false);
+  const [scaffoldAll, setScaffoldAll] = useState(false);
 
   useEffect(() => {
     if (!teacher) return;
@@ -145,7 +146,18 @@ export default function StarterPage() {
           {lessonTitle}
         </h1>
 
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-3">
+          <button
+            onClick={() => setScaffoldAll(s => !s)}
+            title={scaffoldAll ? 'Hide scaffolding' : 'Show fill-in-the-gap scaffolding for all questions'}
+            className={`px-4 py-2 rounded-xl text-base font-medium transition-colors ${
+              scaffoldAll
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            }`}
+          >
+            _ _ Scaffold
+          </button>
           <Timer />
         </div>
       </header>
@@ -160,6 +172,7 @@ export default function StarterPage() {
             key={q.id}
             question={q}
             index={i}
+            scaffoldAll={scaffoldAll}
             onFlag={handleFlag}
             onSwap={handleSwap}
             onRemove={handleRemove}
