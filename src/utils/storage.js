@@ -3,6 +3,7 @@ const KEYS = {
   QUESTION_LOG: 'rs_question_log',
   SESSION_LOG: 'rs_session_log',
   CURRENT_TEACHER: 'rs_current_teacher',
+  CLASS_OPTIONS: 'rs_class_options',
 };
 
 function getJSON(key, fallback) {
@@ -71,6 +72,15 @@ export function upsertQuestionLogEntry(classId, questionId, updates) {
   }
   saveQuestionLog(log);
   return log;
+}
+
+// HoD-managed class options
+export function getClassOptions() {
+  return getJSON(KEYS.CLASS_OPTIONS, []);
+}
+
+export function saveClassOptions(options) {
+  setJSON(KEYS.CLASS_OPTIONS, options);
 }
 
 // Session log

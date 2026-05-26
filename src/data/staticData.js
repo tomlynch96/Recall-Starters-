@@ -8,7 +8,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Life processes",
     "question": "Describe what the “E” means in MRS GREN",
-    "answer": "An organisms ability to get rid of waste"
+    "answer": "An organisms ability to get rid of waste",
+    "scaffolded": "The “E” in MRS GREN means _____."
   },
   {
     "id": "q0002",
@@ -18,7 +19,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Life processes",
     "question": "Describe what the “G” means in MRS GREN",
-    "answer": "An organisms ability to grow in mass and height"
+    "answer": "An organisms ability to grow in mass and height",
+    "scaffolded": "The “G” in MRS GREN means _____."
   },
   {
     "id": "q0003",
@@ -28,7 +30,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Life processes",
     "question": "Describe what the “M” means in MRS GREN",
-    "answer": "An organisms ability to move"
+    "answer": "An organisms ability to move",
+    "scaffolded": "The “M” in MRS GREN means _____."
   },
   {
     "id": "q0004",
@@ -38,47 +41,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Life processes",
     "question": "Describe what the “N” means in MRS GREN",
-    "answer": "An organisms ability to get nutrients from food"
-  },
-  {
-    "id": "q0005",
-    "lesson_id": "7Aa",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "1",
-    "lesson_title": "Life processes",
-    "question": "Describe what the “S” means in MRS GREN",
-    "answer": "An organisms ability to feel"
-  },
-  {
-    "id": "q0006",
-    "lesson_id": "7Aa",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "1",
-    "lesson_title": "Life processes",
-    "question": "Describe what the first “R” means in MRS GREN",
-    "answer": "An organisms ability to respire to make energy"
-  },
-  {
-    "id": "q0007",
-    "lesson_id": "7Aa",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "1",
-    "lesson_title": "Life processes",
-    "question": "Describe what the second “R” means in MRS GREN",
-    "answer": "An organisms ability to reproduce"
-  },
-  {
-    "id": "q0008",
-    "lesson_id": "7Aa",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "1",
-    "lesson_title": "Life processes",
-    "question": "Name the 7 life processes (Think MRS GREN)",
-    "answer": "Movement, Reproduction, Sensitivity, Growth, Respiration, Excretion, Nutrition"
+    "answer": "An organisms ability to get nutrients from food",
+    "scaffolded": "The “N” in MRS GREN means _____."
   },
   {
     "id": "q0009",
@@ -88,7 +52,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Organs",
     "question": "Define 'organ'.",
-    "answer": "A group of tissues working together for specific functions"
+    "answer": "A group of tissues working together for specific functions",
+    "scaffolded": "Organ is _____."
   },
   {
     "id": "q0010",
@@ -98,7 +63,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Organs",
     "question": "Roots are a plant organ that help to hold the plant in place. What else do roots do?",
-    "answer": "Absorb water and minerals from the soil"
+    "answer": "Absorb water and minerals from the soil",
+    "scaffolded": "Roots are a plant organ that help to hold the plant in place. What else do roots do: _____."
   },
   {
     "id": "q0011",
@@ -108,7 +74,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Organs",
     "question": "Which organ is the main organ of nutrition in a plant?",
-    "answer": "The leaf"
+    "answer": "The leaf",
+    "scaffolded": "Which organ is the main organ of nutrition in a plant: _____."
   },
   {
     "id": "q0012",
@@ -118,7 +85,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Tissues",
     "question": "Define 'tissue'",
-    "answer": "A group of cells with similar structure working together for a specific function"
+    "answer": "A group of cells with similar structure working together for a specific function",
+    "scaffolded": "Tissue is _____."
   },
   {
     "id": "q0013",
@@ -128,7 +96,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Tissues",
     "question": "Name two tissues found in the heart.",
-    "answer": "Muscle and fat (accept nerve as well)"
+    "answer": "Muscle and fat (accept nerve as well)",
+    "scaffolded": "Two tissues found in the heart are _____."
   },
   {
     "id": "q0014",
@@ -138,7 +107,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Tissues",
     "question": "What is the role of xylem tissue?",
-    "answer": "To transport water"
+    "answer": "To transport water",
+    "scaffolded": "The role of xylem tissue is _____."
   },
   {
     "id": "q0015",
@@ -148,7 +118,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Cells",
     "question": "Define \"eukaryotic cell\"",
-    "answer": "DNA contained in a nucleus"
+    "answer": "DNA contained in a nucleus",
+    "scaffolded": "Eukaryotic cell is _____."
   },
   {
     "id": "q0016",
@@ -158,7 +129,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Cells",
     "question": "State an adaptation of a palisade cell",
-    "answer": "Lots of chloroplasts"
+    "answer": "Lots of chloroplasts",
+    "scaffolded": "An adaptation of a palisade cell: _____."
   },
   {
     "id": "q0017",
@@ -168,7 +140,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Cells",
     "question": "State the 5 sub-cellular organelles in an animal cell",
-    "answer": "Nucleus, cell membrane, ribosomes, cytoplasm, mitochondria"
+    "answer": "Nucleus, cell membrane, ribosomes, cytoplasm, mitochondria",
+    "scaffolded": "The 5 sub-cellular organelles in an animal cell: _____."
   },
   {
     "id": "q0018",
@@ -178,247 +151,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Cells",
     "question": "State the 8 sub-cellular organelles in an plant cell",
-    "answer": "Nucleus, cell membrane, ribosomes, cytoplasm, mitochondria, cell wall, chloroplast and vacuole"
-  },
-  {
-    "id": "q0019",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of ciliated cells",
-    "answer": "Move mucus out of airways"
-  },
-  {
-    "id": "q0020",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of muscle cells",
-    "answer": "Contract and relax"
-  },
-  {
-    "id": "q0021",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of nerve cells",
-    "answer": "Transmit electrical messages around the body"
-  },
-  {
-    "id": "q0022",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of ovum cells",
-    "answer": "Carry female genetic information"
-  },
-  {
-    "id": "q0023",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of palisade cells",
-    "answer": "Lots of chloroplasts"
-  },
-  {
-    "id": "q0024",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of red blood cells",
-    "answer": "Carry oxygen around the body"
-  },
-  {
-    "id": "q0025",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of root hair cells",
-    "answer": "Absorb water and minerals from the soil"
-  },
-  {
-    "id": "q0026",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of sperm cells",
-    "answer": "Carry male genetic information"
-  },
-  {
-    "id": "q0027",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the cell membrane of a cell",
-    "answer": "Controls what enters and leaves the cell"
-  },
-  {
-    "id": "q0028",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the cell wall of a cell",
-    "answer": "Provides support for the cell"
-  },
-  {
-    "id": "q0029",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the chloroplast of a cell",
-    "answer": "Absorbs light for photosynthesis"
-  },
-  {
-    "id": "q0030",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the cytoplasm of a cell",
-    "answer": "Where chemical reactions occur in a cell"
-  },
-  {
-    "id": "q0031",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the mitochondria of a cell",
-    "answer": "Where aerobic respiration occurs in a cell"
-  },
-  {
-    "id": "q0032",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the nucleus of a cell",
-    "answer": "Contains DNA and controls the function of the cell"
-  },
-  {
-    "id": "q0033",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State the function of the ribosome of a cell",
-    "answer": "Where protein synthesis occurs (proteins are made)"
-  },
-  {
-    "id": "q0034",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State three adaptations of a root hair cell",
-    "answer": "Large surface area, lots of mitochondria, large vacuole"
-  },
-  {
-    "id": "q0035",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State three adaptations of red blood cells",
-    "answer": "Large surface area, no nucleus, haemoglobin"
-  },
-  {
-    "id": "q0036",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State three adaptations of sperm cells",
-    "answer": "Contains half of the DNA, lots of mitochondria, tail"
-  },
-  {
-    "id": "q0037",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two adaptations of an ovum cells",
-    "answer": "Contains half of the DNA, lots of cytoplasm"
-  },
-  {
-    "id": "q0038",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two adaptations of ciliated cells",
-    "answer": "Tiny hairs (cilia)"
-  },
-  {
-    "id": "q0039",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two adaptations of muscle cells",
-    "answer": "Protein fibres to contract and relax and lots of mitochondria"
-  },
-  {
-    "id": "q0040",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two adaptations of nerve cells",
-    "answer": "Long, dendrites to connect to other cells"
-  },
-  {
-    "id": "q0041",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "State two functions of the vacuole of a cell",
-    "answer": "Stores minerals and sugars and gives structure"
-  },
-  {
-    "id": "q0042",
-    "lesson_id": "7Ad",
-    "topic_id": "7A",
-    "topic_name": "Cells, Tissues & Organ Systems",
-    "lesson_number": "4",
-    "lesson_title": "Cells",
-    "question": "What is a cell?",
-    "answer": "The simplest unit of living things"
+    "answer": "Nucleus, cell membrane, ribosomes, cytoplasm, mitochondria, cell wall, chloroplast and vacuole",
+    "scaffolded": "The 8 sub-cellular organelles in an plant cell: _____."
   },
   {
     "id": "q0043",
@@ -428,7 +162,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Organ systems",
     "question": "Name 6 organ systems in the body",
-    "answer": "Circulatory, nervous, muscular, respiratory, digestive, skeletal"
+    "answer": "Circulatory, nervous, muscular, respiratory, digestive, skeletal",
+    "scaffolded": "6 organ systems in the body are _____."
   },
   {
     "id": "q0044",
@@ -438,7 +173,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Organ systems",
     "question": "Reorder the following in increasing size order: Organ, cell, tissue, organ system, organism",
-    "answer": "Cell < Tissue < Organ < Organ system < Organism"
+    "answer": "Cell < Tissue < Organ < Organ system < Organism",
+    "scaffolded": "Reorder the following in increasing size order: Organ, cell, tissue, organ system, organism: _____."
   },
   {
     "id": "q0045",
@@ -448,7 +184,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Organ systems",
     "question": "What is the role of the circulatory system?",
-    "answer": "To transport substances around our body"
+    "answer": "To transport substances around our body",
+    "scaffolded": "The role of the circulatory system is _____."
   },
   {
     "id": "q0046",
@@ -458,7 +195,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Animal sexual reproduction",
     "question": "Define \"fertilisation\"",
-    "answer": "Nucleus of male and female sex cell joining"
+    "answer": "Nucleus of male and female sex cell joining",
+    "scaffolded": "Fertilisation is _____."
   },
   {
     "id": "q0047",
@@ -468,7 +206,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Animal sexual reproduction",
     "question": "Define \"gamete\"",
-    "answer": "Sex cells"
+    "answer": "Sex cells",
+    "scaffolded": "Gamete is _____."
   },
   {
     "id": "q0048",
@@ -478,7 +217,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Animal sexual reproduction",
     "question": "Explain what is meant by external fertilisation.",
-    "answer": "Fertilisation which occurs outside the body of the parents"
+    "answer": "Fertilisation which occurs outside the body of the parents",
+    "scaffolded": "What is meant by external fertilisation: _____."
   },
   {
     "id": "q0049",
@@ -488,17 +228,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Animal sexual reproduction",
     "question": "Explain what is meant by internal fertilisation.",
-    "answer": "Fertilisation which occurs inside the body of the female"
-  },
-  {
-    "id": "q0050",
-    "lesson_id": "7Ba",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "1",
-    "lesson_title": "Animal sexual reproduction",
-    "question": "What is sexual reproduction?",
-    "answer": "When a male and female gamete fuse to form a zygote"
+    "answer": "Fertilisation which occurs inside the body of the female",
+    "scaffolded": "What is meant by internal fertilisation: _____."
   },
   {
     "id": "q0051",
@@ -508,7 +239,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Reproductive organs",
     "question": "Name the 3 key parts of the male reproductive system",
-    "answer": "Testis, sperm duct, penis"
+    "answer": "Testis, sperm duct, penis",
+    "scaffolded": "The 3 key parts of the male reproductive system are _____."
   },
   {
     "id": "q0052",
@@ -518,7 +250,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Reproductive organs",
     "question": "Name the 5 key parts of the female reproductive system",
-    "answer": "Ovary, fallopian tubes, cervix, uterus, vagina"
+    "answer": "Ovary, fallopian tubes, cervix, uterus, vagina",
+    "scaffolded": "The 5 key parts of the female reproductive system are _____."
   },
   {
     "id": "q0053",
@@ -528,7 +261,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Reproductive organs",
     "question": "What is menopause?",
-    "answer": "A time when a woman's ovaries stop releasing egg cells"
+    "answer": "A time when a woman's ovaries stop releasing egg cells",
+    "scaffolded": "Menopause is _____."
   },
   {
     "id": "q0054",
@@ -538,7 +272,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Reproductive organs",
     "question": "Where are sperm cells made?",
-    "answer": "The testes"
+    "answer": "The testes",
+    "scaffolded": "Where are sperm cells made: _____."
   },
   {
     "id": "q0055",
@@ -548,7 +283,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Becoming pregnant",
     "question": "Name two substances the pass from the baby to the mother's blood via the placenta",
-    "answer": "oxygen and nutrients (or named nutrient)"
+    "answer": "oxygen and nutrients (or named nutrient)",
+    "scaffolded": "Two substances the pass from the baby to the mother's blood via the placenta are _____."
   },
   {
     "id": "q0056",
@@ -558,7 +294,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Becoming pregnant",
     "question": "Name two substances the pass from the mother's blood to the baby via the placenta.",
-    "answer": "Carbon dioxide and waste products (or urea)"
+    "answer": "Carbon dioxide and waste products (or urea)",
+    "scaffolded": "Two substances the pass from the mother's blood to the baby via the placenta are _____."
   },
   {
     "id": "q0057",
@@ -568,7 +305,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Becoming pregnant",
     "question": "What is the role of amniotic fluid?",
-    "answer": "To protect the baby"
+    "answer": "To protect the baby",
+    "scaffolded": "The role of amniotic fluid is _____."
   },
   {
     "id": "q0058",
@@ -578,7 +316,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Gestation and birth",
     "question": "Approximately how long does human pregnancy last for?",
-    "answer": "9 months"
+    "answer": "9 months",
+    "scaffolded": "Approximately how long does human pregnancy last for: _____."
   },
   {
     "id": "q0059",
@@ -588,7 +327,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Gestation and birth",
     "question": "Define \"gestation period\"",
-    "answer": "Time take for a baby to develop from fertilisation"
+    "answer": "Time take for a baby to develop from fertilisation",
+    "scaffolded": "Gestation period is _____."
   },
   {
     "id": "q0060",
@@ -598,7 +338,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Gestation and birth",
     "question": "Define \"placenta\"",
-    "answer": "Organ providing foetus with oxygen and nutrients"
+    "answer": "Organ providing foetus with oxygen and nutrients",
+    "scaffolded": "Placenta is _____."
   },
   {
     "id": "q0061",
@@ -608,7 +349,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Gestation and birth",
     "question": "Define \"umbilical cord\"",
-    "answer": "Tube connecting foetus to placenta"
+    "answer": "Tube connecting foetus to placenta",
+    "scaffolded": "Umbilical cord is _____."
   },
   {
     "id": "q0062",
@@ -618,7 +360,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Growing up",
     "question": "Define \"menstruation\"",
-    "answer": "Losing uterus lining"
+    "answer": "Losing uterus lining",
+    "scaffolded": "Menstruation is _____."
   },
   {
     "id": "q0063",
@@ -628,7 +371,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Growing up",
     "question": "Define \"ovulation\"",
-    "answer": "Releasing an egg"
+    "answer": "Releasing an egg",
+    "scaffolded": "Ovulation is _____."
   },
   {
     "id": "q0064",
@@ -638,7 +382,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Growing up",
     "question": "Name the hormone that causes egg maturation in the ovaries",
-    "answer": "FSH (follicle stimulating hormone)"
+    "answer": "FSH (follicle stimulating hormone)",
+    "scaffolded": "The hormone that causes egg maturation in the ovaries is _____."
   },
   {
     "id": "q0065",
@@ -648,87 +393,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Growing up",
     "question": "Name the hormone that maintains the uterus lining",
-    "answer": "Progesterone"
-  },
-  {
-    "id": "q0066",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Name the hormone that stimulates ovulation",
-    "answer": "LH (luteinising hormone)"
-  },
-  {
-    "id": "q0067",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Name the hormone that stimulates the build-up of the uterus lining",
-    "answer": "Oestrogen"
-  },
-  {
-    "id": "q0068",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Name the main female reproductive hormone",
-    "answer": "Oestrogen"
-  },
-  {
-    "id": "q0069",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Name the process where a matured egg is released from the ovaries",
-    "answer": "Ovulation"
-  },
-  {
-    "id": "q0070",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "State the average length of the menstrual cycle",
-    "answer": "28 days"
-  },
-  {
-    "id": "q0071",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Which hormone stimulates the release of oestrogen?",
-    "answer": "FSH"
-  },
-  {
-    "id": "q0072",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Which two female hormones does the ovaries release during the menstrual cycle?",
-    "answer": "Oestrogen and progesterone"
-  },
-  {
-    "id": "q0073",
-    "lesson_id": "7Be",
-    "topic_id": "7B",
-    "topic_name": "Reproduction",
-    "lesson_number": "5",
-    "lesson_title": "Growing up",
-    "question": "Which two female hormones does the pituitary gland secretes during the menstrual cycle?",
-    "answer": "FSH and LH"
+    "answer": "Progesterone",
+    "scaffolded": "The hormone that maintains the uterus lining is _____."
   },
   {
     "id": "q0074",
@@ -738,7 +404,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Muscles and breathing",
     "question": "Describe the state of the diaphragm as we breathe in.",
-    "answer": "Contracts and flattens"
+    "answer": "Contracts and flattens",
+    "scaffolded": "The state of the diaphragm as we breathe in is _____."
   },
   {
     "id": "q0075",
@@ -748,7 +415,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Muscles and breathing",
     "question": "Describe the state of the diaphragm as we breathe out.",
-    "answer": "Relaxes and return to dome shape"
+    "answer": "Relaxes and return to dome shape",
+    "scaffolded": "The state of the diaphragm as we breathe out is _____."
   },
   {
     "id": "q0076",
@@ -758,7 +426,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Muscles and breathing",
     "question": "Name three types of blood vessel.",
-    "answer": "Arteries, veins and capillaries"
+    "answer": "Arteries, veins and capillaries",
+    "scaffolded": "Three types of blood vessel are _____."
   },
   {
     "id": "q0077",
@@ -768,27 +437,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Muscles and breathing",
     "question": "State the function of the ribcage.",
-    "answer": "Protect the heart and lungs"
-  },
-  {
-    "id": "q0078",
-    "lesson_id": "7Ca",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "1",
-    "lesson_title": "Muscles and breathing",
-    "question": "What two structures change the pressure inside the chest cavity to ventilate lungs?",
-    "answer": "Intercostal muscles + Diaphragm"
-  },
-  {
-    "id": "q0079",
-    "lesson_id": "7Ca",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "1",
-    "lesson_title": "Muscles and breathing",
-    "question": "Why do red blood cells have a bi-concave shape?",
-    "answer": "Large surface area to carry more oxygen and low volume to reduce the risk of getting stuck in capillaries"
+    "answer": "Protect the heart and lungs",
+    "scaffolded": "The function of the ribcage: _____."
   },
   {
     "id": "q0080",
@@ -798,7 +448,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Muscles and blood",
     "question": "What is the purpose of white blood cells",
-    "answer": "To protect against infection"
+    "answer": "To protect against infection",
+    "scaffolded": "The purpose of white blood cells is _____."
   },
   {
     "id": "q0081",
@@ -808,7 +459,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Muscles and blood",
     "question": "Where are blood cells made?",
-    "answer": "Bone marrow"
+    "answer": "Bone marrow",
+    "scaffolded": "Where are blood cells made: _____."
   },
   {
     "id": "q0082",
@@ -818,7 +470,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "The skeleton",
     "question": "Name the 4 main functions of the skeleton",
-    "answer": "1. Support2. protect vital organs 3. movement 4. make blood cells"
+    "answer": "1. Support2. protect vital organs 3. movement 4. make blood cells",
+    "scaffolded": "The 4 main functions of the skeleton are _____."
   },
   {
     "id": "q0083",
@@ -828,7 +481,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "The skeleton",
     "question": "Name the smooth substance at the end of a bone",
-    "answer": "cartilage"
+    "answer": "cartilage",
+    "scaffolded": "The smooth substance at the end of a bone is _____."
   },
   {
     "id": "q0084",
@@ -838,7 +492,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "The skeleton",
     "question": "What type of jointis a hip joint",
-    "answer": "Ball and socket"
+    "answer": "Ball and socket",
+    "scaffolded": "What type of jointis a hip joint: _____."
   },
   {
     "id": "q0085",
@@ -848,27 +503,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "The skeleton",
     "question": "Which mineral makes bones strong?",
-    "answer": "calcium"
-  },
-  {
-    "id": "q0086",
-    "lesson_id": "7Cc",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "3",
-    "lesson_title": "The skeleton",
-    "question": "Which of the following is a hinge joint - shoulder>Hip>Knee",
-    "answer": "Knee"
-  },
-  {
-    "id": "q0087",
-    "lesson_id": "7Cc",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "3",
-    "lesson_title": "The skeleton",
-    "question": "Which part of the skeleton protects the lungs",
-    "answer": "The rib cage"
+    "answer": "calcium",
+    "scaffolded": "Which mineral makes bones strong: _____."
   },
   {
     "id": "q0088",
@@ -878,7 +514,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Muscles and moving",
     "question": "Give an example of a pair of antagonastic muscles found in the legs",
-    "answer": "quadriceps and hamstrings"
+    "answer": "quadriceps and hamstrings",
+    "scaffolded": "An example of a pair of antagonastic muscles found in the legs is _____."
   },
   {
     "id": "q0089",
@@ -888,7 +525,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Muscles and moving",
     "question": "How are bones linked together",
-    "answer": "Joints"
+    "answer": "Joints",
+    "scaffolded": "How are bones linked together: _____."
   },
   {
     "id": "q0090",
@@ -898,7 +536,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Muscles and moving",
     "question": "How are muscles attached to bone?",
-    "answer": "By strong tendons"
+    "answer": "By strong tendons",
+    "scaffolded": "How are muscles attached to bone: _____."
   },
   {
     "id": "q0091",
@@ -908,37 +547,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Muscles and moving",
     "question": "How do muscles work?",
-    "answer": "By getting shorter - contraction"
-  },
-  {
-    "id": "q0092",
-    "lesson_id": "7Cd",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "4",
-    "lesson_title": "Muscles and moving",
-    "question": "Name the two muscles in the upper arm",
-    "answer": "biceps and triceps"
-  },
-  {
-    "id": "q0093",
-    "lesson_id": "7Cd",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "4",
-    "lesson_title": "Muscles and moving",
-    "question": "What are antagonistic muscles?",
-    "answer": "A 'pair' of muscles that act on a joint. As one contracts, the other relaxes"
-  },
-  {
-    "id": "q0094",
-    "lesson_id": "7Cd",
-    "topic_id": "7C",
-    "topic_name": "Muscles and Bones",
-    "lesson_number": "4",
-    "lesson_title": "Muscles and moving",
-    "question": "What is a synovial joint",
-    "answer": "A freely movable joint"
+    "answer": "By getting shorter - contraction",
+    "scaffolded": "How do muscles work: _____."
   },
   {
     "id": "q0095",
@@ -948,7 +558,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Drugs",
     "question": "Give an example of a depressant",
-    "answer": "Alcohol"
+    "answer": "Alcohol",
+    "scaffolded": "An example of a depressant is _____."
   },
   {
     "id": "q0096",
@@ -958,7 +569,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Drugs",
     "question": "Give an example of a hallucinogen",
-    "answer": "MDMA, Marijuana"
+    "answer": "MDMA, Marijuana",
+    "scaffolded": "An example of a hallucinogen is _____."
   },
   {
     "id": "q0097",
@@ -968,7 +580,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Drugs",
     "question": "Give an example of a painkiller",
-    "answer": "Ibuprofen, Morphone"
+    "answer": "Ibuprofen, Morphone",
+    "scaffolded": "An example of a painkiller is _____."
   },
   {
     "id": "q0098",
@@ -978,7 +591,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Drugs",
     "question": "Give an example of a stimulant",
-    "answer": "Tobacco, Caffeine"
+    "answer": "Tobacco, Caffeine",
+    "scaffolded": "An example of a stimulant is _____."
   },
   {
     "id": "q0099",
@@ -988,7 +602,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Variation",
     "question": "Define \"habitat\"",
-    "answer": "The environment that an organism lives in"
+    "answer": "The environment that an organism lives in",
+    "scaffolded": "Habitat is _____."
   },
   {
     "id": "q0100",
@@ -998,7 +613,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Variation",
     "question": "Name two examples of continuous variation in humans",
-    "answer": "Any sensible answer"
+    "answer": "Any sensible answer",
+    "scaffolded": "Two examples of continuous variation in humans are _____."
   },
   {
     "id": "q0101",
@@ -1008,7 +624,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Variation",
     "question": "Name two exmples of discontinuous variation in humans",
-    "answer": "Any sensible answer"
+    "answer": "Any sensible answer",
+    "scaffolded": "Two exmples of discontinuous variation in humans are _____."
   },
   {
     "id": "q0102",
@@ -1018,7 +635,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Adaptations",
     "question": "Define \"ecosystem\"",
-    "answer": "The living and non-living things in a given area"
+    "answer": "The living and non-living things in a given area",
+    "scaffolded": "Ecosystem is _____."
   },
   {
     "id": "q0103",
@@ -1028,7 +646,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Adaptations",
     "question": "Define \"species\"",
-    "answer": "Organisms that have similar characteristics and can reproduce to produce FERTILE offspring"
+    "answer": "Organisms that have similar characteristics and can reproduce to produce FERTILE offspring",
+    "scaffolded": "Species is _____."
   },
   {
     "id": "q0104",
@@ -1038,7 +657,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Adaptations",
     "question": "Explain what inherited variation is, and provide two examples of inherited variation in humans.",
-    "answer": "Characteristics inherited from your parents. Any reasonable examples"
+    "answer": "Characteristics inherited from your parents. Any reasonable examples",
+    "scaffolded": "What inherited variation is, and provide two examples of inherited variation in humans: _____."
   },
   {
     "id": "q0105",
@@ -1048,7 +668,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Adaptations",
     "question": "List three adaptations a tiger has to help it survive in the environment it lives in.",
-    "answer": "Camouflage, pointy teeth and claws, forward facing eyes, any other reasonable answer"
+    "answer": "Camouflage, pointy teeth and claws, forward facing eyes, any other reasonable answer",
+    "scaffolded": "List three adaptations a tiger has to help it survive in the environment it lives in: _____."
   },
   {
     "id": "q0106",
@@ -1058,7 +679,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Effects of the environment",
     "question": "Give two examples of adaptations to seasonal changes in animals.",
-    "answer": "hibernation, shedding winter coat, migration, etc."
+    "answer": "hibernation, shedding winter coat, migration, etc.",
+    "scaffolded": "Examples of adaptations to seasonal changes in animals include _____."
   },
   {
     "id": "q0107",
@@ -1068,7 +690,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Effects of the environment",
     "question": "How are hedgehogs adapted to surviving the winter?",
-    "answer": "They hibernate"
+    "answer": "They hibernate",
+    "scaffolded": "How are hedgehogs adapted to surviving the winter: _____."
   },
   {
     "id": "q0108",
@@ -1078,7 +701,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Effects of the environment",
     "question": "Why do deciduous trees lose their leaves in winter?",
-    "answer": "To reduce water loss and nutrient expenditure"
+    "answer": "To reduce water loss and nutrient expenditure",
+    "scaffolded": "Why do deciduous trees lose their leaves in winter: _____."
   },
   {
     "id": "q0109",
@@ -1088,7 +712,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Effects on the environment",
     "question": "Define \"carnivore\"",
-    "answer": "An organism that eats only other animals"
+    "answer": "An organism that eats only other animals",
+    "scaffolded": "Carnivore is _____."
   },
   {
     "id": "q0110",
@@ -1098,7 +723,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Effects on the environment",
     "question": "Define \"competition\"",
-    "answer": "Organisms trying to gain a share of limited resources"
+    "answer": "Organisms trying to gain a share of limited resources",
+    "scaffolded": "Competition is _____."
   },
   {
     "id": "q0111",
@@ -1108,7 +734,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Effects on the environment",
     "question": "Define \"consumer\"",
-    "answer": "An organism that eats another organism"
+    "answer": "An organism that eats another organism",
+    "scaffolded": "Consumer is _____."
   },
   {
     "id": "q0112",
@@ -1118,137 +745,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Effects on the environment",
     "question": "Define \"decomposer\"",
-    "answer": "Organisms that break down dead plant and animal material"
-  },
-  {
-    "id": "q0113",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"food chain\"",
-    "answer": "A diagram to show the direction of energy transfer between organisms"
-  },
-  {
-    "id": "q0114",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"herbivore\"",
-    "answer": "An organism that eats only plants"
-  },
-  {
-    "id": "q0115",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"interdependence\"",
-    "answer": "Organisms relying on each other for food and shelter"
-  },
-  {
-    "id": "q0116",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"omnivore\"",
-    "answer": "An organism that eats both animals and plants"
-  },
-  {
-    "id": "q0117",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"population\"",
-    "answer": "Group of the same species living in an area"
-  },
-  {
-    "id": "q0118",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "Define \"producer\"",
-    "answer": "A green plant or algae that makes its own food using sunlight"
-  },
-  {
-    "id": "q0119",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "State the type of organism that all food chains start with",
-    "answer": "Producer"
-  },
-  {
-    "id": "q0120",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "State three things that animals compete with each other for",
-    "answer": "Food, mates, territory"
-  },
-  {
-    "id": "q0121",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "State three things that organisms depend on each other for",
-    "answer": "Food, shelter and pollination"
-  },
-  {
-    "id": "q0122",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "State three things that plants compete with each other for",
-    "answer": "Light, space, water and mineral ions"
-  },
-  {
-    "id": "q0123",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "What does the arrow in a food chain represent?",
-    "answer": "The direction of energy transfer"
-  },
-  {
-    "id": "q0124",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "What will happen to the number of predators if the number of prey increases",
-    "answer": "The number of predators will increase"
-  },
-  {
-    "id": "q0125",
-    "lesson_id": "7Dd",
-    "topic_id": "7D",
-    "topic_name": "Ecosystems",
-    "lesson_number": "4",
-    "lesson_title": "Effects on the environment",
-    "question": "What will happen to the number of prey if the number of predators increases",
-    "answer": "The number of prey will increase"
+    "answer": "Organisms that break down dead plant and animal material",
+    "scaffolded": "Decomposer is _____."
   },
   {
     "id": "q0126",
@@ -1258,7 +756,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Transfer in food chains",
     "question": "Define \"bioaccumulation\"",
-    "answer": "Chemicals (in particular toxins) concentrate in the bodies of consumers the further along the food chain they are, potentially leading to fatal levels"
+    "answer": "Chemicals (in particular toxins) concentrate in the bodies of consumers the further along the food chain they are, potentially leading to fatal levels",
+    "scaffolded": "Bioaccumulation is _____."
   },
   {
     "id": "q0127",
@@ -1268,7 +767,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Transfer in food chains",
     "question": "Draw a pyramid of biomass for the food chain rose bush->aphids->ladybirds",
-    "answer": "Correct shaped pyramid labelled"
+    "answer": "Correct shaped pyramid labelled",
+    "scaffolded": "Draw a pyramid of biomass for the food chain rose bush->aphids->ladybirds: _____."
   },
   {
     "id": "q0128",
@@ -1278,7 +778,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Transfer in food chains",
     "question": "Draw a pyramid of numbers for the food chain grass->grasshopper->frog->snake",
-    "answer": "Correct shaped pyramid labelled"
+    "answer": "Correct shaped pyramid labelled",
+    "scaffolded": "Draw a pyramid of numbers for the food chain grass->grasshopper->frog->snake: _____."
   },
   {
     "id": "q0129",
@@ -1288,7 +789,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Mixtures",
     "question": "In chemistry what is a \"pure\" substance?",
-    "answer": "A substance made of a single element or compound"
+    "answer": "A substance made of a single element or compound",
+    "scaffolded": "In chemistry what is a \"pure\" substance: _____."
   },
   {
     "id": "q0130",
@@ -1298,7 +800,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Mixtures",
     "question": "In everyday language what is a \"pure\" substance?",
-    "answer": "A substance that has had nothing added to it and is in its \"natural\" state"
+    "answer": "A substance that has had nothing added to it and is in its \"natural\" state",
+    "scaffolded": "In everyday language what is a \"pure\" substance: _____."
   },
   {
     "id": "q0131",
@@ -1308,7 +811,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Mixtures",
     "question": "List the two pieces of equipment needed for filtration",
-    "answer": "1) filter funnel, 2) filter paper"
+    "answer": "1) filter funnel, 2) filter paper",
+    "scaffolded": "List the two pieces of equipment needed for filtration: _____."
   },
   {
     "id": "q0132",
@@ -1318,27 +822,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Mixtures",
     "question": "What do we use to separate an insoluble solute from solution?",
-    "answer": "Filtration"
-  },
-  {
-    "id": "q0133",
-    "lesson_id": "7Ea",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "1",
-    "lesson_title": "Mixtures",
-    "question": "What is the liquid that has been filtered called?",
-    "answer": "Filtrate"
-  },
-  {
-    "id": "q0134",
-    "lesson_id": "7Ea",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "1",
-    "lesson_title": "Mixtures",
-    "question": "What is the substance left in the filter paper after filtration called?",
-    "answer": "Residue"
+    "answer": "Filtration",
+    "scaffolded": "What do we use to separate an insoluble solute from solution: _____."
   },
   {
     "id": "q0135",
@@ -1348,7 +833,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Solutions",
     "question": "Give three ways of increasing the rate of dissolving",
-    "answer": "Stir and heat"
+    "answer": "Stir and heat",
+    "scaffolded": "Ways of increasing the rate of dissolving: _____."
   },
   {
     "id": "q0136",
@@ -1358,7 +844,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Solutions",
     "question": "Is salt soluble or insoluble?",
-    "answer": "Soluble"
+    "answer": "Soluble",
+    "scaffolded": "Is salt soluble or insoluble: _____."
   },
   {
     "id": "q0137",
@@ -1368,7 +855,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Solutions",
     "question": "Is sand soluble or insoluble?",
-    "answer": "Insoluble"
+    "answer": "Insoluble",
+    "scaffolded": "Is sand soluble or insoluble: _____."
   },
   {
     "id": "q0138",
@@ -1378,67 +866,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Solutions",
     "question": "Is sugar soluble or insoluble?",
-    "answer": "Soluble"
-  },
-  {
-    "id": "q0139",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What do we call a mixture of a solvent and solute together?",
-    "answer": "Solution"
-  },
-  {
-    "id": "q0140",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What do we call a substance that does dissolve?",
-    "answer": "Soluble"
-  },
-  {
-    "id": "q0141",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What do we call a substance that doesn't dissolve?",
-    "answer": "Insoluble"
-  },
-  {
-    "id": "q0142",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What do we call the point where no more solute will dissolve?",
-    "answer": "Saturation point"
-  },
-  {
-    "id": "q0143",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What is the liquid the substance dissolves in called?",
-    "answer": "Solvent"
-  },
-  {
-    "id": "q0144",
-    "lesson_id": "7Eb",
-    "topic_id": "7E",
-    "topic_name": "Mixtures & Separation",
-    "lesson_number": "2",
-    "lesson_title": "Solutions",
-    "question": "What is the solid that dissolves called?",
-    "answer": "Solute"
+    "answer": "Soluble",
+    "scaffolded": "Is sugar soluble or insoluble: _____."
   },
   {
     "id": "q0145",
@@ -1448,7 +877,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Evaporation",
     "question": "What do we use to separate a soluble solute from solution?",
-    "answer": "Evaporation"
+    "answer": "Evaporation",
+    "scaffolded": "What do we use to separate a soluble solute from solution: _____."
   },
   {
     "id": "q0146",
@@ -1458,7 +888,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Evaporation",
     "question": "What is the boiling point of water?",
-    "answer": "100 degrees Celsius"
+    "answer": "100 degrees Celsius",
+    "scaffolded": "The boiling point of water is _____."
   },
   {
     "id": "q0147",
@@ -1468,7 +899,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Evaporation",
     "question": "What is the difference between evaporation and boiling?",
-    "answer": "Evaporation can happen at ay temperature, boiling only happens at the boiling point of a substance."
+    "answer": "Evaporation can happen at ay temperature, boiling only happens at the boiling point of a substance.",
+    "scaffolded": "The difference between evaporation and boiling is _____."
   },
   {
     "id": "q0148",
@@ -1478,7 +910,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Chromatography",
     "question": "What are two errors that can occur when carrying out chromatography?",
-    "answer": "Line drawn with a pen, solvent level above the ink being separated"
+    "answer": "Line drawn with a pen, solvent level above the ink being separated",
+    "scaffolded": "Two errors that can occur when carrying out chromatography are _____."
   },
   {
     "id": "q0149",
@@ -1488,7 +921,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Chromatography",
     "question": "What do we use to separate two or more coloured solutions?",
-    "answer": "Chromatography"
+    "answer": "Chromatography",
+    "scaffolded": "What do we use to separate two or more coloured solutions: _____."
   },
   {
     "id": "q0150",
@@ -1498,7 +932,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Chromatography",
     "question": "Why is the line on a chromatogram drawn in pencil?",
-    "answer": "To prevent it from dissolving in the solvent and affecting our results."
+    "answer": "To prevent it from dissolving in the solvent and affecting our results.",
+    "scaffolded": "Why is the line on a chromatogram drawn in pencil: _____."
   },
   {
     "id": "q0151",
@@ -1508,7 +943,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Distillation",
     "question": "List the five pieces of equipment needed for evaporation",
-    "answer": "1) evaporating basin, 2) tripod, 3) gauze, 4) heat proof mat, 5) Bunsen burner"
+    "answer": "1) evaporating basin, 2) tripod, 3) gauze, 4) heat proof mat, 5) Bunsen burner",
+    "scaffolded": "List the five pieces of equipment needed for evaporation: _____."
   },
   {
     "id": "q0152",
@@ -1518,7 +954,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Distillation",
     "question": "What are the two stages of distillation?",
-    "answer": "Heat (evaporate liquid) and then cool (condense)"
+    "answer": "Heat (evaporate liquid) and then cool (condense)",
+    "scaffolded": "The two stages of distillation are _____."
   },
   {
     "id": "q0153",
@@ -1528,7 +965,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Distillation",
     "question": "What do we use to separate a solvent from solution?",
-    "answer": "Distillation"
+    "answer": "Distillation",
+    "scaffolded": "What do we use to separate a solvent from solution: _____."
   },
   {
     "id": "q0154",
@@ -1538,7 +976,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Hazards",
     "question": "Draw the symbol for a flammable hazard",
-    "answer": "Correct symbol drawn"
+    "answer": "Correct symbol drawn",
+    "scaffolded": "Draw the symbol for a flammable hazard: _____."
   },
   {
     "id": "q0155",
@@ -1548,7 +987,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Hazards",
     "question": "What does corrosive mean?",
-    "answer": "The substance reacts with metals and organic materials, wearing away or corroding them."
+    "answer": "The substance reacts with metals and organic materials, wearing away or corroding them.",
+    "scaffolded": "Corrosive means _____."
   },
   {
     "id": "q0156",
@@ -1558,7 +998,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Hazards",
     "question": "What does the exclamation mark hazard symbol represent?",
-    "answer": "Irritant/harmful"
+    "answer": "Irritant/harmful",
+    "scaffolded": "What does the exclamation mark hazard symbol represent: _____."
   },
   {
     "id": "q0157",
@@ -1568,7 +1009,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Indicators",
     "question": "Name 2 examples of indicators",
-    "answer": "Litmus paper and universal indicator"
+    "answer": "Litmus paper and universal indicator",
+    "scaffolded": "2 examples of indicators are _____."
   },
   {
     "id": "q0158",
@@ -1578,7 +1020,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Indicators",
     "question": "What colour would universal indicator turn in a strong acid?",
-    "answer": "Red"
+    "answer": "Red",
+    "scaffolded": "What colour would universal indicator turn in a strong acid: _____."
   },
   {
     "id": "q0159",
@@ -1588,7 +1031,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Indicators",
     "question": "What colour would universal indicator turn in a weak acid?",
-    "answer": "Orange"
+    "answer": "Orange",
+    "scaffolded": "What colour would universal indicator turn in a weak acid: _____."
   },
   {
     "id": "q0160",
@@ -1598,7 +1042,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Indicators",
     "question": "What do we call a substance that changes colour in acid or alkali?",
-    "answer": "Indicator"
+    "answer": "Indicator",
+    "scaffolded": "What do we call a substance that changes colour in acid or alkali: _____."
   },
   {
     "id": "q0161",
@@ -1608,7 +1053,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Acidity and alkalinity",
     "question": "What colour would universal indicator turn in an alkali?",
-    "answer": "Purple"
+    "answer": "Purple",
+    "scaffolded": "What colour would universal indicator turn in an alkali: _____."
   },
   {
     "id": "q0162",
@@ -1618,7 +1064,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Acidity and alkalinity",
     "question": "What colour would universal indicator turn in neutral substance?",
-    "answer": "Green"
+    "answer": "Green",
+    "scaffolded": "What colour would universal indicator turn in neutral substance: _____."
   },
   {
     "id": "q0163",
@@ -1628,7 +1075,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Acidity and alkalinity",
     "question": "What is the pH of a neutral substance?",
-    "answer": "pH 7"
+    "answer": "pH 7",
+    "scaffolded": "The pH of a neutral substance is _____."
   },
   {
     "id": "q0164",
@@ -1638,37 +1086,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Acidity and alkalinity",
     "question": "What is the pH of a strong acid?",
-    "answer": "pH 1-3"
-  },
-  {
-    "id": "q0165",
-    "lesson_id": "7Fc",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "3",
-    "lesson_title": "Acidity and alkalinity",
-    "question": "What is the pH of a strong alkali?",
-    "answer": "pH 11-14"
-  },
-  {
-    "id": "q0166",
-    "lesson_id": "7Fc",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "3",
-    "lesson_title": "Acidity and alkalinity",
-    "question": "What is the pH of a weak acid?",
-    "answer": "pH 4-6"
-  },
-  {
-    "id": "q0167",
-    "lesson_id": "7Fc",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "3",
-    "lesson_title": "Acidity and alkalinity",
-    "question": "What is the pH of a weak alkali?",
-    "answer": "pH 8-10"
+    "answer": "pH 1-3",
+    "scaffolded": "The pH of a strong acid is _____."
   },
   {
     "id": "q0168",
@@ -1678,7 +1097,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Neutralisation",
     "question": "Define \"neutralisation\"",
-    "answer": "The reaction of an acid with an alkali to form a neutral salt and water"
+    "answer": "The reaction of an acid with an alkali to form a neutral salt and water",
+    "scaffolded": "Neutralisation is _____."
   },
   {
     "id": "q0169",
@@ -1688,7 +1108,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Neutralisation",
     "question": "Recall the general equation for a neutralisation reaction",
-    "answer": "Acid + alkali -> salt + water"
+    "answer": "Acid + alkali -> salt + water",
+    "scaffolded": "Recall the general equation for a neutralisation reaction: _____."
   },
   {
     "id": "q0170",
@@ -1698,7 +1119,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Neutralisation",
     "question": "What is the formula for hydrochloric acid?",
-    "answer": "HCl"
+    "answer": "HCl",
+    "scaffolded": "The formula for hydrochloric acid is _____."
   },
   {
     "id": "q0171",
@@ -1708,27 +1130,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Neutralisation",
     "question": "What is the formula for sodium hydroxide",
-    "answer": "NaOH"
-  },
-  {
-    "id": "q0172",
-    "lesson_id": "7Fd",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "4",
-    "lesson_title": "Neutralisation",
-    "question": "What is the formula for sulphuric acid?",
-    "answer": "H2SO4"
-  },
-  {
-    "id": "q0173",
-    "lesson_id": "7Fd",
-    "topic_id": "7F",
-    "topic_name": "Acids & Alkalis",
-    "lesson_number": "4",
-    "lesson_title": "Neutralisation",
-    "question": "What makes an acid a concentrated acid?",
-    "answer": "Lots of acid particles in a given volume"
+    "answer": "NaOH",
+    "scaffolded": "The formula for sodium hydroxide is _____."
   },
   {
     "id": "q0174",
@@ -1738,7 +1141,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Neutralisation in daily life",
     "question": "If magnesium hydroxide reacts with hydrochloric acid, what two products are created?",
-    "answer": "Magnesium chloride and water"
+    "answer": "Magnesium chloride and water",
+    "scaffolded": "If magnesium hydroxide reacts with hydrochloric acid, what two products are created: _____."
   },
   {
     "id": "q0175",
@@ -1748,7 +1152,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Neutralisation in daily life",
     "question": "Is bleach acidic or alkaline?",
-    "answer": "Alkaline"
+    "answer": "Alkaline",
+    "scaffolded": "Is bleach acidic or alkaline: _____."
   },
   {
     "id": "q0176",
@@ -1758,7 +1163,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Neutralisation in daily life",
     "question": "Is toothpaste acidic or alkaline?",
-    "answer": "Alkaline"
+    "answer": "Alkaline",
+    "scaffolded": "Is toothpaste acidic or alkaline: _____."
   },
   {
     "id": "q0177",
@@ -1768,7 +1174,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Solids, liquids and gases",
     "question": "What property has the units metres cubed?",
-    "answer": "Volume"
+    "answer": "Volume",
+    "scaffolded": "What property has the units metres cubed: _____."
   },
   {
     "id": "q0178",
@@ -1778,7 +1185,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Solids, liquids and gases",
     "question": "Which states of matter can be compressed?",
-    "answer": "Gases only."
+    "answer": "Gases only.",
+    "scaffolded": "Which states of matter can be compressed: _____."
   },
   {
     "id": "q0179",
@@ -1788,7 +1196,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Solids, liquids and gases",
     "question": "Which states of matter can flow?",
-    "answer": "Liquids and gases"
+    "answer": "Liquids and gases",
+    "scaffolded": "Which states of matter can flow: _____."
   },
   {
     "id": "q0180",
@@ -1798,7 +1207,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Particles",
     "question": "Define \"boiling point\"",
-    "answer": "The temperature at which a liquid turns into a gas"
+    "answer": "The temperature at which a liquid turns into a gas",
+    "scaffolded": "Boiling point is _____."
   },
   {
     "id": "q0181",
@@ -1808,7 +1218,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Particles",
     "question": "How do the particles move in a gas?",
-    "answer": "Quick and random"
+    "answer": "Quick and random",
+    "scaffolded": "How do the particles move in a gas: _____."
   },
   {
     "id": "q0182",
@@ -1818,7 +1229,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Particles",
     "question": "How do the particles move in a liquid?",
-    "answer": "Slide over each other"
+    "answer": "Slide over each other",
+    "scaffolded": "How do the particles move in a liquid: _____."
   },
   {
     "id": "q0183",
@@ -1828,197 +1240,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Particles",
     "question": "How do the particles move in a solid?",
-    "answer": "Vibrate"
-  },
-  {
-    "id": "q0184",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "In which state can particles NOT be compressed?",
-    "answer": "Solid and Liquid"
-  },
-  {
-    "id": "q0185",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "In which state do particles stay in a fixed position?",
-    "answer": "Solid"
-  },
-  {
-    "id": "q0186",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "In which state do the particles have no bonds between them?",
-    "answer": "Gas"
-  },
-  {
-    "id": "q0187",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "In which state do the particles have strong bonds between them?",
-    "answer": "Solid"
-  },
-  {
-    "id": "q0188",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "State an advantages of using the particle model",
-    "answer": "Allows you to predict the behaviour of a substance"
-  },
-  {
-    "id": "q0189",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "State two disadvantages of using the particle model",
-    "answer": "Assumes all particles are spheres, doesn't show the bonds between atoms"
-  },
-  {
-    "id": "q0190",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What happens to particles during contraction?",
-    "answer": "Particles vibrate less so move closer together"
-  },
-  {
-    "id": "q0191",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What happens to particles during expansion?",
-    "answer": "Particles vibrate more so move further apart"
-  },
-  {
-    "id": "q0192",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the boiling point of water?",
-    "answer": "100⁰C"
-  },
-  {
-    "id": "q0193",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the melting point of water?",
-    "answer": "0⁰C"
-  },
-  {
-    "id": "q0194",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a gas turning into a liquid?",
-    "answer": "Condensation"
-  },
-  {
-    "id": "q0195",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a gas turning into a solid?",
-    "answer": "Sublimation"
-  },
-  {
-    "id": "q0196",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a liquid turning into a gas?",
-    "answer": "Boiling"
-  },
-  {
-    "id": "q0197",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a liquid turning into a solid?",
-    "answer": "Freezing"
-  },
-  {
-    "id": "q0198",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name for a solid turning into a liquid?",
-    "answer": "Melting"
-  },
-  {
-    "id": "q0199",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "What is the name given to the process of a liquid turning into a gas at the surface of the liquid?",
-    "answer": "Evaporation"
-  },
-  {
-    "id": "q0200",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "Which state is the least dense?",
-    "answer": "Gas"
-  },
-  {
-    "id": "q0201",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "Which state is the most dense?",
-    "answer": "Solid"
-  },
-  {
-    "id": "q0202",
-    "lesson_id": "7Gb",
-    "topic_id": "7G",
-    "topic_name": "The Particle Model",
-    "lesson_number": "2",
-    "lesson_title": "Particles",
-    "question": "Why are solids more dense than gases?",
-    "answer": "More particles in a given volume"
+    "answer": "Vibrate",
+    "scaffolded": "How do the particles move in a solid: _____."
   },
   {
     "id": "q0203",
@@ -2028,7 +1251,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Brownian motion",
     "question": "Define \"Brownian motion\"",
-    "answer": "The random movement of particles in a fluid"
+    "answer": "The random movement of particles in a fluid",
+    "scaffolded": "Brownian motion is _____."
   },
   {
     "id": "q0204",
@@ -2038,7 +1262,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Brownian motion",
     "question": "How many nanometres are there in a metre?",
-    "answer": "1,000,000,000nm"
+    "answer": "1,000,000,000nm",
+    "scaffolded": "How many nanometres are there in a metre: _____."
   },
   {
     "id": "q0205",
@@ -2048,7 +1273,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Brownian motion",
     "question": "Which states does Brownian motion occur in?",
-    "answer": "Liquids and gases"
+    "answer": "Liquids and gases",
+    "scaffolded": "Which states does Brownian motion occur in: _____."
   },
   {
     "id": "q0206",
@@ -2058,7 +1284,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Diffusion",
     "question": "Define \"active transport\"",
-    "answer": "The movement of particles from a low concentration to a high concentration using energy"
+    "answer": "The movement of particles from a low concentration to a high concentration using energy",
+    "scaffolded": "Active transport is _____."
   },
   {
     "id": "q0207",
@@ -2068,7 +1295,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Diffusion",
     "question": "Define \"diffusion\"",
-    "answer": "The movement of particles from a high concentration to a low concentration"
+    "answer": "The movement of particles from a high concentration to a low concentration",
+    "scaffolded": "Diffusion is _____."
   },
   {
     "id": "q0208",
@@ -2078,7 +1306,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Diffusion",
     "question": "Define \"osmosis\"",
-    "answer": "The movement of water particles from a dilute to a concentrated solution through a partially permeable membrane"
+    "answer": "The movement of water particles from a dilute to a concentrated solution through a partially permeable membrane",
+    "scaffolded": "Osmosis is _____."
   },
   {
     "id": "q0209",
@@ -2088,7 +1317,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Diffusion",
     "question": "In which state does diffusion NOT happen?",
-    "answer": "Solid"
+    "answer": "Solid",
+    "scaffolded": "In which state does diffusion NOT happen: _____."
   },
   {
     "id": "q0210",
@@ -2098,7 +1328,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Air pressure",
     "question": "What happens to the pressure of a gas when it is heated?",
-    "answer": "Pressure increases"
+    "answer": "Pressure increases",
+    "scaffolded": "What happens to the pressure of a gas when it is heated: _____."
   },
   {
     "id": "q0211",
@@ -2108,7 +1339,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Air pressure",
     "question": "Why does air pressure increase when you pump up a tyre?",
-    "answer": "There are more particles of air in the same volume, which leads to more collisions with the walls of the tyre, causing a higher pressure."
+    "answer": "There are more particles of air in the same volume, which leads to more collisions with the walls of the tyre, causing a higher pressure.",
+    "scaffolded": "Why does air pressure increase when you pump up a tyre: _____."
   },
   {
     "id": "q0212",
@@ -2118,7 +1350,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Air pressure",
     "question": "Why does sucking on a straw cause drink to flow into your mouth?",
-    "answer": "The pressure in the straw is less than the pressure on the surface of your drink, pushing the drink up the straw."
+    "answer": "The pressure in the straw is less than the pressure on the surface of your drink, pushing the drink up the straw.",
+    "scaffolded": "Why does sucking on a straw cause drink to flow into your mouth: _____."
   },
   {
     "id": "q0213",
@@ -2128,7 +1361,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "The air we breathe",
     "question": "Define \"atom\"",
-    "answer": "Tiny particles"
+    "answer": "Tiny particles",
+    "scaffolded": "Atom is _____."
   },
   {
     "id": "q0214",
@@ -2138,7 +1372,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "The air we breathe",
     "question": "Define molecule",
-    "answer": "A group of atoms bonded together"
+    "answer": "A group of atoms bonded together",
+    "scaffolded": "Molecule is _____."
   },
   {
     "id": "q0215",
@@ -2148,7 +1383,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "The air we breathe",
     "question": "What are substances made of only on TYPE of atom called?",
-    "answer": "Elements"
+    "answer": "Elements",
+    "scaffolded": "Substances made of only on TYPE of atom called are _____."
   },
   {
     "id": "q0216",
@@ -2158,67 +1394,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "The air we breathe",
     "question": "What are substances made of two or more types of atoms chemically BONDED together called?",
-    "answer": "Compounds"
-  },
-  {
-    "id": "q0217",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What are substances made of two or more types of atoms NOT chemically bonded together called?",
-    "answer": "Mixtures"
-  },
-  {
-    "id": "q0218",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What is the formula for carbon dioxide?",
-    "answer": "CO2"
-  },
-  {
-    "id": "q0219",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What is the formula for Methane?",
-    "answer": "CH4"
-  },
-  {
-    "id": "q0220",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What is the formula for water?",
-    "answer": "H2O"
-  },
-  {
-    "id": "q0221",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "What is the word for an element that always exists as two atoms bonded together? (extension only)",
-    "answer": "Diatomic"
-  },
-  {
-    "id": "q0222",
-    "lesson_id": "7Ha",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "1",
-    "lesson_title": "The air we breathe",
-    "question": "Which elements exist diatomically?",
-    "answer": "Oxygen, hydrogen, nitrogen and all of group 7"
+    "answer": "Compounds",
+    "scaffolded": "Substances made of two or more types of atoms chemically BONDED together called are _____."
   },
   {
     "id": "q0223",
@@ -2228,7 +1405,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Earth's elements",
     "question": "What is the symbol for \"aluminium\"?",
-    "answer": "Al"
+    "answer": "Al",
+    "scaffolded": "The symbol for \"aluminium\" is _____."
   },
   {
     "id": "q0224",
@@ -2238,7 +1416,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Earth's elements",
     "question": "What is the symbol for \"argon\"?",
-    "answer": "Ar"
+    "answer": "Ar",
+    "scaffolded": "The symbol for \"argon\" is _____."
   },
   {
     "id": "q0225",
@@ -2248,7 +1427,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Earth's elements",
     "question": "What is the symbol for \"beryllium\"?",
-    "answer": "Be"
+    "answer": "Be",
+    "scaffolded": "The symbol for \"beryllium\" is _____."
   },
   {
     "id": "q0226",
@@ -2258,167 +1438,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Earth's elements",
     "question": "What is the symbol for \"boron\"?",
-    "answer": "B"
-  },
-  {
-    "id": "q0227",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"calcium\"?",
-    "answer": "Ca"
-  },
-  {
-    "id": "q0228",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"carbon\"?",
-    "answer": "C"
-  },
-  {
-    "id": "q0229",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"chlorine\"?",
-    "answer": "Cl"
-  },
-  {
-    "id": "q0230",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"fluorine\"?",
-    "answer": "F"
-  },
-  {
-    "id": "q0231",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"helium\"?",
-    "answer": "He"
-  },
-  {
-    "id": "q0232",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"hydrogen\"?",
-    "answer": "H"
-  },
-  {
-    "id": "q0233",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"lithium\"?",
-    "answer": "Li"
-  },
-  {
-    "id": "q0234",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"magnesium\"?",
-    "answer": "Mg"
-  },
-  {
-    "id": "q0235",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"neon\"?",
-    "answer": "Ne"
-  },
-  {
-    "id": "q0236",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"Nitrogen\"?",
-    "answer": "N"
-  },
-  {
-    "id": "q0237",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"oxygen\"?",
-    "answer": "O"
-  },
-  {
-    "id": "q0238",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"phosphorous\"?",
-    "answer": "P"
-  },
-  {
-    "id": "q0239",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"potassium\"?",
-    "answer": "K"
-  },
-  {
-    "id": "q0240",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"Silicon\"?",
-    "answer": "Si"
-  },
-  {
-    "id": "q0241",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"sodium\"?",
-    "answer": "Na"
-  },
-  {
-    "id": "q0242",
-    "lesson_id": "7Hb",
-    "topic_id": "7H",
-    "topic_name": "Atoms, Elements & Molecules",
-    "lesson_number": "2",
-    "lesson_title": "Earth's elements",
-    "question": "What is the symbol for \"sulphur\"?",
-    "answer": "S"
+    "answer": "B",
+    "scaffolded": "The symbol for \"boron\" is _____."
   },
   {
     "id": "q0243",
@@ -2428,7 +1449,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Metals and non-metals",
     "question": "List 3 magnetic elements",
-    "answer": "Iron, nickel and cobalt."
+    "answer": "Iron, nickel and cobalt.",
+    "scaffolded": "List 3 magnetic elements: _____."
   },
   {
     "id": "q0244",
@@ -2438,7 +1460,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Metals and non-metals",
     "question": "List 4 properties of most metals",
-    "answer": "Solids with high melting points, strong, flexible, malleable, shiny  when polished, good conductor of heat, good conductor of electricity"
+    "answer": "Solids with high melting points, strong, flexible, malleable, shiny  when polished, good conductor of heat, good conductor of electricity",
+    "scaffolded": "List 4 properties of most metals: _____."
   },
   {
     "id": "q0245",
@@ -2448,7 +1471,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Metals and non-metals",
     "question": "List 4 properties of most non-metals",
-    "answer": "Low melting points, brittle when solid, not shiny, poor conductor of heat, poor conductor of electricity."
+    "answer": "Low melting points, brittle when solid, not shiny, poor conductor of heat, poor conductor of electricity.",
+    "scaffolded": "List 4 properties of most non-metals: _____."
   },
   {
     "id": "q0246",
@@ -2458,7 +1482,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Making compounds",
     "question": "If chlorine gas reacts with copper, what compound is formed?",
-    "answer": "Copper chloride"
+    "answer": "Copper chloride",
+    "scaffolded": "If chlorine gas reacts with copper, what compound is formed: _____."
   },
   {
     "id": "q0247",
@@ -2468,7 +1493,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Making compounds",
     "question": "Substances made of a metal and non metal chemically bonded together usually end in…",
-    "answer": "-ide"
+    "answer": "-ide",
+    "scaffolded": "Substances made of a metal and non metal chemically bonded together usually end in…: _____."
   },
   {
     "id": "q0248",
@@ -2478,7 +1504,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Making compounds",
     "question": "What does exothermic mean?",
-    "answer": "A reaction that gives out heat"
+    "answer": "A reaction that gives out heat",
+    "scaffolded": "Exothermic means _____."
   },
   {
     "id": "q0249",
@@ -2488,7 +1515,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Chemical reactions",
     "question": "List 3 ways you can tell a chemical reaction may have occurred",
-    "answer": "Colour change, change in temperature, fizzing, combustion, smell, a gas being given off, a solid forming."
+    "answer": "Colour change, change in temperature, fizzing, combustion, smell, a gas being given off, a solid forming.",
+    "scaffolded": "List 3 ways you can tell a chemical reaction may have occurred: _____."
   },
   {
     "id": "q0250",
@@ -2498,7 +1526,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Chemical reactions",
     "question": "Substances made of a metal, a non metal and oxygen chemically bonded together usually end in…",
-    "answer": "-ate"
+    "answer": "-ate",
+    "scaffolded": "Substances made of a metal, a non metal and oxygen chemically bonded together usually end in…: _____."
   },
   {
     "id": "q0251",
@@ -2508,7 +1537,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Chemical reactions",
     "question": "What is a thermal decomposition reaction?",
-    "answer": "When heat is used to break down a reactant into two or more products."
+    "answer": "When heat is used to break down a reactant into two or more products.",
+    "scaffolded": "A thermal decomposition reaction is _____."
   },
   {
     "id": "q0252",
@@ -2518,7 +1548,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Energy from food",
     "question": "Define \"calorie\"",
-    "answer": "Amount of energy (in food) available"
+    "answer": "Amount of energy (in food) available",
+    "scaffolded": "Calorie is _____."
   },
   {
     "id": "q0253",
@@ -2528,7 +1559,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Energy from food",
     "question": "Give the unit for energy",
-    "answer": "Joule (J)"
+    "answer": "Joule (J)",
+    "scaffolded": "The unit for energy is _____."
   },
   {
     "id": "q0254",
@@ -2538,7 +1570,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Energy from food",
     "question": "How is the energy stored in food released?",
-    "answer": "Combustion or respiration"
+    "answer": "Combustion or respiration",
+    "scaffolded": "How is the energy stored in food released: _____."
   },
   {
     "id": "q0255",
@@ -2548,7 +1581,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Energy from food",
     "question": "Why are kilojoules used on food labels",
-    "answer": "A lot of energy is available from most foods"
+    "answer": "A lot of energy is available from most foods",
+    "scaffolded": "Why are kilojoules used on food labels: _____."
   },
   {
     "id": "q0256",
@@ -2558,7 +1592,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Energy transfers and stores",
     "question": "Define \"combustion\"",
-    "answer": "Process of burning by heat"
+    "answer": "Process of burning by heat",
+    "scaffolded": "Combustion is _____."
   },
   {
     "id": "q0257",
@@ -2568,7 +1603,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Energy transfers and stores",
     "question": "Give an example of chemical energy",
-    "answer": "Battery, Food"
+    "answer": "Battery, Food",
+    "scaffolded": "An example of chemical energy is _____."
   },
   {
     "id": "q0258",
@@ -2578,7 +1614,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Energy transfers and stores",
     "question": "What is respiration?",
-    "answer": "A chemical reaction which uses glucose and oxygen to release energy"
+    "answer": "A chemical reaction which uses glucose and oxygen to release energy",
+    "scaffolded": "Respiration is _____."
   },
   {
     "id": "q0259",
@@ -2588,7 +1625,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Fuels",
     "question": "Approximately how much electricty in the UK is generated from fossil fuels",
-    "answer": "three quarters"
+    "answer": "three quarters",
+    "scaffolded": "Approximately how much electricty in the UK is generated from fossil fuels: _____."
   },
   {
     "id": "q0260",
@@ -2598,7 +1636,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Fuels",
     "question": "Define \"finite\" resource",
-    "answer": "only used once and is in limited supply"
+    "answer": "only used once and is in limited supply",
+    "scaffolded": "Finite\" resource is _____."
   },
   {
     "id": "q0261",
@@ -2608,7 +1647,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Fuels",
     "question": "Define 'non- renewable' energy resource",
-    "answer": "cannot be replaced once they are all used up"
+    "answer": "cannot be replaced once they are all used up",
+    "scaffolded": "Non- renewable' energy resource is _____."
   },
   {
     "id": "q0262",
@@ -2618,97 +1658,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Fuels",
     "question": "Define 'renewable' energy source",
-    "answer": "can be replaced, will not run out"
-  },
-  {
-    "id": "q0263",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Give some energy sources",
-    "answer": "fuels, food, stores (batteries or wind)"
-  },
-  {
-    "id": "q0264",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Give the main nuclear fuels used",
-    "answer": "uranium, plutonium"
-  },
-  {
-    "id": "q0265",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Give the two categories energy sources can be placed in",
-    "answer": "renewable, non-renewable (other possible answer is pathway and store)"
-  },
-  {
-    "id": "q0266",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Name 3 fossil fuels",
-    "answer": "Coal, oil, natural gas"
-  },
-  {
-    "id": "q0267",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "State four examples of non-renewable energy resources",
-    "answer": "Coal, oil, natural gas, nuclear power"
-  },
-  {
-    "id": "q0268",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "State the three fossil fuels",
-    "answer": "Coal, oil, natural gas"
-  },
-  {
-    "id": "q0269",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "Suggest a negative affect of using fossil fuels",
-    "answer": "releases pollution, carbon dioxide, sulphur dioixde and nitrous oxides"
-  },
-  {
-    "id": "q0270",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "What are fossil fuels?",
-    "answer": "Natural, finite fuel formed from the remains of living organisms, eg. oil, coal, natural gas"
-  },
-  {
-    "id": "q0271",
-    "lesson_id": "7Ic",
-    "topic_id": "7I",
-    "topic_name": "Energy",
-    "lesson_number": "3",
-    "lesson_title": "Fuels",
-    "question": "What is nuclear fuel?",
-    "answer": "fuel that releases energy through nuclear reactions"
+    "answer": "can be replaced, will not run out",
+    "scaffolded": "Renewable' energy source is _____."
   },
   {
     "id": "q0272",
@@ -2718,7 +1669,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Other energy resources",
     "question": "State six examples of renewable energy resources",
-    "answer": "Solar, wind, waves, hydroelectric, geothermal, biomass"
+    "answer": "Solar, wind, waves, hydroelectric, geothermal, biomass",
+    "scaffolded": "Six examples of renewable energy resources: _____."
   },
   {
     "id": "q0273",
@@ -2728,7 +1680,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Other energy resources",
     "question": "Where does all the energy found in our food originally come from?",
-    "answer": "The Sun"
+    "answer": "The Sun",
+    "scaffolded": "Where does all the energy found in our food originally come from: _____."
   },
   {
     "id": "q0274",
@@ -2738,7 +1691,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Other energy resources",
     "question": "Why can biofuels be considered renewable?",
-    "answer": "We can plant more of them"
+    "answer": "We can plant more of them",
+    "scaffolded": "Why can biofuels be considered renewable: _____."
   },
   {
     "id": "q0275",
@@ -2748,7 +1702,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Using resources",
     "question": "Give an advantage of nuclear fuels",
-    "answer": "do not produce sulphur dioxide or carbon dioxide"
+    "answer": "do not produce sulphur dioxide or carbon dioxide",
+    "scaffolded": "The advantage of nuclear fuels is _____."
   },
   {
     "id": "q0276",
@@ -2758,7 +1713,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Using resources",
     "question": "Give disadvantages of nuclear fuels",
-    "answer": "non-renewable; if there is an accident radioactive material may be released into the environment, nuclear waste remains dangerous for thousands of years"
+    "answer": "non-renewable; if there is an accident radioactive material may be released into the environment, nuclear waste remains dangerous for thousands of years",
+    "scaffolded": "Disadvantages of nuclear fuels: _____."
   },
   {
     "id": "q0277",
@@ -2768,7 +1724,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Using resources",
     "question": "State two disadvantages of using fossil fuels to generate electricity",
-    "answer": "Releases greenhouse gases, non-renewable"
+    "answer": "Releases greenhouse gases, non-renewable",
+    "scaffolded": "Two disadvantages of using fossil fuels to generate electricity: _____."
   },
   {
     "id": "q0278",
@@ -2778,7 +1735,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Switches and Current",
     "question": "Define \"current\"",
-    "answer": "Flow of electricity"
+    "answer": "Flow of electricity",
+    "scaffolded": "Current is _____."
   },
   {
     "id": "q0279",
@@ -2788,7 +1746,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Switches and Current",
     "question": "State the units of current",
-    "answer": "Ampere (Amp)"
+    "answer": "Ampere (Amp)",
+    "scaffolded": "The units of current: _____."
   },
   {
     "id": "q0280",
@@ -2798,7 +1757,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Switches and Current",
     "question": "What device measures current?",
-    "answer": "Ammeter"
+    "answer": "Ammeter",
+    "scaffolded": "What device measures current: _____."
   },
   {
     "id": "q0281",
@@ -2808,7 +1768,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Models for circuits",
     "question": "Give some examples conductors",
-    "answer": "metal elements, graphite, mixtures of metal, salt solution, liquid calcium chloride"
+    "answer": "metal elements, graphite, mixtures of metal, salt solution, liquid calcium chloride",
+    "scaffolded": "Examples conductors: _____."
   },
   {
     "id": "q0282",
@@ -2818,7 +1779,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Models for circuits",
     "question": "Give some examples insulators",
-    "answer": "most non-metal elements (e.g., sulphur, oxygen), diamond, plastic, wood, rock"
+    "answer": "most non-metal elements (e.g., sulphur, oxygen), diamond, plastic, wood, rock",
+    "scaffolded": "Examples insulators: _____."
   },
   {
     "id": "q0283",
@@ -2828,7 +1790,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Models for circuits",
     "question": "How can you investigate how easily a material conducts electricity?",
-    "answer": "set up a series circuit with a cell, lamp, wires > place material in between two wires > lamp on = conductor"
+    "answer": "set up a series circuit with a cell, lamp, wires > place material in between two wires > lamp on = conductor",
+    "scaffolded": "How can you investigate how easily a material conducts electricity: _____."
   },
   {
     "id": "q0284",
@@ -2838,17 +1801,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Models for circuits",
     "question": "What is an electrical conductor?",
-    "answer": "a material that allows charge to move easily through it"
-  },
-  {
-    "id": "q0285",
-    "lesson_id": "7Jb",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "2",
-    "lesson_title": "Models for circuits",
-    "question": "What is an electrical insulator?",
-    "answer": "material that does not allow charge or heat to pass through it easily"
+    "answer": "a material that allows charge to move easily through it",
+    "scaffolded": "An electrical conductor is _____."
   },
   {
     "id": "q0286",
@@ -2858,7 +1812,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Series and parallel circuits",
     "question": "Define \"parallel\" circuit",
-    "answer": "Components in a circuit are in separate loops"
+    "answer": "Components in a circuit are in separate loops",
+    "scaffolded": "Parallel\" circuit is _____."
   },
   {
     "id": "q0287",
@@ -2868,7 +1823,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Series and parallel circuits",
     "question": "Define \"series\" circuit",
-    "answer": "Components in a circuit are all in one loop"
+    "answer": "Components in a circuit are all in one loop",
+    "scaffolded": "Series\" circuit is _____."
   },
   {
     "id": "q0288",
@@ -2878,7 +1834,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Series and parallel circuits",
     "question": "State the rule for current in a parallel circuit",
-    "answer": "The total current through the whole circuit is the sum of the currents through the separate components"
+    "answer": "The total current through the whole circuit is the sum of the currents through the separate components",
+    "scaffolded": "The rule for current in a parallel circuit: _____."
   },
   {
     "id": "q0289",
@@ -2888,27 +1845,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Series and parallel circuits",
     "question": "State the rule for current in a series circuit",
-    "answer": "The current is the same at every point in the circuit and in every component"
-  },
-  {
-    "id": "q0290",
-    "lesson_id": "7Jc",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "3",
-    "lesson_title": "Series and parallel circuits",
-    "question": "State the rule for potential difference in a parallel circuit",
-    "answer": "The potential difference across each branch in the circuit is the same"
-  },
-  {
-    "id": "q0291",
-    "lesson_id": "7Jc",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "3",
-    "lesson_title": "Series and parallel circuits",
-    "question": "State the rule for potential difference in a series circuit",
-    "answer": "The total potential difference of the power supply is shared between components"
+    "answer": "The current is the same at every point in the circuit and in every component",
+    "scaffolded": "The rule for current in a series circuit: _____."
   },
   {
     "id": "q0292",
@@ -2918,7 +1856,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Changing the current",
     "question": "Compare resistance in electrical conductors and insulators",
-    "answer": "electrical conductor = low resistance, electrical insulator = high resistance"
+    "answer": "electrical conductor = low resistance, electrical insulator = high resistance",
+    "scaffolded": "Compare resistance in electrical conductors and insulators: _____."
   },
   {
     "id": "q0293",
@@ -2928,7 +1867,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Changing the current",
     "question": "Define \"potential difference\" (or \"voltage\")",
-    "answer": "Energy carried by the flow of electrical charge"
+    "answer": "Energy carried by the flow of electrical charge",
+    "scaffolded": "Potential difference\" (or \"voltage\") is _____."
   },
   {
     "id": "q0294",
@@ -2938,7 +1878,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Changing the current",
     "question": "Define \"resistance\"",
-    "answer": "Slows down the flow of electricity"
+    "answer": "Slows down the flow of electricity",
+    "scaffolded": "Resistance is _____."
   },
   {
     "id": "q0295",
@@ -2948,27 +1889,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Changing the current",
     "question": "State the units of potential difference",
-    "answer": "Volt (V)"
-  },
-  {
-    "id": "q0296",
-    "lesson_id": "7Jd",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "4",
-    "lesson_title": "Changing the current",
-    "question": "State the units of resistance",
-    "answer": "Ohms"
-  },
-  {
-    "id": "q0297",
-    "lesson_id": "7Jd",
-    "topic_id": "7J",
-    "topic_name": "Electrical Circuits",
-    "lesson_number": "4",
-    "lesson_title": "Changing the current",
-    "question": "What two things are needed for an electric current to flow",
-    "answer": "something to transfer energy to electrons(battery), a complete path for the electrons to flow (circuit)"
+    "answer": "Volt (V)",
+    "scaffolded": "The units of potential difference: _____."
   },
   {
     "id": "q0298",
@@ -2978,7 +1900,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Using electricity",
     "question": "List the 3 colours of wire in a mains uk plug and state the name of each wire",
-    "answer": "Blue = live wire, brown = neutral, green/yellow stripes = earth"
+    "answer": "Blue = live wire, brown = neutral, green/yellow stripes = earth",
+    "scaffolded": "List the 3 colours of wire in a mains uk plug and state the name of each wire: _____."
   },
   {
     "id": "q0299",
@@ -2988,7 +1911,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Using electricity",
     "question": "Name 3 safety features of a uk plug",
-    "answer": "insulation on live and neutral prongs, cable grip to prevent cable being pulled loose, fuse, colour coded wires to prevent confusion, Earth pin and wire"
+    "answer": "insulation on live and neutral prongs, cable grip to prevent cable being pulled loose, fuse, colour coded wires to prevent confusion, Earth pin and wire",
+    "scaffolded": "3 safety features of a uk plug are _____."
   },
   {
     "id": "q0300",
@@ -2998,7 +1922,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Using electricity",
     "question": "Why do mains powered plugs need a fuse?",
-    "answer": "To melt and break the circuit if too much current flows."
+    "answer": "To melt and break the circuit if too much current flows.",
+    "scaffolded": "Why do mains powered plugs need a fuse: _____."
   },
   {
     "id": "q0301",
@@ -3008,7 +1933,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Different forces",
     "question": "Define \"contact force\"",
-    "answer": "A force that acts when objects are physically touching"
+    "answer": "A force that acts when objects are physically touching",
+    "scaffolded": "Contact force is _____."
   },
   {
     "id": "q0302",
@@ -3018,7 +1944,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Different forces",
     "question": "Define \"force\"",
-    "answer": "A push or a pull that acts on an object due to the interaction with another object"
+    "answer": "A push or a pull that acts on an object due to the interaction with another object",
+    "scaffolded": "Force is _____."
   },
   {
     "id": "q0303",
@@ -3028,7 +1955,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Different forces",
     "question": "Define \"non-contact force\"",
-    "answer": "A force that acts when objects are physically separated"
+    "answer": "A force that acts when objects are physically separated",
+    "scaffolded": "Non-contact force is _____."
   },
   {
     "id": "q0304",
@@ -3038,47 +1966,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Different forces",
     "question": "Define \"normal contact force\"",
-    "answer": "Push force acting between two solid objects"
-  },
-  {
-    "id": "q0305",
-    "lesson_id": "7Ka",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "1",
-    "lesson_title": "Different forces",
-    "question": "Name five examples of contact forces",
-    "answer": "Friction, air resistance, tension, compression, normal contact force"
-  },
-  {
-    "id": "q0306",
-    "lesson_id": "7Ka",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "1",
-    "lesson_title": "Different forces",
-    "question": "Name three examples of non-contact forces",
-    "answer": "Gravitational force, electrostatic force, magnetic force"
-  },
-  {
-    "id": "q0307",
-    "lesson_id": "7Ka",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "1",
-    "lesson_title": "Different forces",
-    "question": "What is the name of the diagram used to represent the forces acting on an object?",
-    "answer": "Free-body diagram"
-  },
-  {
-    "id": "q0308",
-    "lesson_id": "7Ka",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "1",
-    "lesson_title": "Different forces",
-    "question": "What is the unit for force?",
-    "answer": "Newton"
+    "answer": "Push force acting between two solid objects",
+    "scaffolded": "Normal contact force is _____."
   },
   {
     "id": "q0309",
@@ -3088,7 +1977,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Springs",
     "question": "Define \"compression\"",
-    "answer": "Force squashing or pushing together"
+    "answer": "Force squashing or pushing together",
+    "scaffolded": "Compression is _____."
   },
   {
     "id": "q0310",
@@ -3098,7 +1988,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Springs",
     "question": "Define \"tension\"",
-    "answer": "Force extending or pulling apart"
+    "answer": "Force extending or pulling apart",
+    "scaffolded": "Tension is _____."
   },
   {
     "id": "q0311",
@@ -3108,7 +1999,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Springs",
     "question": "Define elastic limit",
-    "answer": "The force at which an object ceases behaving elastically (returns to original shape) and starts behaving plastically (permanent deformation)"
+    "answer": "The force at which an object ceases behaving elastically (returns to original shape) and starts behaving plastically (permanent deformation)",
+    "scaffolded": "Elastic limit is _____."
   },
   {
     "id": "q0312",
@@ -3118,37 +2010,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Springs",
     "question": "Name the apparatus used to measure forces",
-    "answer": "Newton meter"
-  },
-  {
-    "id": "q0313",
-    "lesson_id": "7Kb",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "2",
-    "lesson_title": "Springs",
-    "question": "State the equation for Hooke's Law",
-    "answer": "Force = spring constant x extension"
-  },
-  {
-    "id": "q0314",
-    "lesson_id": "7Kb",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "2",
-    "lesson_title": "Springs",
-    "question": "State the units of spring constant",
-    "answer": "Newton per metre (N/m)"
-  },
-  {
-    "id": "q0315",
-    "lesson_id": "7Kb",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "2",
-    "lesson_title": "Springs",
-    "question": "What is meant by the extension of a spring?",
-    "answer": "It has how much the length of a spring has changed from its unloaded length."
+    "answer": "Newton meter",
+    "scaffolded": "The apparatus used to measure forces is _____."
   },
   {
     "id": "q0316",
@@ -3158,7 +2021,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Friction",
     "question": "Define \"air resistance\"",
-    "answer": "Friction force acting between an object and air particles"
+    "answer": "Friction force acting between an object and air particles",
+    "scaffolded": "Air resistance is _____."
   },
   {
     "id": "q0317",
@@ -3168,7 +2032,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Friction",
     "question": "Define \"drag\"",
-    "answer": "Friction force when one object is a liquid or a gas"
+    "answer": "Friction force when one object is a liquid or a gas",
+    "scaffolded": "Drag is _____."
   },
   {
     "id": "q0318",
@@ -3178,7 +2043,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Friction",
     "question": "Define \"friction\"",
-    "answer": "Force opposing motion which is caused by the interaction of surfaces moving over each other"
+    "answer": "Force opposing motion which is caused by the interaction of surfaces moving over each other",
+    "scaffolded": "Friction is _____."
   },
   {
     "id": "q0319",
@@ -3188,17 +2054,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Friction",
     "question": "State two examples of situations where it is useful to reduce friction",
-    "answer": "Sports, vehicles"
-  },
-  {
-    "id": "q0320",
-    "lesson_id": "7Kc",
-    "topic_id": "7K",
-    "topic_name": "Forces",
-    "lesson_number": "3",
-    "lesson_title": "Friction",
-    "question": "State two ways of reducing friction or drag",
-    "answer": "Make objects streamlined, use lubricants"
+    "answer": "Sports, vehicles",
+    "scaffolded": "Two examples of situations where it is useful to reduce friction: _____."
   },
   {
     "id": "q0321",
@@ -3208,7 +2065,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Pressure",
     "question": "If you increase the surface area of a person's shoes, what happens to the pressure they exert on the ground?",
-    "answer": "It decreases"
+    "answer": "It decreases",
+    "scaffolded": "If you increase the surface area of a person's shoes, what happens to the pressure they exert on the ground: _____."
   },
   {
     "id": "q0322",
@@ -3218,7 +2076,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Pressure",
     "question": "State the equation for calculating pressure.",
-    "answer": "Pressure = Force/Area"
+    "answer": "Pressure = Force/Area",
+    "scaffolded": "The equation for calculating pressure: _____."
   },
   {
     "id": "q0323",
@@ -3228,7 +2087,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Pressure",
     "question": "What are the units of pressure?",
-    "answer": "Pascal, Pa (accept N/m^2 or N/cm^2)"
+    "answer": "Pascal, Pa (accept N/m^2 or N/cm^2)",
+    "scaffolded": "The units of pressure are _____."
   },
   {
     "id": "q0324",
@@ -3238,7 +2098,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Balanced and unbalanced",
     "question": "Define \"resultant force\"",
-    "answer": "Single force that can replace all the forces acting on an object and have the same effect"
+    "answer": "Single force that can replace all the forces acting on an object and have the same effect",
+    "scaffolded": "Resultant force is _____."
   },
   {
     "id": "q0325",
@@ -3248,7 +2109,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Balanced and unbalanced",
     "question": "Name four things that could happen when the forces on an object are unbalanced",
-    "answer": "Object accelerates (speeds up), decelerates (slows down), changes shape, changes direction"
+    "answer": "Object accelerates (speeds up), decelerates (slows down), changes shape, changes direction",
+    "scaffolded": "Four things that could happen when the forces on an object are unbalanced are _____."
   },
   {
     "id": "q0326",
@@ -3258,7 +2120,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Balanced and unbalanced",
     "question": "Name two things that could happen when the forces on an object are balanced",
-    "answer": "Object remains at rest, object remains at constant speed and direction"
+    "answer": "Object remains at rest, object remains at constant speed and direction",
+    "scaffolded": "Two things that could happen when the forces on an object are balanced are _____."
   },
   {
     "id": "q0327",
@@ -3268,7 +2131,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Balanced and unbalanced",
     "question": "What would the resultant force on an object be if the forces are balanced?",
-    "answer": "Zero"
+    "answer": "Zero",
+    "scaffolded": "What would the resultant force on an object be if the forces are balanced: _____."
   },
   {
     "id": "q0328",
@@ -3278,7 +2142,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Making sounds",
     "question": "Define \"amplitude\"",
-    "answer": "The maximum vibration, measured from the middle position of the wave"
+    "answer": "The maximum vibration, measured from the middle position of the wave",
+    "scaffolded": "Amplitude is _____."
   },
   {
     "id": "q0329",
@@ -3288,7 +2153,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Making sounds",
     "question": "Define \"frequency\"",
-    "answer": "Number of waves produced per second, in Hertz"
+    "answer": "Number of waves produced per second, in Hertz",
+    "scaffolded": "Frequency is _____."
   },
   {
     "id": "q0330",
@@ -3298,7 +2164,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Making sounds",
     "question": "Define \"pitch\" of a sound wave",
-    "answer": "How high or low the sound is.A high pitch has a high frequency."
+    "answer": "How high or low the sound is.A high pitch has a high frequency.",
+    "scaffolded": "Pitch\" of a sound wave is _____."
   },
   {
     "id": "q0331",
@@ -3308,17 +2175,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Making sounds",
     "question": "Define \"volume\" of a sound wave",
-    "answer": "How loud or quiet a sound is. A high volume has a high amplitude."
-  },
-  {
-    "id": "q0332",
-    "lesson_id": "7La",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "1",
-    "lesson_title": "Making sounds",
-    "question": "Define \"wavelength\"",
-    "answer": "Distance between two corresponding points on a wave.Measured in metres."
+    "answer": "How loud or quiet a sound is. A high volume has a high amplitude.",
+    "scaffolded": "Volume\" of a sound wave is _____."
   },
   {
     "id": "q0333",
@@ -3328,7 +2186,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Moving sounds",
     "question": "Define \"resting point\"/\"rarefaction\"",
-    "answer": "The mid-point of a wave vibration"
+    "answer": "The mid-point of a wave vibration",
+    "scaffolded": "Resting point\"/\"rarefaction is _____."
   },
   {
     "id": "q0334",
@@ -3338,7 +2197,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Moving sounds",
     "question": "Define \"vacuum\"",
-    "answer": "A space with no particles in it"
+    "answer": "A space with no particles in it",
+    "scaffolded": "Vacuum is _____."
   },
   {
     "id": "q0335",
@@ -3348,7 +2208,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Moving sounds",
     "question": "State the speed of sound in air",
-    "answer": "330m/s"
+    "answer": "330m/s",
+    "scaffolded": "The speed of sound in air: _____."
   },
   {
     "id": "q0336",
@@ -3358,7 +2219,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Moving sounds",
     "question": "State the wave equation to calculate speed",
-    "answer": "v=fλ, wave speed = frequency x wavelength"
+    "answer": "v=fλ, wave speed = frequency x wavelength",
+    "scaffolded": "The wave equation to calculate speed: _____."
   },
   {
     "id": "q0337",
@@ -3368,7 +2230,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Detecting sounds",
     "question": "Define \"auditory range\"",
-    "answer": "The range of frequencies that an animal can hear (for humans 20Hz to 20000Hz)"
+    "answer": "The range of frequencies that an animal can hear (for humans 20Hz to 20000Hz)",
+    "scaffolded": "Auditory range is _____."
   },
   {
     "id": "q0338",
@@ -3378,7 +2241,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Detecting sounds",
     "question": "Define \"ultrasound\"",
-    "answer": "Sound waves with frequency higher than the auditory range"
+    "answer": "Sound waves with frequency higher than the auditory range",
+    "scaffolded": "Ultrasound is _____."
   },
   {
     "id": "q0339",
@@ -3388,7 +2252,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Detecting sounds",
     "question": "Name the six parts of the ear",
-    "answer": "Ear drum, bones, cochlea, auditory nerve, semi-circular canals, pinner"
+    "answer": "Ear drum, bones, cochlea, auditory nerve, semi-circular canals, pinner",
+    "scaffolded": "The six parts of the ear are _____."
   },
   {
     "id": "q0340",
@@ -3398,77 +2263,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Detecting sounds",
     "question": "Name the three bones in the middle ear",
-    "answer": "Hammer, anvil, stirrup"
-  },
-  {
-    "id": "q0341",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the auditory nerve",
-    "answer": "Carries signals from the ear to the brain"
-  },
-  {
-    "id": "q0342",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the cochlea",
-    "answer": "Long coiled tube filled with liquid that picks up vibrations and changes them to electrical signals"
-  },
-  {
-    "id": "q0343",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the ear drum",
-    "answer": "Thin layer of membrane that picks up the vibrations of sounds waves"
-  },
-  {
-    "id": "q0344",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the hammer, anvil and stirrup",
-    "answer": "Amplify the vibrations"
-  },
-  {
-    "id": "q0345",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the pinner",
-    "answer": "The outer ear; directs vibrations into the ear"
-  },
-  {
-    "id": "q0346",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the function of the semi-circular canals",
-    "answer": "Detect movement in the head and help with balance"
-  },
-  {
-    "id": "q0347",
-    "lesson_id": "7Lc",
-    "topic_id": "7L",
-    "topic_name": "Sound",
-    "lesson_number": "3",
-    "lesson_title": "Detecting sounds",
-    "question": "State the unit of volume.",
-    "answer": "Decibels (dB)"
+    "answer": "Hammer, anvil, stirrup",
+    "scaffolded": "The three bones in the middle ear are _____."
   },
   {
     "id": "q0348",
@@ -3478,7 +2274,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Using sound",
     "question": "How does echolocation work?",
-    "answer": "A short pulse of sound (usually ultrasound) is emitted. This reflects off neaby objected and some of the sound travels back to the emitter and is detected. Animals and devices can work out the distance an object is away by how long it took until the echo was heard."
+    "answer": "A short pulse of sound (usually ultrasound) is emitted. This reflects off neaby objected and some of the sound travels back to the emitter and is detected. Animals and devices can work out the distance an object is away by how long it took until the echo was heard.",
+    "scaffolded": "Echolocation works by _____."
   },
   {
     "id": "q0349",
@@ -3488,7 +2285,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Using sound",
     "question": "Some species of moth cannot use echolocation, but can hear ultrasound. Explain why this might benefit the moth.",
-    "answer": "It can detect when predators such as bats are nearby."
+    "answer": "It can detect when predators such as bats are nearby.",
+    "scaffolded": "Some species of moth cannot use echolocation, but can hear ultrasound. Explain why this might benefit the moth: _____."
   },
   {
     "id": "q0350",
@@ -3498,7 +2296,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Using sound",
     "question": "When sound reaches the interface between one medium and another, what 3 things can happen?",
-    "answer": "The sound could be reflected, absorbed, or transmitted."
+    "answer": "The sound could be reflected, absorbed, or transmitted.",
+    "scaffolded": "When sound reaches the interface between one medium and another, what 3 things can happen: _____."
   },
   {
     "id": "q0351",
@@ -3508,7 +2307,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Comparing waves",
     "question": "Describe a longitudinal wave",
-    "answer": "A wave where the direction of vibration is parallel to the direction the wave travels"
+    "answer": "A wave where the direction of vibration is parallel to the direction the wave travels",
+    "scaffolded": "A longitudinal wave is _____."
   },
   {
     "id": "q0352",
@@ -3518,7 +2318,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Comparing waves",
     "question": "Describe a transverse wave",
-    "answer": "A wave where the direction of vibration is perpendicular/at right angles to the direction the wave travels."
+    "answer": "A wave where the direction of vibration is perpendicular/at right angles to the direction the wave travels.",
+    "scaffolded": "A transverse wave is _____."
   },
   {
     "id": "q0353",
@@ -3528,7 +2329,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Comparing waves",
     "question": "When two waves overlap, we say they are in what?",
-    "answer": "Superposition"
+    "answer": "Superposition",
+    "scaffolded": "When two waves overlap, we say they are in what: _____."
   },
   {
     "id": "q0354",
@@ -3538,7 +2340,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Nutrients",
     "question": "Biuret solution is used to test for which food group?",
-    "answer": "Proteins"
+    "answer": "Proteins",
+    "scaffolded": "Biuret solution is used to test for which food group: _____."
   },
   {
     "id": "q0355",
@@ -3548,7 +2351,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Nutrients",
     "question": "Name the 7 food groups",
-    "answer": "Carbohydrates, proteins, fats, fibre, vitamins, minerals, water"
+    "answer": "Carbohydrates, proteins, fats, fibre, vitamins, minerals, water",
+    "scaffolded": "The 7 food groups are _____."
   },
   {
     "id": "q0356",
@@ -3558,7 +2362,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Nutrients",
     "question": "What is lipids another name for?",
-    "answer": "Fats"
+    "answer": "Fats",
+    "scaffolded": "Lipids another name for is _____."
   },
   {
     "id": "q0357",
@@ -3568,7 +2373,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Uses of nutrients",
     "question": "State 2 examples of food rich in carbohydrates",
-    "answer": "Rice and pasta"
+    "answer": "Rice and pasta",
+    "scaffolded": "2 examples of food rich in carbohydrates: _____."
   },
   {
     "id": "q0358",
@@ -3578,7 +2384,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Uses of nutrients",
     "question": "State 2 examples of food rich in fibre",
-    "answer": "Brown bread and cereal"
+    "answer": "Brown bread and cereal",
+    "scaffolded": "2 examples of food rich in fibre: _____."
   },
   {
     "id": "q0359",
@@ -3588,7 +2395,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Uses of nutrients",
     "question": "State 3 examples of food rich in fat",
-    "answer": "Butter, cheese and chocolate"
+    "answer": "Butter, cheese and chocolate",
+    "scaffolded": "3 examples of food rich in fat: _____."
   },
   {
     "id": "q0360",
@@ -3598,17 +2406,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Uses of nutrients",
     "question": "State 3 examples of food rich in minerals and vitamins",
-    "answer": "Fruit and vegetables"
-  },
-  {
-    "id": "q0361",
-    "lesson_id": "8Ab",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "2",
-    "lesson_title": "Uses of nutrients",
-    "question": "State 3 examples of food rich in protein",
-    "answer": "Fish, meat and eggs"
+    "answer": "Fruit and vegetables",
+    "scaffolded": "3 examples of food rich in minerals and vitamins: _____."
   },
   {
     "id": "q0362",
@@ -3618,7 +2417,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Balanced diets",
     "question": "Define \"anorexia\"",
-    "answer": "Refusing to eat to lose weight"
+    "answer": "Refusing to eat to lose weight",
+    "scaffolded": "Anorexia is _____."
   },
   {
     "id": "q0363",
@@ -3628,7 +2428,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Balanced diets",
     "question": "Define \"balanced diet\"",
-    "answer": "Eating a variety of foods in the correct proportions"
+    "answer": "Eating a variety of foods in the correct proportions",
+    "scaffolded": "Balanced diet is _____."
   },
   {
     "id": "q0364",
@@ -3638,7 +2439,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Balanced diets",
     "question": "Give three reasons why someone may need to consume more calories than normal",
-    "answer": "1) very active, 2) growing, 3) pregnant"
+    "answer": "1) very active, 2) growing, 3) pregnant",
+    "scaffolded": "Reasons why someone may need to consume more calories than normal: _____."
   },
   {
     "id": "q0365",
@@ -3648,7 +2450,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Balanced diets",
     "question": "State three diseases associated with an unbalanced diet",
-    "answer": "Obesity, anorexia and Type 2 diabetes"
+    "answer": "Obesity, anorexia and Type 2 diabetes",
+    "scaffolded": "Three diseases associated with an unbalanced diet: _____."
   },
   {
     "id": "q0366",
@@ -3658,7 +2461,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Digestion",
     "question": "State the 7 main organs in the digestive system",
-    "answer": "Mouth, oesophagus, stomach, pancreas, liver, small intestine, large intestine"
+    "answer": "Mouth, oesophagus, stomach, pancreas, liver, small intestine, large intestine",
+    "scaffolded": "The 7 main organs in the digestive system: _____."
   },
   {
     "id": "q0367",
@@ -3668,7 +2472,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Digestion",
     "question": "What is absorbed from the large intestine?",
-    "answer": "Water"
+    "answer": "Water",
+    "scaffolded": "Absorbed from the large intestine is _____."
   },
   {
     "id": "q0368",
@@ -3678,7 +2483,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Digestion",
     "question": "What is absorbed from the small intestine?",
-    "answer": "Nutrients"
+    "answer": "Nutrients",
+    "scaffolded": "Absorbed from the small intestine is _____."
   },
   {
     "id": "q0369",
@@ -3688,127 +2494,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Digestion",
     "question": "What is produced when proteins are digested?",
-    "answer": "Amino acids"
-  },
-  {
-    "id": "q0370",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "What is the role of the teeth in digestion?",
-    "answer": "Break down food into smaller pieces"
-  },
-  {
-    "id": "q0371",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "When faeces are passed out of the body, this is called?",
-    "answer": "Egestion"
-  },
-  {
-    "id": "q0372",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where does digestion start?",
-    "answer": "The mouth"
-  },
-  {
-    "id": "q0373",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is amylase produced?",
-    "answer": "Salivary glands and small intestine"
-  },
-  {
-    "id": "q0374",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is bile produced?",
-    "answer": "The liver"
-  },
-  {
-    "id": "q0375",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is lipase produced?",
-    "answer": "Pancreas and small intestine"
-  },
-  {
-    "id": "q0376",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is most food digested?",
-    "answer": "Small intestine"
-  },
-  {
-    "id": "q0377",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Where is protease produced?",
-    "answer": "Stomach, pancreas and small intestine"
-  },
-  {
-    "id": "q0378",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Which enzyme helps us to digest carbohydrates?",
-    "answer": "Amylase"
-  },
-  {
-    "id": "q0379",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Which enzyme helps us to digest fats?",
-    "answer": "Lipase"
-  },
-  {
-    "id": "q0380",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Which enzyme helps us to digest proteins?",
-    "answer": "Protease"
-  },
-  {
-    "id": "q0381",
-    "lesson_id": "8Ad",
-    "topic_id": "8A",
-    "topic_name": "Food & Digestion",
-    "lesson_number": "4",
-    "lesson_title": "Digestion",
-    "question": "Which nutrients do not need to be digested?",
-    "answer": "Minerals, vitamins and water"
+    "answer": "Amino acids",
+    "scaffolded": "Produced when proteins are digested is _____."
   },
   {
     "id": "q0382",
@@ -3818,7 +2505,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Absorption",
     "question": "Define diffusion",
-    "answer": "Particles travel from areas of high concentration to areas of lower concentration until they are evenly spread out."
+    "answer": "Particles travel from areas of high concentration to areas of lower concentration until they are evenly spread out.",
+    "scaffolded": "Diffusion is _____."
   },
   {
     "id": "q0383",
@@ -3828,7 +2516,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Absorption",
     "question": "What gives the small intestine a large surface ares?",
-    "answer": "Villi"
+    "answer": "Villi",
+    "scaffolded": "What gives the small intestine a large surface ares: _____."
   },
   {
     "id": "q0384",
@@ -3838,7 +2527,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Absorption",
     "question": "What properties do villi have that aid absorption of nutrients?",
-    "answer": "Thin cell walls, a network of capillaries and a large surface area."
+    "answer": "Thin cell walls, a network of capillaries and a large surface area.",
+    "scaffolded": "What properties do villi have that aid absorption of nutrients: _____."
   },
   {
     "id": "q0385",
@@ -3848,7 +2538,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Dalton's atomic model",
     "question": "How is a physical change different to a chemical change?",
-    "answer": "Physical changes do not involve chemical reactions, and can often be reversed"
+    "answer": "Physical changes do not involve chemical reactions, and can often be reversed",
+    "scaffolded": "How is a physical change different to a chemical change: _____."
   },
   {
     "id": "q0386",
@@ -3858,7 +2549,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Dalton's atomic model",
     "question": "Is evaporation a physical or chemical change?",
-    "answer": "Physical change"
+    "answer": "Physical change",
+    "scaffolded": "Is evaporation a physical or chemical change: _____."
   },
   {
     "id": "q0387",
@@ -3868,7 +2560,8 @@ export const QUESTIONS = [
     "lesson_number": "1",
     "lesson_title": "Dalton's atomic model",
     "question": "What was Dalton's atomic model?",
-    "answer": "All matter is made up of indestructable atoms, which cannot be created or destroyed. Atoms in an element are identical to one another, but each element is made up of a different atom."
+    "answer": "All matter is made up of indestructable atoms, which cannot be created or destroyed. Atoms in an element are identical to one another, but each element is made up of a different atom.",
+    "scaffolded": "What was Dalton's atomic model: _____."
   },
   {
     "id": "q0388",
@@ -3878,7 +2571,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Chemical properties",
     "question": "Carbon hydride has a 1:4 ratio of Carbon to hydrogen atoms in each molecule. What is its chemical formula?",
-    "answer": "CH4"
+    "answer": "CH4",
+    "scaffolded": "Carbon hydride has a 1:4 ratio of Carbon to hydrogen atoms in each molecule. What is its chemical formula: _____."
   },
   {
     "id": "q0389",
@@ -3888,7 +2582,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Chemical properties",
     "question": "What is the ratio of carbon to oxygen atoms in carbon dioxide?",
-    "answer": "1:2"
+    "answer": "1:2",
+    "scaffolded": "The ratio of carbon to oxygen atoms in carbon dioxide is _____."
   },
   {
     "id": "q0390",
@@ -3898,7 +2593,8 @@ export const QUESTIONS = [
     "lesson_number": "2",
     "lesson_title": "Chemical properties",
     "question": "When 4g of zinc react completely with 1g of oxygen, what mass of zinc oxide is produced?",
-    "answer": "5g"
+    "answer": "5g",
+    "scaffolded": "When 4g of zinc react completely with 1g of oxygen, what mass of zinc oxide is produced: _____."
   },
   {
     "id": "q0391",
@@ -3908,7 +2604,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Mendeleev's table",
     "question": "Define \"group\"",
-    "answer": "Columns in the periodic table"
+    "answer": "Columns in the periodic table",
+    "scaffolded": "Group is _____."
   },
   {
     "id": "q0392",
@@ -3918,7 +2615,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Mendeleev's table",
     "question": "How are elements arranged in the periodic table?",
-    "answer": "In order of atomic number (lowest to highest)"
+    "answer": "In order of atomic number (lowest to highest)",
+    "scaffolded": "How are elements arranged in the periodic table: _____."
   },
   {
     "id": "q0393",
@@ -3928,7 +2626,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Mendeleev's table",
     "question": "How do you calculate the number of electrons for an element?",
-    "answer": "Use the atomic number"
+    "answer": "Use the atomic number",
+    "scaffolded": "How do you calculate the number of electrons for an element: _____."
   },
   {
     "id": "q0394",
@@ -3938,77 +2637,8 @@ export const QUESTIONS = [
     "lesson_number": "3",
     "lesson_title": "Mendeleev's table",
     "question": "How do you calculate the number of neutrons for an element?",
-    "answer": "Mass number - atomic number"
-  },
-  {
-    "id": "q0395",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "How do you calculate the number of protons for an element?",
-    "answer": "Use the atomic number"
-  },
-  {
-    "id": "q0396",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "How do you calculate the relative formula mass of a compound? (extension only)",
-    "answer": "Add up the mass numbers"
-  },
-  {
-    "id": "q0397",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "The column (group) in the periodic table tells us the …",
-    "answer": "Number of electrons in the outer shell"
-  },
-  {
-    "id": "q0398",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "What is the name for the bigger number given for each element?",
-    "answer": "Mass number"
-  },
-  {
-    "id": "q0399",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "What is the name for the smaller number given for each element?",
-    "answer": "Atomic number"
-  },
-  {
-    "id": "q0400",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "What is the name of the elements found in the middle of the periodic table that are not part of a group?",
-    "answer": "Transition metals"
-  },
-  {
-    "id": "q0401",
-    "lesson_id": "8Fc",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "3",
-    "lesson_title": "Mendeleev's table",
-    "question": "Why did Mendeleev do when creating the modern periodic table? (extension only)",
-    "answer": "Left gaps to make the pattern fit"
+    "answer": "Mass number - atomic number",
+    "scaffolded": "How do you calculate the number of neutrons for an element: _____."
   },
   {
     "id": "q0402",
@@ -4018,7 +2648,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Physical trends",
     "question": "Define \"period\"",
-    "answer": "Rows in the periodic table"
+    "answer": "Rows in the periodic table",
+    "scaffolded": "Period is _____."
   },
   {
     "id": "q0403",
@@ -4028,7 +2659,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Physical trends",
     "question": "Give 4 properties of metals",
-    "answer": "*High melting point\n *Good thermal and electrical conductors\n *Ductile\n *Malleable"
+    "answer": "*High melting point\n *Good thermal and electrical conductors\n *Ductile\n *Malleable",
+    "scaffolded": "Properties of metals include _____."
   },
   {
     "id": "q0404",
@@ -4038,7 +2670,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Physical trends",
     "question": "Give 4 properties of non-metals",
-    "answer": "*Low melting point\n *Poor thermal and electrical conductors\n *Brittle"
+    "answer": "*Low melting point\n *Poor thermal and electrical conductors\n *Brittle",
+    "scaffolded": "Properties of non-metals include _____."
   },
   {
     "id": "q0405",
@@ -4048,77 +2681,8 @@ export const QUESTIONS = [
     "lesson_number": "4",
     "lesson_title": "Physical trends",
     "question": "Name the 5 halogens (group 7) in order of reactivity (low to high)",
-    "answer": "Astatine, Iodine, Bromine, Chlorine, Fluorine"
-  },
-  {
-    "id": "q0406",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "Name three noble gases (group 0) (extension only)",
-    "answer": "Helium, neon, argon"
-  },
-  {
-    "id": "q0407",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "State 3 properties of the halogens (group 7)",
-    "answer": "Non-metal, highly reactive, diatomic"
-  },
-  {
-    "id": "q0408",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "State 3 properties of the noble gases (group 0) (extension only)",
-    "answer": "Non-metal, inert, gases"
-  },
-  {
-    "id": "q0409",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "What happens to density as you move down the noble gases (group 0)? (extension only)",
-    "answer": "Increases"
-  },
-  {
-    "id": "q0410",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "What happens to reactivity as you move down the halogens (group 7)?",
-    "answer": "Decreases"
-  },
-  {
-    "id": "q0411",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "Which side of the periodic table contains metals?",
-    "answer": "Left"
-  },
-  {
-    "id": "q0412",
-    "lesson_id": "8Fd",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "4",
-    "lesson_title": "Physical trends",
-    "question": "Which side of the periodic table contains non-metals?",
-    "answer": "Right"
+    "answer": "Astatine, Iodine, Bromine, Chlorine, Fluorine",
+    "scaffolded": "The 5 halogens (group 7) in order of reactivity (low to high) are _____."
   },
   {
     "id": "q0413",
@@ -4128,7 +2692,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Chemical trends",
     "question": "Name 6 alkali metals in order of reactivity (low to high)",
-    "answer": "Lithium, sodium, potassium, rubidium, caesium, francium"
+    "answer": "Lithium, sodium, potassium, rubidium, caesium, francium",
+    "scaffolded": "6 alkali metals in order of reactivity (low to high) are _____."
   },
   {
     "id": "q0414",
@@ -4138,7 +2703,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Chemical trends",
     "question": "What happens to reactivity as you move down the alkali metals (group 1)?",
-    "answer": "Increases"
+    "answer": "Increases",
+    "scaffolded": "What happens to reactivity as you move down the alkali metals (group 1): _____."
   },
   {
     "id": "q0415",
@@ -4148,7 +2714,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Chemical trends",
     "question": "What is formed when alkali metals (group 1) react with water?",
-    "answer": "Alkaline metal hydroxide"
+    "answer": "Alkaline metal hydroxide",
+    "scaffolded": "Formed when alkali metals (group 1) react with water is _____."
   },
   {
     "id": "q0416",
@@ -4158,27 +2725,8 @@ export const QUESTIONS = [
     "lesson_number": "5",
     "lesson_title": "Chemical trends",
     "question": "When cut, how do alkali metals (group 1) appear?",
-    "answer": "Shiny"
-  },
-  {
-    "id": "q0417",
-    "lesson_id": "8Fe",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "5",
-    "lesson_title": "Chemical trends",
-    "question": "Where are alkali metals found in the periodic table?",
-    "answer": "Group 1"
-  },
-  {
-    "id": "q0418",
-    "lesson_id": "8Fe",
-    "topic_id": "8F",
-    "topic_name": "The Periodic Table",
-    "lesson_number": "5",
-    "lesson_title": "Chemical trends",
-    "question": "Where are halogens found in the periodic table?",
-    "answer": "Group 7"
+    "answer": "Shiny",
+    "scaffolded": "When cut, how do alkali metals (group 1) appear: _____."
   }
 ];
 

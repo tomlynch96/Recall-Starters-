@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, clearCurrentTeacher, getSessionLog } from '../utils/storage.js';
+import { getTeachers, saveTeachers, getCurrentTeacher, clearCurrentTeacher, getSessionLog } from '../utils/storage.js';
 import { ROTAS } from '../data/staticData.js';
 
 function getRotaName(rotaId) {
@@ -17,7 +18,7 @@ function getLastSession(classId, sessionLog) {
 export default function HomePage() {
   const navigate = useNavigate();
   const email = getCurrentTeacher();
-  const teachers = getTeachers();
+  const [teachers, setTeachers] = useState(() => getTeachers());
   const sessionLog = getSessionLog();
   const currentTeacher = teachers.find(t => t.email === email);
 
@@ -28,15 +29,26 @@ export default function HomePage() {
 
   const classSet = new Map();
   for (const t of teachers) {
-    if (!classSet.has(t.class_id)) {
+    if (t.class_id && !classSet.has(t.class_id)) {
       classSet.set(t.class_id, t);
     }
   }
   const classes = Array.from(classSet.values());
 
+  // HoD status: true if ANY teacher entry for this email has is_hod=true
+  const isHoD = teachers.some(t => t.email === email && t.is_hod);
+
   function logout() {
     clearCurrentTeacher();
     navigate('/login');
+  }
+
+  function toggleHoD() {
+    const updated = teachers.map(t =>
+      t.email === email ? { ...t, is_hod: !isHoD } : t
+    );
+    saveTeachers(updated);
+    setTeachers(updated);
   }
 
   return (
@@ -45,6 +57,17 @@ export default function HomePage() {
         <h1 className="text-2xl font-bold text-blue-800">Recall Starter</h1>
         <div className="flex items-center gap-4">
           <span className="text-gray-500 text-sm">{email}</span>
+          <button
+            onClick={toggleHoD}
+            title={isHoD ? 'Click to leave HoD mode' : 'Click to enable HoD mode'}
+            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+              isHoD
+                ? 'bg-blue-700 text-white border-blue-700 hover:bg-blue-800'
+                : 'text-gray-400 border-gray-200 hover:border-blue-400 hover:text-blue-600'
+            }`}
+          >
+            {isHoD ? 'HoD ✓' : 'HoD'}
+          </button>
           <button onClick={logout} className="text-sm text-gray-500 hover:text-gray-700 underline">
             Log out
           </button>
@@ -87,16 +110,16 @@ export default function HomePage() {
         )}
       </main>
 
-      <footer className="text-center py-6">
-        {currentTeacher?.is_hod && (
+      {isHoD && (
+        <div className="max-w-4xl mx-auto px-6 pb-10">
           <button
             onClick={() => navigate('/hod')}
-            className="text-sm text-blue-600 hover:underline"
+            className="w-full py-4 border-2 border-dashed border-blue-200 rounded-2xl text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-colors font-medium"
           >
-            HoD Dashboard
+            Open HoD Dashboard — all classes overview →
           </button>
-        )}
-      </footer>
+        </div>
+      )}
     </div>
   );
 }
