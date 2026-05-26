@@ -4,14 +4,6 @@ import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, saveCla
 import { generateUUID } from '../utils/uuid.js';
 import { ROTAS } from '../data/staticData.js';
 
-const ROTA_OPTIONS = [
-  { id: 'rota-a', label: 'Rota A — Solo teacher (6 lessons/fortnight)' },
-  { id: 'rota-b-t1', label: 'Rota B — Teacher 1 (4 lessons/fortnight)' },
-  { id: 'rota-b-t2', label: 'Rota B — Teacher 2 (2 lessons/fortnight)' },
-  { id: 'rota-c-t1', label: 'Rota C — Teacher 1 (3 lessons/fortnight)' },
-  { id: 'rota-c-t2', label: 'Rota C — Teacher 2 (3 lessons/fortnight)' },
-];
-
 function getRotaName(rotaId) {
   const e = ROTAS.find(r => r.rota_id === rotaId);
   return e ? e.rota_name : rotaId;
@@ -37,7 +29,6 @@ export default function HoDPage() {
 
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
-  const [newRotaId, setNewRotaId] = useState('rota-a');
 
   // Allow access if any entry for this email has is_hod=true
   const isHoD = teachers.some(t => t.email === email && t.is_hod);
@@ -50,12 +41,8 @@ export default function HoDPage() {
     e.preventDefault();
     const name = newClassName.trim();
     if (!name) return;
-    if (classOptions.find(o => o.class_id === name)) return; // already exists
-    const rota = ROTA_OPTIONS.find(r => r.id === newRotaId);
-    const updated = [
-      ...classOptions,
-      { id: generateUUID(), class_id: name, rota_id: newRotaId, rota_label: rota?.label || newRotaId },
-    ];
+    if (classOptions.find(o => o.class_id === name)) return;
+    const updated = [...classOptions, { id: generateUUID(), class_id: name }];
     saveClassOptions(updated);
     setClassOptions(updated);
     setNewClassName('');
@@ -109,23 +96,14 @@ export default function HoDPage() {
           </p>
 
           {/* Add form */}
-          <form onSubmit={addClassOption} className="flex gap-2 mb-4 flex-wrap">
+          <form onSubmit={addClassOption} className="flex gap-2 mb-4">
             <input
               type="text"
               value={newClassName}
               onChange={e => setNewClassName(e.target.value)}
               placeholder="Class name e.g. 10A/Sc1"
-              className="flex-1 min-w-48 border-2 border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
+              className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
             />
-            <select
-              value={newRotaId}
-              onChange={e => setNewRotaId(e.target.value)}
-              className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-            >
-              {ROTA_OPTIONS.map(r => (
-                <option key={r.id} value={r.id}>{r.label}</option>
-              ))}
-            </select>
             <button
               type="submit"
               className="px-5 py-2 bg-blue-700 text-white text-sm font-semibold rounded-xl hover:bg-blue-800 transition-colors"
@@ -157,6 +135,50 @@ export default function HoDPage() {
               ))}
             </div>
           )}
+        </section>
+
+        {/* ── Teacher assignments ── */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-700 mb-4">Teacher assignments</h2>
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            {classOptions.length === 0 ? (
+              <p className="px-4 py-3 text-sm text-gray-400">No classes created yet.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    {['Class', 'Teachers', 'Rotas'].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {classOptions.map(opt => {
+                    const assigned = teachers.filter(t => t.class_id === opt.class_id && t.email);
+                    return (
+                      <tr key={opt.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-medium text-gray-800">{opt.class_id}</td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {assigned.length === 0
+                            ? <span className="text-gray-300 italic">None yet</span>
+                            : assigned.map(t => (
+                              <div key={t.id}>{t.email}</div>
+                            ))}
+                        </td>
+                        <td className="px-4 py-3 text-gray-500">
+                          {assigned.length === 0
+                            ? '—'
+                            : assigned.map(t => (
+                              <div key={t.id}>{getRotaName(t.rota_id)}</div>
+                            ))}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
         </section>
 
         {/* ── Class engagement overview ── */}
