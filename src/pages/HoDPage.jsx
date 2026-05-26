@@ -1,6 +1,16 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, saveClassOptions } from '../utils/storage.js';
+import { generateUUID } from '../utils/uuid.js';
 import { ROTAS } from '../data/staticData.js';
+
+const ROTA_OPTIONS = [
+  { id: 'rota-a', label: 'Rota A — Solo teacher (6 lessons/fortnight)' },
+  { id: 'rota-b-t1', label: 'Rota B — Teacher 1 (4 lessons/fortnight)' },
+  { id: 'rota-b-t2', label: 'Rota B — Teacher 2 (2 lessons/fortnight)' },
+  { id: 'rota-c-t1', label: 'Rota C — Teacher 1 (3 lessons/fortnight)' },
+  { id: 'rota-c-t2', label: 'Rota C — Teacher 2 (3 lessons/fortnight)' },
+];
 
 function getRotaName(rotaId) {
   const e = ROTAS.find(r => r.rota_id === rotaId);
@@ -25,9 +35,34 @@ export default function HoDPage() {
   const teachers = getTeachers();
   const current = teachers.find(t => t.email === email);
 
+  const [classOptions, setClassOptions] = useState(() => getClassOptions());
+  const [newClassName, setNewClassName] = useState('');
+  const [newRotaId, setNewRotaId] = useState('rota-a');
+
   if (!current?.is_hod) {
     navigate('/');
     return null;
+  }
+
+  function addClassOption(e) {
+    e.preventDefault();
+    const name = newClassName.trim();
+    if (!name) return;
+    if (classOptions.find(o => o.class_id === name)) return; // already exists
+    const rota = ROTA_OPTIONS.find(r => r.id === newRotaId);
+    const updated = [
+      ...classOptions,
+      { id: generateUUID(), class_id: name, rota_id: newRotaId, rota_label: rota?.label || newRotaId },
+    ];
+    saveClassOptions(updated);
+    setClassOptions(updated);
+    setNewClassName('');
+  }
+
+  function removeClassOption(id) {
+    const updated = classOptions.filter(o => o.id !== id);
+    saveClassOptions(updated);
+    setClassOptions(updated);
   }
 
   const sessionLog = getSessionLog();
@@ -63,6 +98,66 @@ export default function HoDPage() {
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-10">
+
+        {/* ── Class management ── */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-700 mb-1">Class setup</h2>
+          <p className="text-sm text-gray-400 mb-4">
+            Add the classes teachers can choose from. Teachers cannot create their own until at least one is listed here.
+          </p>
+
+          {/* Add form */}
+          <form onSubmit={addClassOption} className="flex gap-2 mb-4 flex-wrap">
+            <input
+              type="text"
+              value={newClassName}
+              onChange={e => setNewClassName(e.target.value)}
+              placeholder="Class name e.g. 10A/Sc1"
+              className="flex-1 min-w-48 border-2 border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
+            />
+            <select
+              value={newRotaId}
+              onChange={e => setNewRotaId(e.target.value)}
+              className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+            >
+              {ROTA_OPTIONS.map(r => (
+                <option key={r.id} value={r.id}>{r.label}</option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="px-5 py-2 bg-blue-700 text-white text-sm font-semibold rounded-xl hover:bg-blue-800 transition-colors"
+            >
+              Add class
+            </button>
+          </form>
+
+          {/* Current class options */}
+          {classOptions.length === 0 ? (
+            <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              No classes added yet — teachers will see a locked screen until you add at least one.
+            </p>
+          ) : (
+            <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
+              {classOptions.map(option => (
+                <div key={option.id} className="flex items-center justify-between px-4 py-3">
+                  <div>
+                    <span className="font-semibold text-gray-800 mr-3">{option.class_id}</span>
+                    <span className="text-sm text-gray-400">{option.rota_label}</span>
+                  </div>
+                  <button
+                    onClick={() => removeClassOption(option.id)}
+                    className="text-sm text-red-400 hover:text-red-600 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ── Class engagement overview ── */}
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-4">Class overview</h2>
           <div className="overflow-x-auto bg-white rounded-xl border border-gray-200">
