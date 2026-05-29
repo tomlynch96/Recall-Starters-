@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, saveClassOptions } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
 import { ROTAS } from '../data/staticData.js';
 
@@ -25,33 +25,30 @@ export default function HoDPage() {
   const navigate = useNavigate();
   const email = getCurrentTeacher();
   const teachers = getTeachers();
-  const current = teachers.find(t => t.email === email);
 
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
 
-  // Allow access if any entry for this email has is_hod=true
   const isHoD = teachers.some(t => t.email === email && t.is_hod);
   if (!isHoD) {
     navigate('/');
     return null;
   }
 
-  function addClassOption(e) {
+  function handleAddClass(e) {
     e.preventDefault();
     const name = newClassName.trim();
     if (!name) return;
     if (classOptions.find(o => o.class_id === name)) return;
-    const updated = [...classOptions, { id: generateUUID(), class_id: name }];
-    saveClassOptions(updated);
-    setClassOptions(updated);
+    const classObj = { id: generateUUID(), class_id: name };
+    addClassOption(classObj);
+    setClassOptions(getClassOptions());
     setNewClassName('');
   }
 
-  function removeClassOption(id) {
-    const updated = classOptions.filter(o => o.id !== id);
-    saveClassOptions(updated);
-    setClassOptions(updated);
+  function handleRemoveClass(id) {
+    removeClassOption(id);
+    setClassOptions(getClassOptions());
   }
 
   const sessionLog = getSessionLog();
@@ -95,8 +92,7 @@ export default function HoDPage() {
             Add the classes teachers can choose from. Teachers cannot create their own until at least one is listed here.
           </p>
 
-          {/* Add form */}
-          <form onSubmit={addClassOption} className="flex gap-2 mb-4">
+          <form onSubmit={handleAddClass} className="flex gap-2 mb-4">
             <input
               type="text"
               value={newClassName}
@@ -112,7 +108,6 @@ export default function HoDPage() {
             </button>
           </form>
 
-          {/* Current class options */}
           {classOptions.length === 0 ? (
             <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
               No classes added yet — teachers will see a locked screen until you add at least one.
@@ -126,7 +121,7 @@ export default function HoDPage() {
                     <span className="text-sm text-gray-400">{option.rota_label}</span>
                   </div>
                   <button
-                    onClick={() => removeClassOption(option.id)}
+                    onClick={() => handleRemoveClass(option.id)}
                     className="text-sm text-red-400 hover:text-red-600 transition-colors"
                   >
                     Remove
@@ -161,16 +156,12 @@ export default function HoDPage() {
                         <td className="px-4 py-3 text-gray-600">
                           {assigned.length === 0
                             ? <span className="text-gray-300 italic">None yet</span>
-                            : assigned.map(t => (
-                              <div key={t.id}>{t.email}</div>
-                            ))}
+                            : assigned.map(t => <div key={t.id}>{t.email}</div>)}
                         </td>
                         <td className="px-4 py-3 text-gray-500">
                           {assigned.length === 0
                             ? '—'
-                            : assigned.map(t => (
-                              <div key={t.id}>{getRotaName(t.rota_id)}</div>
-                            ))}
+                            : assigned.map(t => <div key={t.id}>{getRotaName(t.rota_id)}</div>)}
                         </td>
                       </tr>
                     );

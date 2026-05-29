@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getTeachers, saveTeachers, getCurrentTeacher, getSessionLog, saveSessionLog } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, updateTeacherRota, appendSession } from '../utils/storage.js';
 import { ROTAS, LESSONS } from '../data/staticData.js';
 import { generateUUID } from '../utils/uuid.js';
 
@@ -37,7 +37,6 @@ export default function LessonPage() {
   const email = getCurrentTeacher();
   const teacher = teachers.find(t => t.class_id === decodedClassId && t.email === email);
 
-  // Compute start index before hooks — safe even if teacher is null
   const initialRotaId = teacher?.rota_id || 'rota-a';
   const sessionLog = getSessionLog();
   const mySessions = sessionLog.filter(s => s.class_id === decodedClassId && s.teacher_email === email);
@@ -62,10 +61,7 @@ export default function LessonPage() {
   const selectedRota = rotaLessons[Math.min(idx, rotaLessons.length - 1)];
 
   function changeRota(newRotaId) {
-    const all = getTeachers();
-    saveTeachers(all.map(t =>
-      t.class_id === decodedClassId && t.email === email ? { ...t, rota_id: newRotaId } : t
-    ));
+    updateTeacherRota(decodedClassId, email, newRotaId);
     setRotaId(newRotaId);
     setIdx(0);
   }
@@ -80,13 +76,12 @@ export default function LessonPage() {
       lesson_id: selectedRota.lesson_id,
       opened_at: new Date().toISOString(),
     };
-    saveSessionLog([...getSessionLog(), entry]);
+    appendSession(entry);
     navigate(`/starter/${encodeURIComponent(decodedClassId)}/${selectedRota.lesson_order}`);
   }
 
   function openFillerInput() {
     setShowFillerInput(true);
-    // Focus the input on next tick after render
     setTimeout(() => fillerInputRef.current?.focus(), 0);
   }
 
@@ -100,7 +95,7 @@ export default function LessonPage() {
       lesson_id: null,
       opened_at: new Date().toISOString(),
     };
-    saveSessionLog([...getSessionLog(), entry]);
+    appendSession(entry);
     navigate(`/filler/${encodeURIComponent(decodedClassId)}`, {
       state: { fillerTitle: title },
     });

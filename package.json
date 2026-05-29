@@ -12,6 +12,7 @@
     "export-template": "node scripts/parseExcel.js && node scripts/exportTemplate.js"
   },
   "dependencies": {
+    "firebase": "^12.14.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",

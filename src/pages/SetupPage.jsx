@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, saveTeachers, getCurrentTeacher, getClassOptions } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getClassOptions, enrollTeacher } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
 
 const ROTA_OPTIONS = [
@@ -27,8 +27,7 @@ export default function SetupPage() {
     e.preventDefault();
     const option = available.find(o => o.id === selectedId);
     if (!option) return;
-    const all = getTeachers();
-    all.push({
+    enrollTeacher({
       id: generateUUID(),
       email,
       class_id: option.class_id,
@@ -36,14 +35,13 @@ export default function SetupPage() {
       is_hod: false,
       created_at: new Date().toISOString(),
     });
-    saveTeachers(all);
     navigate('/');
   }
 
   function registerAsHoD() {
     const all = getTeachers();
     if (!all.find(t => t.email === email && t.is_hod)) {
-      all.push({
+      enrollTeacher({
         id: generateUUID(),
         email,
         class_id: null,
@@ -51,7 +49,6 @@ export default function SetupPage() {
         is_hod: true,
         created_at: new Date().toISOString(),
       });
-      saveTeachers(all);
     }
     navigate('/hod');
   }
