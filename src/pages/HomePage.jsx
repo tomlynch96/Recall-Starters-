@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, saveTeachers, getCurrentTeacher, clearCurrentTeacher, getSessionLog } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag } from '../utils/storage.js';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import { ROTAS } from '../data/staticData.js';
 
 function getRotaName(rotaId) {
@@ -17,10 +18,10 @@ function getLastSession(classId, sessionLog) {
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const email = getCurrentTeacher();
   const [teachers, setTeachers] = useState(() => getTeachers());
   const sessionLog = getSessionLog();
-  const currentTeacher = teachers.find(t => t.email === email);
 
   if (!email) {
     navigate('/login');
@@ -35,20 +36,17 @@ export default function HomePage() {
   }
   const classes = Array.from(classSet.values());
 
-  // HoD status: true if ANY teacher entry for this email has is_hod=true
   const isHoD = teachers.some(t => t.email === email && t.is_hod);
 
-  function logout() {
-    clearCurrentTeacher();
+  async function logout() {
+    await signOut();
     navigate('/login');
   }
 
   function toggleHoD() {
-    const updated = teachers.map(t =>
-      t.email === email ? { ...t, is_hod: !isHoD } : t
-    );
-    saveTeachers(updated);
-    setTeachers(updated);
+    const newValue = !isHoD;
+    updateHoDFlag(email, newValue);
+    setTeachers(getTeachers());
   }
 
   return (

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, saveTeachers, getCurrentTeacher, getClassOptions } from '../utils/storage.js';
-import { generateUUID } from '../utils/uuid.js';
+import { getTeachers, getCurrentTeacher, getClassOptions, enrollTeacher } from '../utils/storage.js';
 
 const ROTA_OPTIONS = [
   { id: 'rota-a', label: 'Rota A — Solo teacher (6 lessons/fortnight)' },
@@ -23,35 +22,18 @@ export default function SetupPage() {
   const [selectedId, setSelectedId] = useState('');
   const [rotaId, setRotaId] = useState('rota-a');
 
-  function handleSave(e) {
+  async function handleSave(e) {
     e.preventDefault();
     const option = available.find(o => o.id === selectedId);
     if (!option) return;
-    const all = getTeachers();
-    all.push({
-      id: generateUUID(),
-      email,
-      class_id: option.class_id,
-      rota_id: rotaId,
-      is_hod: false,
-      created_at: new Date().toISOString(),
-    });
-    saveTeachers(all);
+    await enrollTeacher({ email, classId: option.class_id, rotaId, isHod: false });
     navigate('/');
   }
 
-  function registerAsHoD() {
+  async function registerAsHoD() {
     const all = getTeachers();
     if (!all.find(t => t.email === email && t.is_hod)) {
-      all.push({
-        id: generateUUID(),
-        email,
-        class_id: null,
-        rota_id: null,
-        is_hod: true,
-        created_at: new Date().toISOString(),
-      });
-      saveTeachers(all);
+      await enrollTeacher({ email, classId: null, rotaId: null, isHod: true });
     }
     navigate('/hod');
   }

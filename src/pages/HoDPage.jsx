@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, saveClassOptions } from '../utils/storage.js';
-import { generateUUID } from '../utils/uuid.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClass, removeClass } from '../utils/storage.js';
 import { ROTAS } from '../data/staticData.js';
 
 function getRotaName(rotaId) {
@@ -37,21 +36,20 @@ export default function HoDPage() {
     return null;
   }
 
-  function addClassOption(e) {
+  async function addClassOption(e) {
     e.preventDefault();
     const name = newClassName.trim();
     if (!name) return;
-    if (classOptions.find(o => o.class_id === name)) return;
-    const updated = [...classOptions, { id: generateUUID(), class_id: name }];
-    saveClassOptions(updated);
-    setClassOptions(updated);
-    setNewClassName('');
+    const newOption = await addClass(name);
+    if (newOption) {
+      setClassOptions(getClassOptions());
+      setNewClassName('');
+    }
   }
 
   function removeClassOption(id) {
-    const updated = classOptions.filter(o => o.id !== id);
-    saveClassOptions(updated);
-    setClassOptions(updated);
+    removeClass(id);
+    setClassOptions(getClassOptions());
   }
 
   const sessionLog = getSessionLog();

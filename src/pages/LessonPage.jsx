@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getTeachers, saveTeachers, getCurrentTeacher, getSessionLog, saveSessionLog } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, updateTeacherRota, appendSession } from '../utils/storage.js';
 import { ROTAS, LESSONS } from '../data/staticData.js';
 import { generateUUID } from '../utils/uuid.js';
 
@@ -62,45 +62,39 @@ export default function LessonPage() {
   const selectedRota = rotaLessons[Math.min(idx, rotaLessons.length - 1)];
 
   function changeRota(newRotaId) {
-    const all = getTeachers();
-    saveTeachers(all.map(t =>
-      t.class_id === decodedClassId && t.email === email ? { ...t, rota_id: newRotaId } : t
-    ));
+    updateTeacherRota(email, decodedClassId, newRotaId);
     setRotaId(newRotaId);
     setIdx(0);
   }
 
   function startStarter() {
     if (!selectedRota) return;
-    const entry = {
+    appendSession({
       id: generateUUID(),
       class_id: decodedClassId,
       teacher_email: email,
       lesson_order: selectedRota.lesson_order,
       lesson_id: selectedRota.lesson_id,
       opened_at: new Date().toISOString(),
-    };
-    saveSessionLog([...getSessionLog(), entry]);
+    });
     navigate(`/starter/${encodeURIComponent(decodedClassId)}/${selectedRota.lesson_order}`);
   }
 
   function openFillerInput() {
     setShowFillerInput(true);
-    // Focus the input on next tick after render
     setTimeout(() => fillerInputRef.current?.focus(), 0);
   }
 
   function startFiller() {
     const title = fillerTitleInput.trim() || 'Filler Lesson';
-    const entry = {
+    appendSession({
       id: generateUUID(),
       class_id: decodedClassId,
       teacher_email: email,
       lesson_order: -1,
       lesson_id: null,
       opened_at: new Date().toISOString(),
-    };
-    saveSessionLog([...getSessionLog(), entry]);
+    });
     navigate(`/filler/${encodeURIComponent(decodedClassId)}`, {
       state: { fillerTitle: title },
     });

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, syncQuestionLog, upsertQuestionLogEntry } from '../utils/storage.js';
 import { generateStarterQuestions, updateQuestionLog } from '../utils/scheduler.js';
 import { ROTAS, LESSONS, CHALLENGE_PLUS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
@@ -108,6 +108,7 @@ export default function StarterPage() {
     const log = getQuestionLog();
     const updated = updateQuestionLog(decodedClassId, questions, currentLessonOrder, log);
     saveQuestionLog(updated);
+    syncQuestionLog(updated.filter(e => e.class_id === decodedClassId));
 
     const flagged = questions.filter(q => q.flagged);
     if (flagged.length > 0) {
