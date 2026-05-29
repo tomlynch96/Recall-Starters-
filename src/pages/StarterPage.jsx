@@ -51,7 +51,8 @@ export default function StarterPage() {
     // Persist immediately so both teachers sharing this class see it
     upsertQuestionLogEntry(decodedClassId, question.id, {
       flagged: nowFlagged,
-      ...(nowFlagged ? { next_due_lesson: currentLessonOrder + 1 } : {}),
+      // next_due_lesson: 0 so flagged questions surface for all co-teachers immediately
+      ...(nowFlagged ? { next_due_lesson: 0 } : {}),
     });
     setQuestions(qs => qs.map(q =>
       q.id === question.id ? { ...q, flagged: nowFlagged } : q

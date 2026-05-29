@@ -32,13 +32,16 @@ export function getEligibleQuestions(classId, currentLessonOrder, rotaId, questi
   }
 
   return QUESTIONS.filter(q => {
+    const entry = logMap[q.id];
+    // Flagged questions always surface for all co-teachers of the class,
+    // regardless of which teacher's rota originally contained the question.
+    if (entry && entry.flagged) return true;
+
     const lessonOrder = rotaMap[q.lesson_id];
     if (lessonOrder === undefined) return false;
     if (lessonOrder >= currentLessonOrder) return false;
 
-    const entry = logMap[q.id];
     if (!entry) return true; // unseen
-    if (entry.flagged) return entry.next_due_lesson <= currentLessonOrder;
     return entry.next_due_lesson <= currentLessonOrder;
   }).map(q => {
     const entry = logMap[q.id];
@@ -49,7 +52,7 @@ export function getEligibleQuestions(classId, currentLessonOrder, rotaId, questi
       next_due_lesson: entry ? entry.next_due_lesson : 0,
       flagged: entry ? entry.flagged : false,
       flag_resolved: entry ? entry.flag_resolved : false,
-      lesson_order: rotaMap[q.lesson_id],
+      lesson_order: rotaMap[q.lesson_id] ?? 0,
     };
   });
 }

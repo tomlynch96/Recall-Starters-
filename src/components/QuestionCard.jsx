@@ -1,41 +1,18 @@
 import { useState } from 'react';
 
-// Fill in the blank(s) with the correct answer for display on reveal
-function completeScaffold(scaffold, question, answer) {
-  // "Define 'X'" questions: the blank is the TERM, not the full definition
-  const defineMatch = question.match(/^Define\s+['"]?(.+?)['"]?\.?\s*$/i);
-  if (defineMatch) {
-    const term = defineMatch[1].trim();
-    return scaffold.replace(/[A-Za-z]?_{2,}/g, term);
-  }
-
-  // All other questions: replace the whole blank cluster with the answer
-  // Blank cluster: first-letter hints separated by spaces, commas, "and", "or"
-  const BLANK_CLUSTER = /[A-Za-z]?_{2,}(?:[,\s]+(?:and\s+|or\s+)?[A-Za-z]?_{2,})*/;
-  const blankIdx = scaffold.search(BLANK_CLUSTER);
-
-  // Lowercase answer if the blank is mid-sentence
-  let ans = answer;
-  if (blankIdx > 0) {
-    ans = ans.charAt(0).toLowerCase() + ans.slice(1);
-    // Strip any leading portion of the answer that's already present in the scaffold
-    // before the blank — handles cases like "...by strong t_____" + "By strong tendons"
-    const contextWords = scaffold.slice(0, blankIdx).trim().toLowerCase().split(/\s+/);
-    const ansLower = ans.toLowerCase();
-    for (let i = contextWords.length; i >= 1; i--) {
-      const prefix = contextWords.slice(-i).join(' ') + ' ';
-      if (ansLower.startsWith(prefix)) {
-        ans = ans.slice(prefix.length);
-        break;
-      }
+// Render a bracket-format scaffold: [word] hidden as _____ until revealed, then shown in colour
+function renderScaffold(scaffold, revealed) {
+  const parts = scaffold.split(/(\[[^\]]+\])/);
+  return parts.map((part, i) => {
+    const m = part.match(/^\[([^\]]+)\]$/);
+    if (!m) return <span key={i}>{part}</span>;
+    const word = m[1];
+    if (revealed) {
+      return <span key={i} className="text-orange-500 font-bold">{word}</span>;
     }
-    // Strip leading subject pronouns when answer is "They/It verb" style
-    // e.g. scaffold "...by h_____", answer "They hibernate" → "hibernate"
-    const pronounMatch = ans.match(/^(they|it|he|she|we)\s+/i);
-    if (pronounMatch) ans = ans.slice(pronounMatch[0].length);
-  }
-
-  return scaffold.replace(new RegExp(BLANK_CLUSTER.source, 'g'), ans);
+    const blanks = '_'.repeat(Math.min(Math.max(word.replace(/\s/g, '').length, 4), 10));
+    return <span key={i} className="text-gray-400 font-mono">{blanks}</span>;
+  });
 }
 
 export default function QuestionCard({ question, index, onFlag, onSwap, onRemove, scaffoldAll }) {
@@ -94,13 +71,9 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
       </div>
 
       {showScaffold ? (
-        <p className="text-3xl font-semibold leading-snug pr-24">
-          <span className="font-bold mr-2 text-gray-900">{index + 1})</span>
-          <span className={revealed ? 'text-green-800' : 'text-gray-900'}>
-            {revealed
-              ? completeScaffold(scaffold, question.question, question.answer)
-              : scaffold}
-          </span>
+        <p className="text-gray-900 text-3xl font-semibold leading-snug pr-24">
+          <span className="font-bold mr-2">{index + 1})</span>
+          {renderScaffold(scaffold, revealed)}
         </p>
       ) : (
         <>
