@@ -16,10 +16,7 @@ export default function LoginPage() {
     setSigningIn(true);
     try {
       await signInWithGoogle();
-      const teachers = getTeachers();
-      const storedEmail = localStorage.getItem('rs_current_teacher');
-      const exists = storedEmail && teachers.find(t => t.email === storedEmail);
-      navigate(exists ? '/' : '/setup');
+      // onAuthStateChanged handles setCurrentTeacher, hydration, and navigation
     } catch (err) {
       console.error('Sign-in error:', err);
       setError(err.message || 'Sign-in failed. Please try again.');

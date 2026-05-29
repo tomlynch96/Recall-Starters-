@@ -16,19 +16,21 @@ export function AuthProvider({ children }) {
     getRedirectResult(auth).catch(console.error);
 
     const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
+      // Set user immediately so RequireAuth doesn't redirect to /login while hydrating
+      setUser(firebaseUser);
+      setLoading(false);
+
       if (firebaseUser) {
         setCurrentTeacher(firebaseUser.email);
         await hydrateFromFirestore(firebaseUser.uid, firebaseUser.email);
+        // Navigate away from login once hydration is complete
+        if (window.location.pathname === '/login') {
+          const teachers = getTeachers();
+          const exists = teachers.find(t => t.email === firebaseUser.email);
+          window.location.href = exists ? '/' : '/setup';
+        }
       } else {
         clearCurrentTeacher();
-      }
-      setUser(firebaseUser);
-      setLoading(false);
-      // After redirect sign-in lands back, navigate away from /login
-      if (firebaseUser && window.location.pathname === '/login') {
-        const teachers = getTeachers();
-        const exists = teachers.find(t => t.email === firebaseUser.email);
-        window.location.href = exists ? '/' : '/setup';
       }
     });
     return unsubscribe;
