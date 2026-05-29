@@ -1,5 +1,43 @@
 import { useState } from 'react';
 
+// Fill in the blank(s) with the correct answer for display on reveal
+function completeScaffold(scaffold, question, answer) {
+  // "Define 'X'" questions: the blank is the TERM, not the full definition
+  const defineMatch = question.match(/^Define\s+['"]?(.+?)['"]?\.?\s*$/i);
+  if (defineMatch) {
+    const term = defineMatch[1].trim();
+    return scaffold.replace(/[A-Za-z]?_{2,}/g, term);
+  }
+
+  // All other questions: replace the whole blank cluster with the answer
+  // Blank cluster: first-letter hints separated by spaces, commas, "and", "or"
+  const BLANK_CLUSTER = /[A-Za-z]?_{2,}(?:[,\s]+(?:and\s+|or\s+)?[A-Za-z]?_{2,})*/;
+  const blankIdx = scaffold.search(BLANK_CLUSTER);
+
+  // Lowercase answer if the blank is mid-sentence
+  let ans = answer;
+  if (blankIdx > 0) {
+    ans = ans.charAt(0).toLowerCase() + ans.slice(1);
+    // Strip any leading portion of the answer that's already present in the scaffold
+    // before the blank — handles cases like "...by strong t_____" + "By strong tendons"
+    const contextWords = scaffold.slice(0, blankIdx).trim().toLowerCase().split(/\s+/);
+    const ansLower = ans.toLowerCase();
+    for (let i = contextWords.length; i >= 1; i--) {
+      const prefix = contextWords.slice(-i).join(' ') + ' ';
+      if (ansLower.startsWith(prefix)) {
+        ans = ans.slice(prefix.length);
+        break;
+      }
+    }
+    // Strip leading subject pronouns when answer is "They/It verb" style
+    // e.g. scaffold "...by h_____", answer "They hibernate" → "hibernate"
+    const pronounMatch = ans.match(/^(they|it|he|she|we)\s+/i);
+    if (pronounMatch) ans = ans.slice(pronounMatch[0].length);
+  }
+
+  return scaffold.replace(new RegExp(BLANK_CLUSTER.source, 'g'), ans);
+}
+
 export default function QuestionCard({ question, index, onFlag, onSwap, onRemove, scaffoldAll }) {
   const [revealed, setRevealed] = useState(false);
   const [localScaffold, setLocalScaffold] = useState(false);
@@ -55,24 +93,34 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
         </button>
       </div>
 
-      {/* Question text */}
-      <p className="text-gray-900 text-3xl font-semibold leading-snug pr-24">
-        <span className="font-bold mr-2">{index + 1})</span>
-        {question.question}
-      </p>
-
-      {/* Scaffold sentence — shown below question before reveal */}
-      {showScaffold && !revealed && (
-        <p className="mt-3 text-2xl text-gray-600 leading-snug italic">
-          {scaffold}
-        </p>
-      )}
-
-      {/* Answer — revealed on click */}
-      {revealed && (
-        <p className="mt-3 pt-3 border-t-2 border-orange-200 text-green-800 text-2xl font-medium">
-          {question.answer}
-        </p>
+      {showScaffold ? (
+        <>
+          {/* Scaffold replaces the question entirely */}
+          <p className={`text-gray-900 text-3xl font-semibold leading-snug pr-24 ${revealed ? 'text-gray-400' : ''}`}>
+            <span className="font-bold mr-2">{index + 1})</span>
+            {scaffold}
+          </p>
+          {/* Reveal shows the completed scaffold sentence */}
+          {revealed && (
+            <p className="mt-3 pt-3 border-t-2 border-orange-200 text-green-800 text-2xl font-medium">
+              {completeScaffold(scaffold, question.question, question.answer)}
+            </p>
+          )}
+        </>
+      ) : (
+        <>
+          {/* Normal question */}
+          <p className="text-gray-900 text-3xl font-semibold leading-snug pr-24">
+            <span className="font-bold mr-2">{index + 1})</span>
+            {question.question}
+          </p>
+          {/* Normal answer */}
+          {revealed && (
+            <p className="mt-3 pt-3 border-t-2 border-orange-200 text-green-800 text-2xl font-medium">
+              {question.answer}
+            </p>
+          )}
+        </>
       )}
 
       {question.flagged && (

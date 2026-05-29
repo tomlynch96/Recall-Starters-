@@ -1,5 +1,5 @@
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getTeachers, getQuestionLog } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getQuestionLog } from '../utils/storage.js';
 import { QUESTIONS, LESSONS, ROTAS } from '../data/staticData.js';
 import TopicAccordion from '../components/TopicAccordion.jsx';
 
@@ -9,7 +9,8 @@ export default function DashboardPage() {
   const decodedClassId = decodeURIComponent(classId);
 
   const teachers = getTeachers();
-  const teacher = teachers.find(t => t.class_id === decodedClassId);
+  const email = getCurrentTeacher();
+  const teacher = teachers.find(t => t.class_id === decodedClassId && t.email === email);
   if (!teacher) { navigate('/'); return null; }
 
   const questionLog = getQuestionLog();

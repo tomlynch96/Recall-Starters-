@@ -26,8 +26,8 @@ export default function LessonPage() {
   const decodedClassId = decodeURIComponent(classId);
 
   const teachers = getTeachers();
-  const teacher = teachers.find(t => t.class_id === decodedClassId);
   const email = getCurrentTeacher();
+  const teacher = teachers.find(t => t.class_id === decodedClassId && t.email === email);
 
   if (!teacher) {
     navigate('/');

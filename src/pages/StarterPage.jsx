@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getTeachers, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry } from '../utils/storage.js';
 import { generateStarterQuestions, updateQuestionLog } from '../utils/scheduler.js';
 import { ROTAS, LESSONS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
@@ -18,7 +18,8 @@ export default function StarterPage() {
   const currentLessonOrder = Number(lessonOrder);
 
   const teachers = getTeachers();
-  const teacher = teachers.find(t => t.class_id === decodedClassId);
+  const email = getCurrentTeacher();
+  const teacher = teachers.find(t => t.class_id === decodedClassId && t.email === email);
 
   const rotaEntry = teacher
     ? ROTAS.find(r => r.rota_id === teacher.rota_id && r.lesson_order === currentLessonOrder)
