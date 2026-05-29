@@ -87,10 +87,6 @@ export default function FillerPage() {
     const sessionLog = getSessionLog();
     const currentIds = questions.map(q => q.id);
     const pool = generateFillerQuestions(decodedClassId, teacher.rota_id, log, sessionLog);
-    const replacement = pool.find(q => !currentIds.includes(q.id) || q.id === question.id
-      ? q.id !== question.id && !currentIds.includes(q.id)
-      : false);
-    // Simpler: find first from pool that isn't already shown
     const available = pool.filter(q => !currentIds.includes(q.id));
     if (available.length > 0) {
       setQuestions(qs => qs.map((q, i) => i === idx ? available[0] : q));
