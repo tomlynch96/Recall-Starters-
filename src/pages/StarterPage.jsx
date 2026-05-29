@@ -145,7 +145,7 @@ export default function StarterPage() {
   }
 
   return (
-    <div className="group/page h-screen overflow-hidden bg-white flex flex-col">
+    <div className="h-screen overflow-hidden bg-white flex flex-col">
       {showResolution && (
         <FlagResolutionModal
           question={flagQueue[currentFlagIdx]}
@@ -154,8 +154,9 @@ export default function StarterPage() {
         />
       )}
 
-      {/* Icon menu — fixed top-right, invisible until page hover */}
-      <div className="fixed top-4 right-5 flex items-center gap-3 opacity-0 group-hover/page:opacity-100 transition-opacity z-10">
+      {/* Icon menu — fixed top-right hover zone; icons only appear when this corner is hovered */}
+      <div className="group fixed top-0 right-0 w-44 h-16 z-10 pointer-events-none">
+        <div className="absolute top-4 right-5 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
         <button
           onClick={() => setScaffoldAll(s => !s)}
           title={scaffoldAll ? 'Hide scaffolding' : 'Show scaffolding'}
@@ -177,6 +178,7 @@ export default function StarterPage() {
         >
           ×
         </button>
+        </div>
       </div>
 
       {/* Header: date left | title centre | timer countdown right (always visible when running) */}
