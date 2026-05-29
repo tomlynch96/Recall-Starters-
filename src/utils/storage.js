@@ -41,38 +41,41 @@ export async function hydrateFromFirestore(userId, email) {
   if (!db) return;
   _userId = userId;
   try {
-    // All teachers (needed to show co-teachers on SetupPage)
-    const teachersSnap = await getDocs(collection(db, 'teachers'));
+    // Phase 1 (blocking): fetch teachers + classes — needed to decide route and render first screen
+    const [teachersSnap, classesSnap] = await Promise.all([
+      getDocs(collection(db, 'teachers')),
+      getDocs(collection(db, 'classes')),
+    ]);
     const teachers = teachersSnap.docs.map(d => d.data());
     setJSON(KEYS.TEACHERS, teachers);
-
-    // All class options (HoD-managed list)
-    const classesSnap = await getDocs(collection(db, 'classes'));
     setJSON(KEYS.CLASS_OPTIONS, classesSnap.docs.map(d => d.data()));
 
-    // Classes this user is enrolled in
+    // Phase 2 (background): fetch question log + session log — not needed until StarterPage
     const myClasses = teachers
       .filter(t => t.email === email && t.class_id)
       .map(t => t.class_id);
 
     if (myClasses.length > 0) {
-      // Firestore 'in' supports up to 30 items; batch if needed
-      const qLogEntries = [];
-      const sLogEntries = [];
-      for (let i = 0; i < myClasses.length; i += 30) {
-        const batch = myClasses.slice(i, i + 30);
-        const [qlSnap, slSnap] = await Promise.all([
-          getDocs(query(collection(db, 'question_log'), where('class_id', 'in', batch))),
-          getDocs(query(collection(db, 'session_log'), where('class_id', 'in', batch))),
-        ]);
-        qLogEntries.push(...qlSnap.docs.map(d => d.data()));
-        sLogEntries.push(...slSnap.docs.map(d => d.data()));
-      }
-      setJSON(KEYS.QUESTION_LOG, qLogEntries);
-      setJSON(KEYS.SESSION_LOG, sLogEntries);
+      const fetchBackground = async () => {
+        const qLogEntries = [];
+        const sLogEntries = [];
+        for (let i = 0; i < myClasses.length; i += 30) {
+          const batch = myClasses.slice(i, i + 30);
+          const [qlSnap, slSnap] = await Promise.all([
+            getDocs(query(collection(db, 'question_log'), where('class_id', 'in', batch))),
+            getDocs(query(collection(db, 'session_log'), where('class_id', 'in', batch))),
+          ]);
+          qLogEntries.push(...qlSnap.docs.map(d => d.data()));
+          sLogEntries.push(...slSnap.docs.map(d => d.data()));
+        }
+        setJSON(KEYS.QUESTION_LOG, qLogEntries);
+        setJSON(KEYS.SESSION_LOG, sLogEntries);
+      };
+      fetchBackground().catch(err => console.error('Firestore background hydration error:', err));
     }
   } catch (err) {
     console.error('Firestore hydration error:', err);
+    throw err; // re-throw so AuthContext can surface it
   }
 }
 
@@ -94,7 +97,7 @@ export function enrollTeacher(entry) {
 
   if (_userId && db) {
     const seg = encodeFirestoreId(entry.class_id || 'hod');
-    setDoc(doc(db, 'teachers', `${_userId}__${seg}`), entry).catch(console.error);
+    setDoc(doc(db, 'teachers', `${_userId}__${seg}`), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }
 
@@ -107,7 +110,7 @@ export function updateTeacherRota(classId, email, rotaId) {
 
   if (_userId && db) {
     const docId = `${_userId}__${encodeFirestoreId(classId)}`;
-    setDoc(doc(db, 'teachers', docId), { rota_id: rotaId }, { merge: true }).catch(console.error);
+    setDoc(doc(db, 'teachers', docId), { rota_id: rotaId }, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }
 
@@ -125,9 +128,9 @@ export function updateHoDFlag(email, isHoD) {
         email, is_hod: true, class_id: null, rota_id: null,
         created_at: new Date().toISOString(),
       };
-      setDoc(docRef, existing, { merge: true }).catch(console.error);
+      setDoc(docRef, existing, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
     } else {
-      deleteDoc(docRef).catch(console.error);
+      deleteDoc(docRef).catch(err => console.error('Firestore write failed:', err.code, err.message));
     }
   }
 }
@@ -164,7 +167,7 @@ export function addClassOption(classObj) {
   setJSON(KEYS.CLASS_OPTIONS, all);
 
   if (_userId && db) {
-    setDoc(doc(db, 'classes', encodeFirestoreId(classObj.class_id)), classObj).catch(console.error);
+    setDoc(doc(db, 'classes', encodeFirestoreId(classObj.class_id)), classObj).catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }
 
@@ -175,7 +178,7 @@ export function removeClassOption(id) {
   setJSON(KEYS.CLASS_OPTIONS, all.filter(o => o.id !== id));
 
   if (_userId && db && removed) {
-    deleteDoc(doc(db, 'classes', encodeFirestoreId(removed.class_id))).catch(console.error);
+    deleteDoc(doc(db, 'classes', encodeFirestoreId(removed.class_id))).catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }
 
@@ -216,7 +219,7 @@ export function upsertQuestionLogEntry(classId, questionId, updates) {
 
   if (_userId && db) {
     const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(questionId)}`;
-    setDoc(doc(db, 'question_log', docId), entry).catch(console.error);
+    setDoc(doc(db, 'question_log', docId), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 
   return log;
@@ -228,7 +231,7 @@ export function flushQuestionLogToFirestore(classId) {
   const entries = getQuestionLog().filter(e => e.class_id === classId);
   for (const e of entries) {
     const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
-    setDoc(doc(db, 'question_log', docId), e).catch(console.error);
+    setDoc(doc(db, 'question_log', docId), e).catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }
 
@@ -249,6 +252,6 @@ export function appendSession(entry) {
   setJSON(KEYS.SESSION_LOG, all);
 
   if (_userId && db) {
-    setDoc(doc(db, 'session_log', entry.id), entry).catch(console.error);
+    setDoc(doc(db, 'session_log', entry.id), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }
