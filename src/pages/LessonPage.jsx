@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { getTeachers, saveTeachers, getCurrentTeacher, getSessionLog, saveSessionLog } from '../utils/storage.js';
 import { ROTAS, LESSONS } from '../data/staticData.js';
@@ -49,6 +49,9 @@ export default function LessonPage() {
 
   const [rotaId, setRotaId] = useState(initialRotaId);
   const [idx, setIdx] = useState(startIdx);
+  const [showFillerInput, setShowFillerInput] = useState(false);
+  const [fillerTitleInput, setFillerTitleInput] = useState('');
+  const fillerInputRef = useRef(null);
 
   if (!teacher) {
     navigate('/');
@@ -79,6 +82,28 @@ export default function LessonPage() {
     };
     saveSessionLog([...getSessionLog(), entry]);
     navigate(`/starter/${encodeURIComponent(decodedClassId)}/${selectedRota.lesson_order}`);
+  }
+
+  function openFillerInput() {
+    setShowFillerInput(true);
+    // Focus the input on next tick after render
+    setTimeout(() => fillerInputRef.current?.focus(), 0);
+  }
+
+  function startFiller() {
+    const title = fillerTitleInput.trim() || 'Filler Lesson';
+    const entry = {
+      id: generateUUID(),
+      class_id: decodedClassId,
+      teacher_email: email,
+      lesson_order: -1,
+      lesson_id: null,
+      opened_at: new Date().toISOString(),
+    };
+    saveSessionLog([...getSessionLog(), entry]);
+    navigate(`/filler/${encodeURIComponent(decodedClassId)}`, {
+      state: { fillerTitle: title },
+    });
   }
 
   if (!selectedRota) {
@@ -144,6 +169,41 @@ export default function LessonPage() {
         >
           Start Starter
         </button>
+
+        {/* Filler lesson section */}
+        {!showFillerInput ? (
+          <button
+            onClick={openFillerInput}
+            className="text-sm text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"
+          >
+            Add filler lesson
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 w-full max-w-xs">
+            <input
+              ref={fillerInputRef}
+              type="text"
+              value={fillerTitleInput}
+              onChange={e => setFillerTitleInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') startFiller(); if (e.key === 'Escape') setShowFillerInput(false); }}
+              placeholder="e.g. Cover lesson, Revision"
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            />
+            <button
+              onClick={startFiller}
+              className="bg-gray-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Go
+            </button>
+            <button
+              onClick={() => setShowFillerInput(false)}
+              className="text-gray-400 hover:text-gray-600 text-lg leading-none px-1"
+              title="Cancel"
+            >
+              ×
+            </button>
+          </div>
+        )}
 
         <Link
           to={`/dashboard/${encodeURIComponent(decodedClassId)}`}
