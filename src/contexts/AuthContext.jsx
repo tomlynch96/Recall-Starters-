@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChanged, signInWithRedirect, getRedirectResult, signOut as firebaseSignOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, getRedirectResult, signOut as firebaseSignOut } from 'firebase/auth';
 import { auth, googleProvider, firebaseEnabled } from '../utils/firebase.js';
 import { hydrateFromFirestore, setCurrentTeacher, clearCurrentTeacher, getTeachers } from '../utils/storage.js';
 
@@ -35,7 +35,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function signInWithGoogle() {
-    await signInWithRedirect(auth, googleProvider);
+    await signInWithPopup(auth, googleProvider);
   }
 
   async function signOut() {

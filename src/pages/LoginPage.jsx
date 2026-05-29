@@ -16,9 +16,13 @@ export default function LoginPage() {
     setSigningIn(true);
     try {
       await signInWithGoogle();
-      // signInWithRedirect navigates away — code below won't run until the user returns
+      const teachers = getTeachers();
+      const storedEmail = localStorage.getItem('rs_current_teacher');
+      const exists = storedEmail && teachers.find(t => t.email === storedEmail);
+      navigate(exists ? '/' : '/setup');
     } catch (err) {
-      setError('Sign-in failed. Please try again.');
+      console.error('Sign-in error:', err);
+      setError(err.message || 'Sign-in failed. Please try again.');
       setSigningIn(false);
     }
   }
