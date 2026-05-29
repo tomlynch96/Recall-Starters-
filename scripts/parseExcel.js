@@ -6,8 +6,19 @@ import { read, utils } from 'xlsx';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const XLSX_PATH = join(__dirname, '..', 'public', 'year7_recall_sheets_v3.xlsx');
+// Source data: data/questions.xlsx (preferred) or legacy public/ location
+const XLSX_PATH = existsSync(join(__dirname, '..', 'data', 'questions.xlsx'))
+  ? join(__dirname, '..', 'data', 'questions.xlsx')
+  : join(__dirname, '..', 'public', 'year7_recall_sheets_v3.xlsx');
+
+// AI-written scaffold sentences (overrides auto-generation when present)
+const SCAFFOLDS_PATH = join(__dirname, '..', 'data', 'scaffolds.json');
 const OUT_PATH = join(__dirname, '..', 'src', 'data', 'staticData.js');
+
+// Load hand-authored / AI-generated scaffolds from JSON
+const aiScaffolds = existsSync(SCAFFOLDS_PATH)
+  ? JSON.parse(readFileSync(SCAFFOLDS_PATH, 'utf8'))
+  : {};
 
 function capitalise(str) {
   if (!str) return str;
@@ -146,6 +157,8 @@ function parseExcel() {
     lesson_title: String(row['lesson_title'] || '').trim(),
     question: String(row['question'] || '').trim(),
     answer: String(row['answer'] || '').trim(),
+    // Optional column teachers can fill in — takes highest priority
+    _excelScaffold: String(row['scaffold'] || '').trim(),
   })).filter(q => q.id && q.question) : [];
 
   // Clip to max 4 questions per lesson_id
@@ -155,9 +168,10 @@ function parseExcel() {
       lessonCounts[q.lesson_id] = (lessonCounts[q.lesson_id] || 0) + 1;
       return lessonCounts[q.lesson_id] <= 4;
     })
-    .map(q => ({
+    .map(({ _excelScaffold, ...q }) => ({
       ...q,
-      scaffolded: generateScaffold(q.question, q.answer),
+      // Priority: Excel 'scaffold' column → data/scaffolds.json → regex auto-generate
+      scaffolded: _excelScaffold || aiScaffolds[q.id] || generateScaffold(q.question, q.answer),
     }));
 
   const lessons = lSheet ? utils.sheet_to_json(lSheet).map(row => ({
