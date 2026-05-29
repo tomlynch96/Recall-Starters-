@@ -5,6 +5,7 @@ import SetupPage from './pages/SetupPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 import LessonPage from './pages/LessonPage.jsx';
 import StarterPage from './pages/StarterPage.jsx';
+import FillerPage from './pages/FillerPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import HoDPage from './pages/HoDPage.jsx';
 
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/" element={<RequireAuth><HomePage /></RequireAuth>} />
         <Route path="/lesson/:classId" element={<RequireAuth><LessonPage /></RequireAuth>} />
         <Route path="/starter/:classId/:lessonOrder" element={<RequireAuth><StarterPage /></RequireAuth>} />
+        <Route path="/filler/:classId" element={<RequireAuth><FillerPage /></RequireAuth>} />
         <Route path="/dashboard/:classId" element={<RequireAuth><DashboardPage /></RequireAuth>} />
         <Route path="/hod" element={<RequireAuth><HoDPage /></RequireAuth>} />
         <Route path="*" element={<Navigate to="/" replace />} />
