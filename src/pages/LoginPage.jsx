@@ -16,12 +16,7 @@ export default function LoginPage() {
     setSigningIn(true);
     try {
       await signInWithGoogle();
-      // onAuthStateChanged in AuthContext handles setCurrentTeacher + hydration
-      // After hydration, navigate based on whether teacher is enrolled
-      const teachers = getTeachers();
-      const storedEmail = localStorage.getItem('rs_current_teacher');
-      const exists = storedEmail && teachers.find(t => t.email === storedEmail);
-      navigate(exists ? '/' : '/setup');
+      // signInWithRedirect navigates away — code below won't run until the user returns
     } catch (err) {
       setError('Sign-in failed. Please try again.');
       setSigningIn(false);

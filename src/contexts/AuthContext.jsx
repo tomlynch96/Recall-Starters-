@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithRedirect, getRedirectResult, signOut as firebaseSignOut } from 'firebase/auth';
 import { auth, googleProvider, firebaseEnabled } from '../utils/firebase.js';
-import { hydrateFromFirestore, setCurrentTeacher, clearCurrentTeacher } from '../utils/storage.js';
+import { hydrateFromFirestore, setCurrentTeacher, clearCurrentTeacher, getTeachers } from '../utils/storage.js';
 
 const AuthContext = createContext(null);
 
@@ -12,6 +12,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!firebaseEnabled) return;
 
+    // Handle the result of a redirect sign-in on page load
+    getRedirectResult(auth).catch(console.error);
+
     const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
       if (firebaseUser) {
         setCurrentTeacher(firebaseUser.email);
@@ -21,12 +24,18 @@ export function AuthProvider({ children }) {
       }
       setUser(firebaseUser);
       setLoading(false);
+      // After redirect sign-in lands back, navigate away from /login
+      if (firebaseUser && window.location.pathname === '/login') {
+        const teachers = getTeachers();
+        const exists = teachers.find(t => t.email === firebaseUser.email);
+        window.location.href = exists ? '/' : '/setup';
+      }
     });
     return unsubscribe;
   }, []);
 
   async function signInWithGoogle() {
-    await signInWithPopup(auth, googleProvider);
+    await signInWithRedirect(auth, googleProvider);
   }
 
   async function signOut() {
