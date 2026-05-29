@@ -6,10 +6,12 @@ import { read, utils } from 'xlsx';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Source data: data/questions.xlsx (preferred) or legacy public/ location
-const XLSX_PATH = existsSync(join(__dirname, '..', 'data', 'questions.xlsx'))
-  ? join(__dirname, '..', 'data', 'questions.xlsx')
-  : join(__dirname, '..', 'public', 'year7_recall_sheets_v3.xlsx');
+const DATA_DIR = join(__dirname, '..', 'data');
+const XLSX_PATH = join(DATA_DIR, 'questions.xlsx');
+const LEGACY_XLSX_PATH = join(__dirname, '..', 'public', 'year7_recall_sheets_v3.xlsx');
+const CSV_QUESTIONS_PATH = join(DATA_DIR, 'questions.csv');
+const CSV_LESSONS_PATH = join(DATA_DIR, 'lessons.csv');
+const CSV_ROTAS_PATH = join(DATA_DIR, 'rotas.csv');
 
 // AI-written scaffold sentences (overrides auto-generation when present)
 const SCAFFOLDS_PATH = join(__dirname, '..', 'data', 'scaffolds.json');
@@ -133,71 +135,160 @@ function generateScaffold(question, answer) {
   return `${capitalise(q)}: _____.`;
 }
 
-function parseExcel() {
-  if (!existsSync(XLSX_PATH)) {
-    console.warn('Excel file not found at', XLSX_PATH, '— writing empty arrays');
-    writeFileSync(OUT_PATH, `export const QUESTIONS = [];\nexport const LESSONS = [];\nexport const ROTAS = [];\n`);
-    return;
+// Minimal RFC 4180-compatible CSV parser (no external deps)
+function parseCsv(text) {
+  const rows = [];
+  let i = 0;
+  const n = text.length;
+
+  while (i < n) {
+    const row = [];
+    while (i < n && text[i] !== '\n') {
+      if (text[i] === '"') {
+        let field = '';
+        i++; // skip opening quote
+        while (i < n) {
+          if (text[i] === '"') {
+            if (text[i + 1] === '"') { field += '"'; i += 2; }
+            else { i++; break; }
+          } else {
+            field += text[i++];
+          }
+        }
+        row.push(field);
+        if (text[i] === ',') i++;
+      } else {
+        let field = '';
+        while (i < n && text[i] !== ',' && text[i] !== '\n') field += text[i++];
+        row.push(field.replace(/\r$/, ''));
+        if (text[i] === ',') i++;
+      }
+    }
+    if (text[i] === '\n') i++;
+    if (row.length > 0 && !(row.length === 1 && row[0] === '')) rows.push(row);
   }
 
-  const buf = readFileSync(XLSX_PATH);
-  const wb = read(buf, { type: 'buffer' });
+  if (rows.length === 0) return [];
+  const headers = rows[0];
+  return rows.slice(1).map(r => {
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = r[idx] ?? ''; });
+    return obj;
+  });
+}
 
-  // Parse questions sheet
-  const qSheet = wb.Sheets['questions'] || wb.Sheets[wb.SheetNames.find(n => n.toLowerCase() === 'questions')];
-  const lSheet = wb.Sheets['lessons'] || wb.Sheets[wb.SheetNames.find(n => n.toLowerCase() === 'lessons')];
-  const rSheet = wb.Sheets['rotas'] || wb.Sheets[wb.SheetNames.find(n => n.toLowerCase() === 'rotas')];
+function readCsvRows(path) {
+  return existsSync(path) ? parseCsv(readFileSync(path, 'utf8')) : [];
+}
 
-  const rawQuestions = qSheet ? utils.sheet_to_json(qSheet).map(row => ({
-    id: String(row['id'] || '').trim(),
+function normaliseQuestionRows(rows, idPrefix = 'q') {
+  return rows.map((row, i) => ({
+    id: String(row['id'] || '').trim() || `${idPrefix}${String(i + 1).padStart(4, '0')}`,
     lesson_id: String(row['lesson_id'] || '').trim(),
     topic_id: String(row['topic_id'] || '').trim(),
     topic_name: String(row['topic_name'] || '').trim(),
-    lesson_number: row['lesson_number'] !== undefined ? String(row['lesson_number']).trim() : '',
+    lesson_number: String(row['lesson_number'] ?? '').trim(),
     lesson_title: String(row['lesson_title'] || '').trim(),
     question: String(row['question'] || '').trim(),
     answer: String(row['answer'] || '').trim(),
-    // Optional column teachers can fill in — takes highest priority
     _excelScaffold: String(row['scaffold'] || '').trim(),
-  })).filter(q => q.id && q.question) : [];
+  })).filter(q => q.question);
+}
 
-  // Clip to max 4 questions per lesson_id
+function finishQuestions(rawQuestions) {
   const lessonCounts = {};
-  const questions = rawQuestions
+  return rawQuestions
     .filter(q => {
       lessonCounts[q.lesson_id] = (lessonCounts[q.lesson_id] || 0) + 1;
       return lessonCounts[q.lesson_id] <= 4;
     })
     .map(({ _excelScaffold, ...q }) => ({
       ...q,
-      // Priority: Excel 'scaffold' column → data/scaffolds.json → regex auto-generate
       scaffolded: _excelScaffold || aiScaffolds[q.id] || generateScaffold(q.question, q.answer),
     }));
+}
 
-  const lessons = lSheet ? utils.sheet_to_json(lSheet).map(row => ({
-    lesson_id: String(row['lesson_id'] || '').trim(),
-    topic_id: String(row['topic_id'] || '').trim(),
-    topic_name: String(row['topic_name'] || '').trim(),
-    lesson_number: row['lesson_number'] !== undefined ? String(row['lesson_number']).trim() : '',
-    lesson_title: String(row['lesson_title'] || '').trim(),
-  })).filter(l => l.lesson_id) : [];
+function parseExcel() {
+  let questions, lessons, rotas;
 
-  const rotas = rSheet ? utils.sheet_to_json(rSheet).map(row => ({
-    rota_id: String(row['rota_id'] || '').trim(),
-    rota_name: String(row['rota_name'] || '').trim(),
-    lesson_id: String(row['lesson_id'] || '').trim(),
-    lesson_order: Number(row['lesson_order']),
-  })).filter(r => r.rota_id && r.lesson_id) : [];
+  if (existsSync(XLSX_PATH)) {
+    // Primary path: data/questions.xlsx
+    const wb = read(readFileSync(XLSX_PATH), { type: 'buffer' });
+    const sheet = name => wb.Sheets[name] || wb.Sheets[wb.SheetNames.find(n => n.toLowerCase() === name)];
+    const qRows = sheet('questions') ? utils.sheet_to_json(sheet('questions')) : [];
+    const lRows = sheet('lessons') ? utils.sheet_to_json(sheet('lessons')) : [];
+    const rRows = sheet('rotas') ? utils.sheet_to_json(sheet('rotas')) : [];
 
-  const output = `// Auto-generated by scripts/parseExcel.js — do not edit manually
+    questions = finishQuestions(normaliseQuestionRows(qRows));
+    lessons = lRows.map(row => ({
+      lesson_id: String(row['lesson_id'] || '').trim(),
+      topic_id: String(row['topic_id'] || '').trim(),
+      topic_name: String(row['topic_name'] || '').trim(),
+      lesson_number: String(row['lesson_number'] ?? '').trim(),
+      lesson_title: String(row['lesson_title'] || '').trim(),
+    })).filter(l => l.lesson_id);
+    rotas = rRows.map(row => ({
+      rota_id: String(row['rota_id'] || '').trim(),
+      rota_name: String(row['rota_name'] || '').trim(),
+      lesson_id: String(row['lesson_id'] || '').trim(),
+      lesson_order: Number(row['lesson_order']),
+    })).filter(r => r.rota_id && r.lesson_id);
+
+  } else if (existsSync(CSV_QUESTIONS_PATH)) {
+    // CSV fallback: data/questions.csv + data/lessons.csv + data/rotas.csv
+    console.log('Using CSV source files from data/');
+    questions = finishQuestions(normaliseQuestionRows(readCsvRows(CSV_QUESTIONS_PATH)));
+    lessons = readCsvRows(CSV_LESSONS_PATH).map(row => ({
+      lesson_id: String(row['lesson_id'] || '').trim(),
+      topic_id: String(row['topic_id'] || '').trim(),
+      topic_name: String(row['topic_name'] || '').trim(),
+      lesson_number: String(row['lesson_number'] ?? '').trim(),
+      lesson_title: String(row['lesson_title'] || '').trim(),
+    })).filter(l => l.lesson_id);
+    rotas = readCsvRows(CSV_ROTAS_PATH).map(row => ({
+      rota_id: String(row['rota_id'] || '').trim(),
+      rota_name: String(row['rota_name'] || '').trim(),
+      lesson_id: String(row['lesson_id'] || '').trim(),
+      lesson_order: Number(row['lesson_order']),
+    })).filter(r => r.rota_id && r.lesson_id);
+
+  } else if (existsSync(LEGACY_XLSX_PATH)) {
+    // Legacy fallback: public/year7_recall_sheets_v3.xlsx
+    console.warn('Falling back to legacy Excel file at', LEGACY_XLSX_PATH);
+    const wb = read(readFileSync(LEGACY_XLSX_PATH), { type: 'buffer' });
+    const sheet = name => wb.Sheets[name] || wb.Sheets[wb.SheetNames.find(n => n.toLowerCase() === name)];
+    const qRows = sheet('questions') ? utils.sheet_to_json(sheet('questions')) : [];
+    const lRows = sheet('lessons') ? utils.sheet_to_json(sheet('lessons')) : [];
+    const rRows = sheet('rotas') ? utils.sheet_to_json(sheet('rotas')) : [];
+
+    questions = finishQuestions(normaliseQuestionRows(qRows));
+    lessons = lRows.map(row => ({
+      lesson_id: String(row['lesson_id'] || '').trim(),
+      topic_id: String(row['topic_id'] || '').trim(),
+      topic_name: String(row['topic_name'] || '').trim(),
+      lesson_number: String(row['lesson_number'] ?? '').trim(),
+      lesson_title: String(row['lesson_title'] || '').trim(),
+    })).filter(l => l.lesson_id);
+    rotas = rRows.map(row => ({
+      rota_id: String(row['rota_id'] || '').trim(),
+      rota_name: String(row['rota_name'] || '').trim(),
+      lesson_id: String(row['lesson_id'] || '').trim(),
+      lesson_order: Number(row['lesson_order']),
+    })).filter(r => r.rota_id && r.lesson_id);
+
+  } else {
+    console.warn('No data source found — writing empty arrays');
+    writeFileSync(OUT_PATH, `export const QUESTIONS = [];\nexport const LESSONS = [];\nexport const ROTAS = [];\n`);
+    return;
+  }
+
+  writeFileSync(OUT_PATH, `// Auto-generated by scripts/parseExcel.js — do not edit manually
 export const QUESTIONS = ${JSON.stringify(questions, null, 2)};
 
 export const LESSONS = ${JSON.stringify(lessons, null, 2)};
 
 export const ROTAS = ${JSON.stringify(rotas, null, 2)};
-`;
-
-  writeFileSync(OUT_PATH, output);
+`);
   console.log(`Parsed ${questions.length} questions, ${lessons.length} lessons, ${rotas.length} rota entries`);
 }
 
