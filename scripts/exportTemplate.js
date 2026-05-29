@@ -25,7 +25,7 @@ const SCAFFOLDS_PATH = join(__dirname, '..', 'data', 'scaffolds.json');
 const OUT_PATH = join(__dirname, '..', 'data', 'questions-template.xlsx');
 
 // Dynamically import the generated static data
-const { QUESTIONS, LESSONS, ROTAS } = await import(STATIC_PATH);
+const { QUESTIONS, LESSONS, ROTAS, CHALLENGE_PLUS = [] } = await import(STATIC_PATH);
 
 const aiScaffolds = existsSync(SCAFFOLDS_PATH)
   ? JSON.parse(readFileSync(SCAFFOLDS_PATH, 'utf8'))
@@ -44,10 +44,16 @@ const questionRows = QUESTIONS.map(q => ({
   scaffold: aiScaffolds[q.id] || q.scaffolded || '',
 }));
 
+// challenge_plus sheet — one row per lesson, teachers fill in question + answer
+const challengePlusRows = CHALLENGE_PLUS.length > 0
+  ? CHALLENGE_PLUS.map(c => ({ lesson_id: c.lesson_id, question: c.question, answer: c.answer }))
+  : [{ lesson_id: '', question: '', answer: '' }]; // placeholder row so the sheet has headers
+
 const wb = utils.book_new();
 utils.book_append_sheet(wb, utils.json_to_sheet(questionRows), 'questions');
 utils.book_append_sheet(wb, utils.json_to_sheet(LESSONS), 'lessons');
 utils.book_append_sheet(wb, utils.json_to_sheet(ROTAS), 'rotas');
+utils.book_append_sheet(wb, utils.json_to_sheet(challengePlusRows), 'challenge_plus');
 
 const buf = write(wb, { type: 'buffer', bookType: 'xlsx' });
 writeFileSync(OUT_PATH, buf);

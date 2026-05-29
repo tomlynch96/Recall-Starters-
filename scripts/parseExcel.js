@@ -12,6 +12,7 @@ const LEGACY_XLSX_PATH = join(__dirname, '..', 'public', 'year7_recall_sheets_v3
 const CSV_QUESTIONS_PATH = join(DATA_DIR, 'questions.csv');
 const CSV_LESSONS_PATH = join(DATA_DIR, 'lessons.csv');
 const CSV_ROTAS_PATH = join(DATA_DIR, 'rotas.csv');
+const CSV_CHALLENGE_PLUS_PATH = join(DATA_DIR, 'challenge_plus.csv');
 
 // AI-written scaffold sentences (overrides auto-generation when present)
 const SCAFFOLDS_PATH = join(__dirname, '..', 'data', 'scaffolds.json');
@@ -208,8 +209,16 @@ function finishQuestions(rawQuestions) {
     }));
 }
 
+function normaliseChallengePlusRows(rows) {
+  return rows.map(row => ({
+    lesson_id: String(row['lesson_id'] || '').trim(),
+    question: String(row['question'] || '').trim(),
+    answer: String(row['answer'] || '').trim(),
+  })).filter(c => c.lesson_id && c.question);
+}
+
 function parseExcel() {
-  let questions, lessons, rotas;
+  let questions, lessons, rotas, challengePlus;
 
   if (existsSync(XLSX_PATH)) {
     // Primary path: data/questions.xlsx
@@ -218,6 +227,7 @@ function parseExcel() {
     const qRows = sheet('questions') ? utils.sheet_to_json(sheet('questions')) : [];
     const lRows = sheet('lessons') ? utils.sheet_to_json(sheet('lessons')) : [];
     const rRows = sheet('rotas') ? utils.sheet_to_json(sheet('rotas')) : [];
+    const cpRows = sheet('challenge_plus') ? utils.sheet_to_json(sheet('challenge_plus')) : [];
 
     questions = finishQuestions(normaliseQuestionRows(qRows));
     lessons = lRows.map(row => ({
@@ -233,6 +243,7 @@ function parseExcel() {
       lesson_id: String(row['lesson_id'] || '').trim(),
       lesson_order: Number(row['lesson_order']),
     })).filter(r => r.rota_id && r.lesson_id);
+    challengePlus = normaliseChallengePlusRows(cpRows);
 
   } else if (existsSync(CSV_QUESTIONS_PATH)) {
     // CSV fallback: data/questions.csv + data/lessons.csv + data/rotas.csv
@@ -251,6 +262,7 @@ function parseExcel() {
       lesson_id: String(row['lesson_id'] || '').trim(),
       lesson_order: Number(row['lesson_order']),
     })).filter(r => r.rota_id && r.lesson_id);
+    challengePlus = normaliseChallengePlusRows(readCsvRows(CSV_CHALLENGE_PLUS_PATH));
 
   } else if (existsSync(LEGACY_XLSX_PATH)) {
     // Legacy fallback: public/year7_recall_sheets_v3.xlsx
@@ -260,6 +272,7 @@ function parseExcel() {
     const qRows = sheet('questions') ? utils.sheet_to_json(sheet('questions')) : [];
     const lRows = sheet('lessons') ? utils.sheet_to_json(sheet('lessons')) : [];
     const rRows = sheet('rotas') ? utils.sheet_to_json(sheet('rotas')) : [];
+    const cpRows = sheet('challenge_plus') ? utils.sheet_to_json(sheet('challenge_plus')) : [];
 
     questions = finishQuestions(normaliseQuestionRows(qRows));
     lessons = lRows.map(row => ({
@@ -275,10 +288,11 @@ function parseExcel() {
       lesson_id: String(row['lesson_id'] || '').trim(),
       lesson_order: Number(row['lesson_order']),
     })).filter(r => r.rota_id && r.lesson_id);
+    challengePlus = normaliseChallengePlusRows(cpRows);
 
   } else {
     console.warn('No data source found — writing empty arrays');
-    writeFileSync(OUT_PATH, `export const QUESTIONS = [];\nexport const LESSONS = [];\nexport const ROTAS = [];\n`);
+    writeFileSync(OUT_PATH, `export const QUESTIONS = [];\nexport const LESSONS = [];\nexport const ROTAS = [];\nexport const CHALLENGE_PLUS = [];\n`);
     return;
   }
 
@@ -288,8 +302,10 @@ export const QUESTIONS = ${JSON.stringify(questions, null, 2)};
 export const LESSONS = ${JSON.stringify(lessons, null, 2)};
 
 export const ROTAS = ${JSON.stringify(rotas, null, 2)};
+
+export const CHALLENGE_PLUS = ${JSON.stringify(challengePlus, null, 2)};
 `);
-  console.log(`Parsed ${questions.length} questions, ${lessons.length} lessons, ${rotas.length} rota entries`);
+  console.log(`Parsed ${questions.length} questions, ${lessons.length} lessons, ${rotas.length} rota entries, ${challengePlus.length} challenge+ questions`);
 }
 
 parseExcel();

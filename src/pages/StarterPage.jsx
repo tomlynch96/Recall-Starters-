@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry } from '../utils/storage.js';
 import { generateStarterQuestions, updateQuestionLog } from '../utils/scheduler.js';
-import { ROTAS, LESSONS } from '../data/staticData.js';
+import { ROTAS, LESSONS, CHALLENGE_PLUS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
 import FlagResolutionModal from '../components/FlagResolutionModal.jsx';
 
@@ -27,12 +27,14 @@ export default function StarterPage() {
     : null;
   const lessonData = rotaEntry ? LESSONS.find(l => l.lesson_id === rotaEntry.lesson_id) : null;
   const lessonTitle = lessonData?.lesson_title || `Lesson ${currentLessonOrder}`;
+  const challengeQ = rotaEntry ? CHALLENGE_PLUS.find(c => c.lesson_id === rotaEntry.lesson_id) : null;
 
   const [questions, setQuestions] = useState([]);
   const [flagQueue, setFlagQueue] = useState([]);
   const [currentFlagIdx, setCurrentFlagIdx] = useState(0);
   const [showResolution, setShowResolution] = useState(false);
   const [scaffoldAll, setScaffoldAll] = useState(false);
+  const [challengeRevealed, setChallengeRevealed] = useState(false);
 
   // Timer state (lifted here so countdown stays visible in header)
   const [timerSeconds, setTimerSeconds] = useState(TIMER_TOTAL);
@@ -199,27 +201,44 @@ export default function StarterPage() {
       {/* Extra space between header and grid */}
       <div className="shrink-0 h-4" />
 
-      {/* Grid: 2 cols × 3 rows — fills all remaining height (6 questions) */}
-      <main className="flex-1 min-h-0 grid grid-cols-2 grid-rows-3 gap-3 px-4 pb-4">
-        {questions.map((q, i) => (
-          <QuestionCard
-            key={q.id}
-            question={q}
-            index={i}
-            scaffoldAll={scaffoldAll}
-            onFlag={handleFlag}
-            onSwap={handleSwap}
-            onRemove={handleRemove}
-          />
-        ))}
-        {questions.length === 0 && (
-          <div className="col-span-2 row-span-3 flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <p className="text-3xl">No questions available yet.</p>
-              <p className="text-xl mt-2">Start teaching lessons to build up the question bank.</p>
+      <main className="flex-1 min-h-0 flex flex-col gap-3 px-4 pb-4">
+        {/* Grid: 2 cols × 3 rows — fills available height (6 questions) */}
+        <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-3 gap-3">
+          {questions.map((q, i) => (
+            <QuestionCard
+              key={q.id}
+              question={q}
+              index={i}
+              scaffoldAll={scaffoldAll}
+              onFlag={handleFlag}
+              onSwap={handleSwap}
+              onRemove={handleRemove}
+            />
+          ))}
+          {questions.length === 0 && (
+            <div className="col-span-2 row-span-3 flex items-center justify-center text-gray-400">
+              <div className="text-center">
+                <p className="text-3xl">No questions available yet.</p>
+                <p className="text-xl mt-2">Start teaching lessons to build up the question bank.</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Challenge+ pill — full-width, pastel pink */}
+        <div
+          className={`shrink-0 w-full rounded-full bg-pink-100 px-8 py-4 flex items-center gap-4 ${challengeQ ? 'cursor-pointer select-none' : ''}`}
+          onClick={() => challengeQ && setChallengeRevealed(r => !r)}
+        >
+          <span className="text-pink-400 font-bold text-lg tracking-wide shrink-0">Challenge +</span>
+          {challengeQ ? (
+            <span className="text-gray-800 text-xl font-medium">
+              {challengeRevealed ? challengeQ.answer || challengeQ.question : challengeQ.question}
+            </span>
+          ) : (
+            <span className="text-pink-200 text-xl italic">Question to be added</span>
+          )}
+        </div>
       </main>
     </div>
   );

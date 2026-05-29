@@ -4529,3 +4529,5 @@ export const ROTAS = [
     "lesson_order": 35
   }
 ];
+
+export const CHALLENGE_PLUS = [];
