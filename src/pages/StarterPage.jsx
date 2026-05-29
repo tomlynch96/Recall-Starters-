@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry } from '../utils/storage.js';
 import { generateStarterQuestions, updateQuestionLog } from '../utils/scheduler.js';
 import { ROTAS, LESSONS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
-import Timer from '../components/Timer.jsx';
 import FlagResolutionModal from '../components/FlagResolutionModal.jsx';
+
+const TIMER_TOTAL = 5 * 60;
 
 function formatDate(date) {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -28,11 +29,33 @@ export default function StarterPage() {
   const lessonTitle = lessonData?.lesson_title || `Lesson ${currentLessonOrder}`;
 
   const [questions, setQuestions] = useState([]);
-  const [sessionEnded, setSessionEnded] = useState(false);
   const [flagQueue, setFlagQueue] = useState([]);
   const [currentFlagIdx, setCurrentFlagIdx] = useState(0);
   const [showResolution, setShowResolution] = useState(false);
   const [scaffoldAll, setScaffoldAll] = useState(false);
+
+  // Timer state (lifted here so countdown stays visible in header)
+  const [timerSeconds, setTimerSeconds] = useState(TIMER_TOTAL);
+  const [timerActive, setTimerActive] = useState(false);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (timerActive && timerSeconds > 0) {
+      timerRef.current = setInterval(() => setTimerSeconds(s => s - 1), 1000);
+    } else {
+      clearInterval(timerRef.current);
+    }
+    return () => clearInterval(timerRef.current);
+  }, [timerActive, timerSeconds]);
+
+  function toggleTimer() {
+    if (!timerActive && timerSeconds === 0) setTimerSeconds(TIMER_TOTAL);
+    setTimerActive(a => !a);
+  }
+
+  const timerMM = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+  const timerSS = String(timerSeconds % 60).padStart(2, '0');
+  const timerStarted = timerActive || timerSeconds < TIMER_TOTAL;
 
   useEffect(() => {
     if (!teacher) return;
@@ -131,16 +154,32 @@ export default function StarterPage() {
         />
       )}
 
-      {/* × end button — fixed top-right, invisible until page hover */}
-      <button
-        onClick={handleEndSession}
-        className="fixed top-4 right-5 text-4xl text-gray-300 hover:text-gray-600 opacity-0 group-hover/page:opacity-100 transition-opacity z-10 leading-none"
-        title="End session"
-      >
-        ×
-      </button>
+      {/* Icon menu — fixed top-right, invisible until page hover */}
+      <div className="fixed top-4 right-5 flex items-center gap-3 opacity-0 group-hover/page:opacity-100 transition-opacity z-10">
+        <button
+          onClick={() => setScaffoldAll(s => !s)}
+          title={scaffoldAll ? 'Hide scaffolding' : 'Show scaffolding'}
+          className={`text-xl leading-none transition-colors ${scaffoldAll ? 'text-blue-500' : 'text-gray-300 hover:text-gray-500'}`}
+        >
+          [_]
+        </button>
+        <button
+          onClick={toggleTimer}
+          title={timerActive ? 'Pause timer' : timerStarted ? 'Resume timer' : 'Start timer'}
+          className={`text-xl leading-none transition-colors ${timerActive ? 'text-green-500 hover:text-green-600' : 'text-gray-300 hover:text-gray-500'}`}
+        >
+          {timerActive ? '⏸' : timerStarted ? '▶' : '⏱'}
+        </button>
+        <button
+          onClick={handleEndSession}
+          title="End session"
+          className="text-3xl text-gray-300 hover:text-gray-600 leading-none"
+        >
+          ×
+        </button>
+      </div>
 
-      {/* Header: date left | title centre | timer right — use absolute positioning for true centering */}
+      {/* Header: date left | title centre | timer countdown right (always visible when running) */}
       <header className="relative flex items-center px-8 pt-6 pb-4 shrink-0">
         <span className="text-gray-400 text-5xl">{formatDate(new Date())}</span>
 
@@ -148,20 +187,11 @@ export default function StarterPage() {
           {lessonTitle}
         </h1>
 
-        <div className="ml-auto flex items-center gap-3">
-          <button
-            onClick={() => setScaffoldAll(s => !s)}
-            title={scaffoldAll ? 'Hide scaffolding' : 'Show fill-in-the-gap scaffolding for all questions'}
-            className={`px-4 py-2 rounded-xl text-base font-medium transition-colors ${
-              scaffoldAll
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-            }`}
-          >
-            _ _ Scaffold
-          </button>
-          <Timer />
-        </div>
+        {timerStarted && (
+          <span className={`ml-auto font-mono text-5xl font-bold tabular-nums ${timerSeconds <= 60 ? 'text-red-500' : 'text-gray-700'}`}>
+            {timerMM}:{timerSS}
+          </span>
+        )}
       </header>
 
       {/* Extra space between header and grid */}
