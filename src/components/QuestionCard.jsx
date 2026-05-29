@@ -94,19 +94,14 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
       </div>
 
       {showScaffold ? (
-        <>
-          {/* Scaffold replaces the question entirely */}
-          <p className={`text-gray-900 text-3xl font-semibold leading-snug pr-24 ${revealed ? 'text-gray-400' : ''}`}>
-            <span className="font-bold mr-2">{index + 1})</span>
-            {scaffold}
-          </p>
-          {/* Reveal shows the completed scaffold sentence */}
-          {revealed && (
-            <p className="mt-3 pt-3 border-t-2 border-orange-200 text-green-800 text-2xl font-medium">
-              {completeScaffold(scaffold, question.question, question.answer)}
-            </p>
-          )}
-        </>
+        <p className="text-3xl font-semibold leading-snug pr-24">
+          <span className="font-bold mr-2 text-gray-900">{index + 1})</span>
+          <span className={revealed ? 'text-green-800' : 'text-gray-900'}>
+            {revealed
+              ? completeScaffold(scaffold, question.question, question.answer)
+              : scaffold}
+          </span>
+        </p>
       ) : (
         <>
           {/* Normal question */}

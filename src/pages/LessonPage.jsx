@@ -1,8 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, saveSessionLog } from '../utils/storage.js';
+import { getTeachers, saveTeachers, getCurrentTeacher, getSessionLog, saveSessionLog } from '../utils/storage.js';
 import { ROTAS, LESSONS } from '../data/staticData.js';
 import { generateUUID } from '../utils/uuid.js';
+
+const ROTA_OPTIONS = [
+  { id: 'rota-a', label: 'Rota A — Solo (6/fn)' },
+  { id: 'rota-b-t1', label: 'Rota B — T1 (4/fn)' },
+  { id: 'rota-b-t2', label: 'Rota B — T2 (2/fn)' },
+  { id: 'rota-c-t1', label: 'Rota C — T1 (3/fn)' },
+  { id: 'rota-c-t2', label: 'Rota C — T2 (3/fn)' },
+];
 
 function getRotaLessons(rotaId) {
   const entries = ROTAS.filter(r => r.rota_id === rotaId);
@@ -29,25 +37,35 @@ export default function LessonPage() {
   const email = getCurrentTeacher();
   const teacher = teachers.find(t => t.class_id === decodedClassId && t.email === email);
 
+  // Compute start index before hooks — safe even if teacher is null
+  const initialRotaId = teacher?.rota_id || 'rota-a';
+  const sessionLog = getSessionLog();
+  const mySessions = sessionLog.filter(s => s.class_id === decodedClassId && s.teacher_email === email);
+  mySessions.sort((a, b) => b.lesson_order - a.lesson_order);
+  const lastCompletedOrder = mySessions.length > 0 ? mySessions[0].lesson_order : 0;
+  const initialRotaLessons = getRotaLessons(initialRotaId);
+  const defaultIdx = initialRotaLessons.findIndex(r => r.lesson_order > lastCompletedOrder);
+  const startIdx = defaultIdx === -1 ? Math.max(0, initialRotaLessons.length - 1) : defaultIdx;
+
+  const [rotaId, setRotaId] = useState(initialRotaId);
+  const [idx, setIdx] = useState(startIdx);
+
   if (!teacher) {
     navigate('/');
     return null;
   }
 
-  const rotaLessons = getRotaLessons(teacher.rota_id);
-  const sessionLog = getSessionLog();
-  const classSessions = sessionLog.filter(s => s.class_id === decodedClassId);
-  classSessions.sort((a, b) => b.lesson_order - a.lesson_order);
+  const rotaLessons = getRotaLessons(rotaId);
+  const selectedRota = rotaLessons[Math.min(idx, rotaLessons.length - 1)];
 
-  const lastCompletedOrder = classSessions.length > 0 ? classSessions[0].lesson_order : 0;
-  const defaultIdx = Math.min(
-    rotaLessons.findIndex(r => r.lesson_order > lastCompletedOrder),
-    rotaLessons.length - 1
-  );
-  const startIdx = defaultIdx === -1 ? rotaLessons.length - 1 : defaultIdx;
-
-  const [idx, setIdx] = useState(startIdx);
-  const selectedRota = rotaLessons[idx];
+  function changeRota(newRotaId) {
+    const all = getTeachers();
+    saveTeachers(all.map(t =>
+      t.class_id === decodedClassId && t.email === email ? { ...t, rota_id: newRotaId } : t
+    ));
+    setRotaId(newRotaId);
+    setIdx(0);
+  }
 
   function startStarter() {
     if (!selectedRota) return;
@@ -78,7 +96,15 @@ export default function LessonPage() {
           ← Back
         </button>
         <h1 className="text-xl font-bold text-blue-800">{decodedClassId}</h1>
-        <span className="text-gray-400 text-sm">{teacher.rota_id}</span>
+        <select
+          value={rotaId}
+          onChange={e => changeRota(e.target.value)}
+          className="text-sm text-gray-500 border border-gray-200 rounded-lg px-2 py-1 bg-white cursor-pointer hover:border-blue-400 focus:outline-none focus:border-blue-500"
+        >
+          {ROTA_OPTIONS.map(r => (
+            <option key={r.id} value={r.id}>{r.label}</option>
+          ))}
+        </select>
       </header>
 
       <main className="max-w-xl mx-auto px-6 py-16 flex flex-col items-center gap-8">
