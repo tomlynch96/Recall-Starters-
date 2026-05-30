@@ -58,7 +58,7 @@ export default function HoDPage() {
 
   const classMap = new Map();
   for (const t of teachers) {
-    if (!classMap.has(t.class_id)) classMap.set(t.class_id, t);
+    if (t.class_id && !classMap.has(t.class_id)) classMap.set(t.class_id, t);
   }
 
   const classRows = Array.from(classMap.values()).map(t => {
@@ -70,7 +70,7 @@ export default function HoDPage() {
     return { ...t, lastSession, termSessions, recentSessions };
   });
 
-  const teacherRows = teachers.map(t => {
+  const teacherRows = teachers.filter(t => t.class_id).map(t => {
     const sessions = sessionLog.filter(s => s.teacher_email === t.email && s.class_id === t.class_id);
     sessions.sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at));
     return { ...t, totalSessions: sessions.length, lastSession: sessions[0]?.opened_at || null };
