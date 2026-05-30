@@ -101,7 +101,18 @@ export function enrollTeacher(entry) {
   }
 }
 
-// Update rota for the current teacher's class enrollment
+// Remove current teacher's enrollment from a class
+export function unenrollTeacher(email, classId) {
+  const all = getTeachers().filter(t => !(t.email === email && t.class_id === classId));
+  setJSON(KEYS.TEACHERS, all);
+
+  if (_userId && db) {
+    deleteDoc(doc(db, 'teachers', `${_userId}__${encodeFirestoreId(classId)}`))
+      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+
 export function updateTeacherRota(classId, email, rotaId) {
   const all = getTeachers().map(t =>
     t.class_id === classId && t.email === email ? { ...t, rota_id: rotaId } : t

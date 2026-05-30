@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag, unenrollTeacher } from '../utils/storage.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { ROTAS } from '../data/staticData.js';
 
@@ -104,19 +104,30 @@ export default function HomePage() {
             {classes.map(t => {
               const lastSession = getLastSession(t.class_id, sessionLog);
               return (
-                <button
-                  key={t.class_id}
-                  onClick={() => navigate(`/lesson/${encodeURIComponent(t.class_id)}`)}
-                  className="bg-white border-2 border-gray-200 rounded-2xl p-6 text-left hover:border-blue-400 hover:shadow-md transition-all"
-                >
-                  <div className="text-2xl font-bold text-blue-800 mb-1">{t.class_id}</div>
-                  <div className="text-sm text-gray-500 mb-3">{getRotaName(t.rota_id)}</div>
-                  <div className="text-xs text-gray-400">
-                    {lastSession
-                      ? `Last session: ${new Date(lastSession).toLocaleDateString()}`
-                      : 'No sessions yet'}
-                  </div>
-                </button>
+                <div key={t.class_id} className="group relative">
+                  <button
+                    onClick={() => navigate(`/lesson/${encodeURIComponent(t.class_id)}`)}
+                    className="w-full bg-white border-2 border-gray-200 rounded-2xl p-6 text-left hover:border-blue-400 hover:shadow-md transition-all"
+                  >
+                    <div className="text-2xl font-bold text-blue-800 mb-1">{t.class_id}</div>
+                    <div className="text-sm text-gray-500 mb-3">{getRotaName(t.rota_id)}</div>
+                    <div className="text-xs text-gray-400">
+                      {lastSession
+                        ? `Last session: ${new Date(lastSession).toLocaleDateString()}`
+                        : 'No sessions yet'}
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => {
+                      unenrollTeacher(email, t.class_id);
+                      setTeachers(getTeachers());
+                    }}
+                    title="Remove class"
+                    className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all text-lg leading-none"
+                  >
+                    ×
+                  </button>
+                </div>
               );
             })}
           </div>
