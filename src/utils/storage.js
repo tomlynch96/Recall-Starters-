@@ -124,11 +124,14 @@ export function updateHoDFlag(email, isHoD) {
   if (_userId && db) {
     const docRef = doc(db, 'teachers', `${_userId}__hod`);
     if (isHoD) {
-      const existing = all.find(t => t.email === email && t.is_hod) || {
-        email, is_hod: true, class_id: null, rota_id: null,
+      setDoc(docRef, {
+        id: `${_userId}__hod`,
+        email,
+        is_hod: true,
+        class_id: null,
+        rota_id: null,
         created_at: new Date().toISOString(),
-      };
-      setDoc(docRef, existing, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      }).catch(err => console.error('Firestore write failed:', err.code, err.message));
     } else {
       deleteDoc(docRef).catch(err => console.error('Firestore write failed:', err.code, err.message));
     }
