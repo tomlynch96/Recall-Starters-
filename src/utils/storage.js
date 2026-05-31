@@ -1,6 +1,6 @@
 import { doc, setDoc, deleteDoc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase.js';
-import { QUESTIONS } from '../data/staticData.js';
+import { QUESTIONS, CHALLENGE_PLUS } from '../data/staticData.js';
 
 const KEYS = {
   TEACHERS: 'rs_teachers',
@@ -9,6 +9,7 @@ const KEYS = {
   CURRENT_TEACHER: 'rs_current_teacher',
   CLASS_OPTIONS: 'rs_class_options',
   CUSTOM_QUESTIONS: 'rs_custom_questions',
+  CUSTOM_CHALLENGE_PLUS: 'rs_custom_challenge_plus',
 };
 
 function getJSON(key, fallback) {
@@ -44,10 +45,11 @@ export async function hydrateFromFirestore(userId, email) {
   _userId = userId;
   try {
     // Phase 1 (blocking): fetch teachers, classes, custom questions
-    const [teachersSnap, classesSnap, customQSnap] = await Promise.all([
+    const [teachersSnap, classesSnap, customQSnap, challengeSnap] = await Promise.all([
       getDocs(collection(db, 'teachers')),
       getDocs(collection(db, 'classes')),
       getDoc(doc(db, 'config', 'custom_questions')),
+      getDoc(doc(db, 'config', 'challenge_plus')),
     ]);
     const teachers = teachersSnap.docs.map(d => d.data());
     setJSON(KEYS.TEACHERS, teachers);
@@ -56,6 +58,11 @@ export async function hydrateFromFirestore(userId, email) {
       setJSON(KEYS.CUSTOM_QUESTIONS, customQSnap.data().questions);
     } else {
       localStorage.removeItem(KEYS.CUSTOM_QUESTIONS);
+    }
+    if (challengeSnap.exists()) {
+      setJSON(KEYS.CUSTOM_CHALLENGE_PLUS, challengeSnap.data().entries);
+    } else {
+      localStorage.removeItem(KEYS.CUSTOM_CHALLENGE_PLUS);
     }
 
     // Phase 2 (background): fetch question log + session log — not needed until StarterPage
@@ -283,6 +290,35 @@ export function clearCustomQuestions() {
   localStorage.removeItem(KEYS.CUSTOM_QUESTIONS);
   if (_userId && db) {
     deleteDoc(doc(db, 'config', 'custom_questions'))
+      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+// ─── Custom challenge+ questions ─────────────────────────────────────────────
+
+export function getCustomChallengePlus() {
+  return getJSON(KEYS.CUSTOM_CHALLENGE_PLUS, null);
+}
+
+export function getActiveChallengePlus() {
+  const custom = getCustomChallengePlus();
+  return custom !== null ? custom : CHALLENGE_PLUS;
+}
+
+export function saveCustomChallengePlus(entries) {
+  setJSON(KEYS.CUSTOM_CHALLENGE_PLUS, entries);
+  if (_userId && db) {
+    setDoc(doc(db, 'config', 'challenge_plus'), {
+      entries,
+      updated_at: new Date().toISOString(),
+    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+export function clearCustomChallengePlus() {
+  localStorage.removeItem(KEYS.CUSTOM_CHALLENGE_PLUS);
+  if (_userId && db) {
+    deleteDoc(doc(db, 'config', 'challenge_plus'))
       .catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }

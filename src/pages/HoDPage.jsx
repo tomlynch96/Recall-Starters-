@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
-import { ROTAS, QUESTIONS } from '../data/staticData.js';
+import { ROTAS, QUESTIONS, LESSONS } from '../data/staticData.js';
 import * as XLSX from 'xlsx';
 
 function getRotaName(rotaId) {
@@ -29,13 +29,16 @@ export default function HoDPage() {
 
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
-  const [usingCustom, setUsingCustom] = useState(() => !!getCustomQuestions());
+  const [usingCustom, setUsingCustom] = useState(() => !!(getCustomQuestions() || getCustomChallengePlus()));
   const [uploadStatus, setUploadStatus] = useState('');
   const fileInputRef = useRef(null);
 
   function downloadTemplate() {
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Questions
     const questions = getActiveQuestions();
-    const rows = questions.map(q => ({
+    const qRows = questions.map(q => ({
       id: q.id,
       lesson_id: q.lesson_id,
       Lesson: q.lesson_title,
@@ -43,13 +46,30 @@ export default function HoDPage() {
       Answer: q.answer,
       Scaffold: q.scaffolded || '',
     }));
-    const ws = XLSX.utils.json_to_sheet(rows, {
+    const wsQ = XLSX.utils.json_to_sheet(qRows, {
       header: ['id', 'lesson_id', 'Lesson', 'Question', 'Answer', 'Scaffold'],
     });
-    // Lock reference columns visually with a wider column
-    ws['!cols'] = [{ wch: 38 }, { wch: 14 }, { wch: 28 }, { wch: 60 }, { wch: 60 }, { wch: 60 }];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+    wsQ['!cols'] = [{ wch: 38 }, { wch: 14 }, { wch: 28 }, { wch: 60 }, { wch: 60 }, { wch: 60 }];
+    XLSX.utils.book_append_sheet(wb, wsQ, 'Questions');
+
+    // Sheet 2: Challenge+ — one row per lesson, pre-filled where a challenge question exists
+    const activeChallenge = getActiveChallengePlus();
+    const challengeMap = new Map(activeChallenge.map(c => [c.lesson_id, c]));
+    const cRows = LESSONS.map(l => {
+      const existing = challengeMap.get(l.lesson_id);
+      return {
+        lesson_id: l.lesson_id,
+        Lesson: l.lesson_title,
+        'Challenge Question': existing?.question || '',
+        'Challenge Answer': existing?.answer || '',
+      };
+    });
+    const wsC = XLSX.utils.json_to_sheet(cRows, {
+      header: ['lesson_id', 'Lesson', 'Challenge Question', 'Challenge Answer'],
+    });
+    wsC['!cols'] = [{ wch: 14 }, { wch: 28 }, { wch: 80 }, { wch: 80 }];
+    XLSX.utils.book_append_sheet(wb, wsC, 'Challenge+');
+
     XLSX.writeFile(wb, 'recall-starter-questions.xlsx');
   }
 
@@ -60,12 +80,12 @@ export default function HoDPage() {
     try {
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer);
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws);
 
-      // Match uploaded rows back to original questions by id, update only editable fields
-      const rowMap = new Map(rows.map(r => [String(r.id), r]));
-      const updated = QUESTIONS.map(q => {
+      // Sheet 1: Questions
+      const wsQ = wb.Sheets['Questions'] || wb.Sheets[wb.SheetNames[0]];
+      const qRows = XLSX.utils.sheet_to_json(wsQ);
+      const rowMap = new Map(qRows.map(r => [String(r.id), r]));
+      const updatedQuestions = QUESTIONS.map(q => {
         const row = rowMap.get(String(q.id));
         if (!row) return q;
         return {
@@ -75,19 +95,33 @@ export default function HoDPage() {
           scaffolded: String(row.Scaffold ?? q.scaffolded ?? '').trim() || q.scaffolded,
         };
       });
+      saveCustomQuestions(updatedQuestions);
 
-      saveCustomQuestions(updated);
+      // Sheet 2: Challenge+
+      const wsC = wb.Sheets['Challenge+'];
+      if (wsC) {
+        const cRows = XLSX.utils.sheet_to_json(wsC);
+        const updatedChallenge = cRows
+          .filter(r => String(r['Challenge Question'] || '').trim())
+          .map(r => ({
+            lesson_id: String(r.lesson_id).trim(),
+            question: String(r['Challenge Question']).trim(),
+            answer: String(r['Challenge Answer'] || '').trim(),
+          }));
+        saveCustomChallengePlus(updatedChallenge);
+      }
+
       setUsingCustom(true);
-      setUploadStatus(`✓ ${updated.length} questions updated`);
+      setUploadStatus(`✓ ${updatedQuestions.length} questions + challenge+ updated`);
     } catch {
       setUploadStatus('Upload failed — check the file format');
     }
-    // Reset file input so the same file can be re-uploaded
     e.target.value = '';
   }
 
   function handleRevert() {
     clearCustomQuestions();
+    clearCustomChallengePlus();
     setUsingCustom(false);
     setUploadStatus('Reverted to default questions');
   }

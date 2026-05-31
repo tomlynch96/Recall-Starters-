@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry, flushQuestionLogToFirestore } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry, flushQuestionLogToFirestore, getActiveChallengePlus } from '../utils/storage.js';
 import { generateStarterQuestions, updateQuestionLog } from '../utils/scheduler.js';
-import { ROTAS, LESSONS, CHALLENGE_PLUS } from '../data/staticData.js';
+import { ROTAS, LESSONS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
 import FlagResolutionModal from '../components/FlagResolutionModal.jsx';
 
@@ -27,7 +27,7 @@ export default function StarterPage() {
     : null;
   const lessonData = rotaEntry ? LESSONS.find(l => l.lesson_id === rotaEntry.lesson_id) : null;
   const lessonTitle = lessonData?.lesson_title || `Lesson ${currentLessonOrder}`;
-  const challengeQ = rotaEntry ? CHALLENGE_PLUS.find(c => c.lesson_id === rotaEntry.lesson_id) : null;
+  const challengeQ = rotaEntry ? getActiveChallengePlus().find(c => c.lesson_id === rotaEntry.lesson_id) : null;
 
   const [questions, setQuestions] = useState([]);
   const [flagQueue, setFlagQueue] = useState([]);
