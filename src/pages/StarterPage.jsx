@@ -25,9 +25,15 @@ export default function StarterPage() {
   const rotaEntry = teacher
     ? ROTAS.find(r => r.rota_id === teacher.rota_id && r.lesson_order === currentLessonOrder)
     : null;
+  // Show the challenge+ question from the PREVIOUS lesson (set last time, reviewed this lesson)
+  const prevRotaEntry = teacher
+    ? ROTAS.find(r => r.rota_id === teacher.rota_id && r.lesson_order === currentLessonOrder - 1)
+    : null;
   const lessonData = rotaEntry ? LESSONS.find(l => l.lesson_id === rotaEntry.lesson_id) : null;
   const lessonTitle = lessonData?.lesson_title || `Lesson ${currentLessonOrder}`;
-  const challengeQ = rotaEntry ? getActiveChallengePlus().find(c => c.lesson_id === rotaEntry.lesson_id) : null;
+  const challengeQ = prevRotaEntry
+    ? getActiveChallengePlus().find(c => c.lesson_id === prevRotaEntry.lesson_id)
+    : null;
 
   const [questions, setQuestions] = useState([]);
   const [flagQueue, setFlagQueue] = useState([]);
