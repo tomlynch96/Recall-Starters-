@@ -1,4 +1,4 @@
-import { QUESTIONS } from '../data/staticData.js';
+import { getActiveQuestions } from './storage.js';
 import { getRotaMap } from './scheduler.js';
 
 /**
@@ -26,7 +26,7 @@ export function generateFillerQuestions(classId, rotaId, questionLog, sessionLog
   }
 
   // All questions from lessons already taught (lesson_order < maxLessonOrder)
-  const pool = QUESTIONS
+  const pool = getActiveQuestions()
     .filter(q => {
       const lo = rotaMap[q.lesson_id];
       return lo !== undefined && lo < maxLessonOrder;

@@ -1,5 +1,6 @@
-import { doc, setDoc, deleteDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase.js';
+import { QUESTIONS } from '../data/staticData.js';
 
 const KEYS = {
   TEACHERS: 'rs_teachers',
@@ -7,6 +8,7 @@ const KEYS = {
   SESSION_LOG: 'rs_session_log',
   CURRENT_TEACHER: 'rs_current_teacher',
   CLASS_OPTIONS: 'rs_class_options',
+  CUSTOM_QUESTIONS: 'rs_custom_questions',
 };
 
 function getJSON(key, fallback) {
@@ -41,14 +43,20 @@ export async function hydrateFromFirestore(userId, email) {
   if (!db) return;
   _userId = userId;
   try {
-    // Phase 1 (blocking): fetch teachers + classes — needed to decide route and render first screen
-    const [teachersSnap, classesSnap] = await Promise.all([
+    // Phase 1 (blocking): fetch teachers, classes, custom questions
+    const [teachersSnap, classesSnap, customQSnap] = await Promise.all([
       getDocs(collection(db, 'teachers')),
       getDocs(collection(db, 'classes')),
+      getDoc(doc(db, 'config', 'custom_questions')),
     ]);
     const teachers = teachersSnap.docs.map(d => d.data());
     setJSON(KEYS.TEACHERS, teachers);
     setJSON(KEYS.CLASS_OPTIONS, classesSnap.docs.map(d => d.data()));
+    if (customQSnap.exists()) {
+      setJSON(KEYS.CUSTOM_QUESTIONS, customQSnap.data().questions);
+    } else {
+      localStorage.removeItem(KEYS.CUSTOM_QUESTIONS);
+    }
 
     // Phase 2 (background): fetch question log + session log — not needed until StarterPage
     const myClasses = teachers
@@ -246,6 +254,36 @@ export function flushQuestionLogToFirestore(classId) {
   for (const e of entries) {
     const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
     setDoc(doc(db, 'question_log', docId), e).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+// ─── Custom questions (HoD-managed overrides) ────────────────────────────────
+
+export function getCustomQuestions() {
+  return getJSON(KEYS.CUSTOM_QUESTIONS, null);
+}
+
+// Returns custom questions if the HoD has uploaded them, otherwise the bundled defaults
+export function getActiveQuestions() {
+  const custom = getCustomQuestions();
+  return custom && custom.length > 0 ? custom : QUESTIONS;
+}
+
+export function saveCustomQuestions(questions) {
+  setJSON(KEYS.CUSTOM_QUESTIONS, questions);
+  if (_userId && db) {
+    setDoc(doc(db, 'config', 'custom_questions'), {
+      questions,
+      updated_at: new Date().toISOString(),
+    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+export function clearCustomQuestions() {
+  localStorage.removeItem(KEYS.CUSTOM_QUESTIONS);
+  if (_userId && db) {
+    deleteDoc(doc(db, 'config', 'custom_questions'))
+      .catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }
 

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
-import { ROTAS } from '../data/staticData.js';
+import { ROTAS, QUESTIONS } from '../data/staticData.js';
+import * as XLSX from 'xlsx';
 
 function getRotaName(rotaId) {
   const e = ROTAS.find(r => r.rota_id === rotaId);
@@ -28,6 +29,68 @@ export default function HoDPage() {
 
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
+  const [usingCustom, setUsingCustom] = useState(() => !!getCustomQuestions());
+  const [uploadStatus, setUploadStatus] = useState('');
+  const fileInputRef = useRef(null);
+
+  function downloadTemplate() {
+    const questions = getActiveQuestions();
+    const rows = questions.map(q => ({
+      id: q.id,
+      lesson_id: q.lesson_id,
+      Lesson: q.lesson_title,
+      Question: q.question,
+      Answer: q.answer,
+      Scaffold: q.scaffolded || '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows, {
+      header: ['id', 'lesson_id', 'Lesson', 'Question', 'Answer', 'Scaffold'],
+    });
+    // Lock reference columns visually with a wider column
+    ws['!cols'] = [{ wch: 38 }, { wch: 14 }, { wch: 28 }, { wch: 60 }, { wch: 60 }, { wch: 60 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+    XLSX.writeFile(wb, 'recall-starter-questions.xlsx');
+  }
+
+  async function handleUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadStatus('Uploading…');
+    try {
+      const buffer = await file.arrayBuffer();
+      const wb = XLSX.read(buffer);
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws);
+
+      // Match uploaded rows back to original questions by id, update only editable fields
+      const rowMap = new Map(rows.map(r => [String(r.id), r]));
+      const updated = QUESTIONS.map(q => {
+        const row = rowMap.get(String(q.id));
+        if (!row) return q;
+        return {
+          ...q,
+          question: String(row.Question ?? q.question).trim() || q.question,
+          answer: String(row.Answer ?? q.answer).trim() || q.answer,
+          scaffolded: String(row.Scaffold ?? q.scaffolded ?? '').trim() || q.scaffolded,
+        };
+      });
+
+      saveCustomQuestions(updated);
+      setUsingCustom(true);
+      setUploadStatus(`✓ ${updated.length} questions updated`);
+    } catch {
+      setUploadStatus('Upload failed — check the file format');
+    }
+    // Reset file input so the same file can be re-uploaded
+    e.target.value = '';
+  }
+
+  function handleRevert() {
+    clearCustomQuestions();
+    setUsingCustom(false);
+    setUploadStatus('Reverted to default questions');
+  }
 
   const isHoD = teachers.some(t => t.email === email && t.is_hod);
   if (!isHoD) {
@@ -228,6 +291,57 @@ export default function HoDPage() {
             </table>
           </div>
         </section>
+        {/* ── Question bank ── */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-700 mb-1">Question bank</h2>
+          <p className="text-sm text-gray-400 mb-4">
+            Download the template, edit questions / answers / scaffolds in Excel or Google Sheets, then re-upload. Topics and rotas are read-only — do not edit the <code>id</code> or <code>lesson_id</code> columns.
+          </p>
+
+          <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className={`text-sm font-medium px-3 py-1 rounded-full ${usingCustom ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
+                {usingCustom ? 'Custom questions active' : `Default questions (${QUESTIONS.length})`}
+              </span>
+              {uploadStatus && (
+                <span className="text-sm text-gray-500">{uploadStatus}</span>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={downloadTemplate}
+                className="px-5 py-2 bg-blue-700 text-white text-sm font-semibold rounded-xl hover:bg-blue-800 transition-colors"
+              >
+                ↓ Download template
+              </button>
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="px-5 py-2 bg-white border-2 border-blue-300 text-blue-700 text-sm font-semibold rounded-xl hover:border-blue-500 transition-colors"
+              >
+                ↑ Upload edited file
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.csv"
+                onChange={handleUpload}
+                className="hidden"
+              />
+
+              {usingCustom && (
+                <button
+                  onClick={handleRevert}
+                  className="px-5 py-2 bg-white border-2 border-gray-200 text-gray-500 text-sm font-semibold rounded-xl hover:border-red-300 hover:text-red-500 transition-colors"
+                >
+                  Revert to defaults
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   );

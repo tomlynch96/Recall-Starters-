@@ -1,4 +1,5 @@
-import { QUESTIONS, ROTAS } from '../data/staticData.js';
+import { ROTAS } from '../data/staticData.js';
+import { getActiveQuestions } from './storage.js';
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -31,7 +32,7 @@ export function getEligibleQuestions(classId, currentLessonOrder, rotaId, questi
     }
   }
 
-  return QUESTIONS.filter(q => {
+  return getActiveQuestions().filter(q => {
     const entry = logMap[q.id];
     // Flagged questions always surface for all co-teachers of the class,
     // regardless of which teacher's rota originally contained the question.
