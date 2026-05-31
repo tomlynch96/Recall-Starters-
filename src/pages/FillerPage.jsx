@@ -6,6 +6,9 @@ import {
   getQuestionLog,
   getSessionLog,
   upsertQuestionLogEntry,
+  saveActiveSession,
+  getActiveSession,
+  clearActiveSession,
 } from '../utils/storage.js';
 import { generateFillerQuestions } from '../utils/fillerScheduler.js';
 import QuestionCard from '../components/QuestionCard.jsx';
@@ -60,11 +63,22 @@ export default function FillerPage() {
 
   useEffect(() => {
     if (!teacher) return;
-    const log = getQuestionLog();
-    const sessionLog = getSessionLog();
-    const qs = generateFillerQuestions(decodedClassId, teacher.rota_id, log, sessionLog);
-    setQuestions(qs);
+    const saved = getActiveSession(decodedClassId, 'filler');
+    if (saved?.questions?.length > 0) {
+      setQuestions(saved.questions);
+    } else {
+      const log = getQuestionLog();
+      const sessionLog = getSessionLog();
+      const qs = generateFillerQuestions(decodedClassId, teacher.rota_id, log, sessionLog);
+      setQuestions(qs);
+    }
   }, []);
+
+  useEffect(() => {
+    if (questions.length > 0) {
+      saveActiveSession(decodedClassId, 'filler', questions);
+    }
+  }, [questions]);
 
   if (!teacher) {
     navigate('/');
@@ -99,9 +113,7 @@ export default function FillerPage() {
   }
 
   function handleEndSession() {
-    // Filler sessions do NOT call updateQuestionLog / saveQuestionLog
-    // Flags persist because they were saved via upsertQuestionLogEntry already
-
+    clearActiveSession(decodedClassId, 'filler');
     const flagged = questions.filter(q => q.flagged);
     if (flagged.length > 0) {
       setFlagQueue(flagged);

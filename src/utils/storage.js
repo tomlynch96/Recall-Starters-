@@ -323,6 +323,29 @@ export function clearCustomChallengePlus() {
   }
 }
 
+// ─── Active starter session (persists question list across navigation) ────────
+
+function activeSessionKey(classId, lessonKey) {
+  return `rs_active_session__${classId}__${lessonKey}`;
+}
+
+export function saveActiveSession(classId, lessonKey, questions, meta = {}) {
+  localStorage.setItem(activeSessionKey(classId, lessonKey), JSON.stringify({ questions, ...meta }));
+}
+
+export function getActiveSession(classId, lessonKey) {
+  try {
+    const raw = localStorage.getItem(activeSessionKey(classId, lessonKey));
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearActiveSession(classId, lessonKey) {
+  localStorage.removeItem(activeSessionKey(classId, lessonKey));
+}
+
 // ─── Session log ─────────────────────────────────────────────────────────────
 
 export function getSessionLog() {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry, flushQuestionLogToFirestore, getActiveChallengePlus } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry, flushQuestionLogToFirestore, getActiveChallengePlus, saveActiveSession, getActiveSession, clearActiveSession } from '../utils/storage.js';
 import { generateStarterQuestions, updateQuestionLog } from '../utils/scheduler.js';
 import { ROTAS, LESSONS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
@@ -67,10 +67,21 @@ export default function StarterPage() {
 
   useEffect(() => {
     if (!teacher) return;
-    const log = getQuestionLog();
-    const qs = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log);
-    setQuestions(qs);
+    const saved = getActiveSession(decodedClassId, String(currentLessonOrder));
+    if (saved?.questions?.length > 0) {
+      setQuestions(saved.questions);
+    } else {
+      const log = getQuestionLog();
+      const qs = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log);
+      setQuestions(qs);
+    }
   }, []);
+
+  useEffect(() => {
+    if (questions.length > 0) {
+      saveActiveSession(decodedClassId, String(currentLessonOrder), questions);
+    }
+  }, [questions]);
 
   if (!teacher) {
     navigate('/');
@@ -111,6 +122,7 @@ export default function StarterPage() {
   }
 
   function handleEndSession() {
+    clearActiveSession(decodedClassId, String(currentLessonOrder));
     const log = getQuestionLog();
     const updated = updateQuestionLog(decodedClassId, questions, currentLessonOrder, log);
     saveQuestionLog(updated);
