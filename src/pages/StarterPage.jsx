@@ -222,7 +222,7 @@ export default function StarterPage() {
 
       <main className="flex-1 min-h-0 flex flex-col gap-3 px-4 pb-4">
         {/* Grid: 2 cols × 3 rows — fills available height (6 questions) */}
-        <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-3 gap-3">
+        <div className="flex-[3] min-h-0 grid grid-cols-2 grid-rows-3 gap-3">
           {questions.map((q, i) => (
             <QuestionCard
               key={q.id}
@@ -246,16 +246,16 @@ export default function StarterPage() {
 
         {/* Challenge+ pill — full-width, pastel pink */}
         <div
-          className={`shrink-0 w-full rounded-full bg-pink-100 px-8 py-4 flex items-center gap-4 ${challengeQ ? 'cursor-pointer select-none' : ''}`}
+          className={`shrink-0 w-full rounded-full bg-pink-100 px-8 py-5 flex items-center gap-6 ${challengeQ ? 'cursor-pointer select-none' : ''}`}
           onClick={() => challengeQ && setChallengeRevealed(r => !r)}
         >
-          <span className="text-pink-400 font-bold text-lg tracking-wide shrink-0">Challenge +</span>
+          <span className="text-pink-400 font-bold text-2xl tracking-wide shrink-0">Challenge +</span>
           {challengeQ ? (
-            <span className="text-gray-800 text-xl font-medium">
+            <span className="text-gray-800 text-2xl font-medium">
               {challengeRevealed ? challengeQ.answer || challengeQ.question : challengeQ.question}
             </span>
           ) : (
-            <span className="text-pink-200 text-xl italic">Question to be added</span>
+            <span className="text-pink-200 text-2xl italic">Question to be added</span>
           )}
         </div>
       </main>
