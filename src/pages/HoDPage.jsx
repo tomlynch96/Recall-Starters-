@@ -83,7 +83,7 @@ export default function HoDPage() {
 
       // Sheet 1: Questions
       const wsQ = wb.Sheets['Questions'] || wb.Sheets[wb.SheetNames[0]];
-      const qRows = XLSX.utils.sheet_to_json(wsQ);
+      const qRows = XLSX.utils.sheet_to_json(wsQ, { defval: '' });
       const rowMap = new Map(qRows.map(r => [String(r.id), r]));
       const updatedQuestions = QUESTIONS.map(q => {
         const row = rowMap.get(String(q.id));
@@ -97,22 +97,28 @@ export default function HoDPage() {
       });
       saveCustomQuestions(updatedQuestions);
 
-      // Sheet 2: Challenge+
-      const wsC = wb.Sheets['Challenge+'];
+      // Sheet 2: Challenge+ — find by name (flexible) or fall back to second sheet
+      const challengeSheetName = wb.SheetNames.find(n =>
+        n.toLowerCase().includes('challenge')
+      ) || wb.SheetNames[1];
+      const wsC = challengeSheetName ? wb.Sheets[challengeSheetName] : null;
+      let challengeCount = 0;
       if (wsC) {
-        const cRows = XLSX.utils.sheet_to_json(wsC);
+        const cRows = XLSX.utils.sheet_to_json(wsC, { defval: '' });
         const updatedChallenge = cRows
           .filter(r => String(r['Challenge Question'] || '').trim())
           .map(r => ({
-            lesson_id: String(r.lesson_id).trim(),
+            lesson_id: String(r.lesson_id ?? r.lesson_id ?? '').trim(),
             question: String(r['Challenge Question']).trim(),
             answer: String(r['Challenge Answer'] || '').trim(),
-          }));
+          }))
+          .filter(r => r.lesson_id);
+        challengeCount = updatedChallenge.length;
         saveCustomChallengePlus(updatedChallenge);
       }
 
       setUsingCustom(true);
-      setUploadStatus(`✓ ${updatedQuestions.length} questions + challenge+ updated`);
+      setUploadStatus(`✓ ${updatedQuestions.length} questions · ${challengeCount} challenge+ question${challengeCount !== 1 ? 's' : ''} saved`);
     } catch {
       setUploadStatus('Upload failed — check the file format');
     }
