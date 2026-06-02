@@ -34,94 +34,14 @@ export default function HoDPage() {
   const fileInputRef = useRef(null);
 
 
-  function downloadTopicTemplate(topicName, topicLessons) {
-    const wb = XLSX.utils.book_new();
+  // Topic list for static download links (files generated at build time by exportTopicTemplates.py)
+  const topicList = Array.from(
+    LESSONS.reduce((m, l) => { m.set(l.topic_name, (m.get(l.topic_name) || 0) + 1); return m; }, new Map())
+  ).map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name));
 
-    // Sheet 1: Lesson List — lookup table used by dropdown + VLOOKUP
-    const lookupAoa = [
-      ['Lesson', 'lesson_id'],
-      ...topicLessons.map(l => [l.lesson_title, l.lesson_id]),
-    ];
-    const wsLookup = XLSX.utils.aoa_to_sheet(lookupAoa);
-    wsLookup['!cols'] = [{ wch: 40 }, { wch: 20 }];
-    XLSX.utils.book_append_sheet(wb, wsLookup, 'Lesson List');
-
-    // Sheet 2: Questions — pre-filled with existing questions; 30 blank rows appended for new entries
-    const lessonIds = new Set(topicLessons.map(l => l.lesson_id));
-    const topicQs = getActiveQuestions().filter(q => lessonIds.has(q.lesson_id));
-    const EXTRA_Q_ROWS = 30;
-    const lastQDataRow = topicQs.length + 1;
-    const lastQRow = lastQDataRow + EXTRA_Q_ROWS;
-
-    const qAoa = [['id', 'Lesson', 'lesson_id', 'Question', 'Answer', 'Scaffold']];
-    topicQs.forEach(q => {
-      const lessonTitle = topicLessons.find(l => l.lesson_id === q.lesson_id)?.lesson_title || '';
-      qAoa.push([q.id, lessonTitle, q.lesson_id, q.question, q.answer, q.scaffolded || '']);
-    });
-    // Blank rows for new questions
-    for (let i = 0; i < EXTRA_Q_ROWS; i++) qAoa.push(['', '', '', '', '', '']);
-
-    const wsQ = XLSX.utils.aoa_to_sheet(qAoa);
-    wsQ['!ref'] = `A1:F${lastQRow}`;
-
-    // Replace lesson_id cells (col C) with VLOOKUP so they auto-fill when Lesson is chosen
-    for (let r = 2; r <= lastQRow; r++) {
-      wsQ[`C${r}`] = { t: 's', f: `IF(B${r}="","",VLOOKUP(B${r},'Lesson List'!$A:$B,2,0))`, v: wsQ[`C${r}`]?.v ?? '' };
-    }
-
-    // Dropdown list on the Lesson column (B) for the whole data range
-    wsQ['!dataValidations'] = [{
-      sqref: `B2:B${lastQRow}`,
-      type: 'list',
-      formula1: `'Lesson List'!$A$2:$A$${topicLessons.length + 1}`,
-      showDropDown: false,
-      showErrorMessage: false,
-    }];
-    wsQ['!cols'] = [{ wch: 36 }, { wch: 40 }, { wch: 16 }, { wch: 60 }, { wch: 60 }, { wch: 60 }];
-    XLSX.utils.book_append_sheet(wb, wsQ, 'Questions');
-
-    // Sheet 3: Challenge+ — one row per lesson in this topic
-    const activeCp = getActiveChallengePlus();
-    const cpMap = new Map(activeCp.map(c => [c.lesson_id, c]));
-    const lastCpRow = topicLessons.length + 1;
-
-    const cpAoa = [['Lesson', 'lesson_id', 'Challenge Question', 'Challenge Answer']];
-    topicLessons.forEach(l => {
-      const ex = cpMap.get(l.lesson_id);
-      cpAoa.push([l.lesson_title, l.lesson_id, ex?.question || '', ex?.answer || '']);
-    });
-    const wsCP = XLSX.utils.aoa_to_sheet(cpAoa);
-    wsCP['!ref'] = `A1:D${lastCpRow}`;
-
-    // Replace lesson_id cells (col B) with VLOOKUP
-    for (let r = 2; r <= lastCpRow; r++) {
-      wsCP[`B${r}`] = { t: 's', f: `IF(A${r}="","",VLOOKUP(A${r},'Lesson List'!$A:$B,2,0))`, v: wsCP[`B${r}`]?.v ?? '' };
-    }
-
-    wsCP['!dataValidations'] = [{
-      sqref: `A2:A${lastCpRow}`,
-      type: 'list',
-      formula1: `'Lesson List'!$A$2:$A$${topicLessons.length + 1}`,
-      showDropDown: false,
-      showErrorMessage: false,
-    }];
-    wsCP['!cols'] = [{ wch: 40 }, { wch: 16 }, { wch: 80 }, { wch: 80 }];
-    XLSX.utils.book_append_sheet(wb, wsCP, 'Challenge+');
-
-    const safeName = topicName.replace(/[/\\?*[\]:]/g, '-');
-    XLSX.writeFile(wb, `${safeName} template.xlsx`);
+  function topicFilename(topicName) {
+    return topicName.replace(/[/\\?*[\]:,&]/g, '-').replace(/\s+/g, ' ').trim() + '-template.xlsx';
   }
-
-  // Build topic → lessons map from LESSONS, sorted by lesson_number
-  const topicMap = new Map();
-  for (const l of LESSONS) {
-    if (!topicMap.has(l.topic_name)) topicMap.set(l.topic_name, []);
-    topicMap.get(l.topic_name).push(l);
-  }
-  const topicList = Array.from(topicMap.entries()).map(([name, lessons]) => ({
-    name,
-    lessons: lessons.slice().sort((a, b) => Number(a.lesson_number) - Number(b.lesson_number)),
-  })).sort((a, b) => a.name.localeCompare(b.name));
 
   function downloadTemplate() {
     const wb = XLSX.utils.book_new();
@@ -488,18 +408,19 @@ export default function HoDPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Per-topic input templates</h2>
           <p className="text-sm text-gray-400 mb-4">
-            Download one file per topic to send to teachers. Each file has a Lesson dropdown — selecting a lesson auto-fills the <code>lesson_id</code>. The Questions sheet is pre-filled with existing questions; 30 blank rows are included for new entries. Collate the returned files and re-upload using the question bank uploader above.
+            Download one file per topic to send to teachers. Each file has a Lesson dropdown — selecting a lesson auto-fills the lesson_id. Questions are pre-filled; 30 blank rows are included for new entries. Collate the returned files and re-upload using the question bank uploader above.
           </p>
           <div className="bg-white border border-gray-200 rounded-xl p-6">
             <div className="flex flex-wrap gap-2">
-              {topicList.map(({ name, lessons }) => (
-                <button
+              {topicList.map(({ name, count }) => (
+                <a
                   key={name}
-                  onClick={() => downloadTopicTemplate(name, lessons)}
+                  href={`/topic-templates/${topicFilename(name)}`}
+                  download
                   className="px-4 py-2 bg-gray-100 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 text-gray-700 hover:text-blue-700 text-sm font-medium rounded-lg transition-colors"
                 >
-                  ↓ {name} <span className="text-gray-400 font-normal">({lessons.length} lessons)</span>
-                </button>
+                  ↓ {name} <span className="text-gray-400 font-normal">({count} lessons)</span>
+                </a>
               ))}
             </div>
           </div>
