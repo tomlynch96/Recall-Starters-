@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/parseExcel.js && (uv run scripts/exportTopicTemplates.py 2>/dev/null || (pip3 install openpyxl -q --break-system-packages 2>/dev/null || pip3 install openpyxl -q) && python3 scripts/exportTopicTemplates.py)",
+    "predev": "node scripts/parseExcel.js && (uv run scripts/exportTopicTemplates.py 2>/dev/null || ((pip3 install openpyxl -q --break-system-packages 2>/dev/null || pip3 install openpyxl -q) && python3 scripts/exportTopicTemplates.py))",
     "dev": "vite",
-    "prebuild": "node scripts/parseExcel.js && (uv run scripts/exportTopicTemplates.py 2>/dev/null || (pip3 install openpyxl -q --break-system-packages 2>/dev/null || pip3 install openpyxl -q) && python3 scripts/exportTopicTemplates.py)",
+    "prebuild": "node scripts/parseExcel.js && (uv run scripts/exportTopicTemplates.py 2>/dev/null || ((pip3 install openpyxl -q --break-system-packages 2>/dev/null || pip3 install openpyxl -q) && python3 scripts/exportTopicTemplates.py))",
     "build": "vite build",
     "preview": "vite preview",
     "export-template": "node scripts/parseExcel.js && node scripts/exportTemplate.js"
