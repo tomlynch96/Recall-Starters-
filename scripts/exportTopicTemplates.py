@@ -1,3 +1,6 @@
+# /// script
+# dependencies = ["openpyxl"]
+# ///
 """
 Generate one Excel template per topic for teacher input.
 
