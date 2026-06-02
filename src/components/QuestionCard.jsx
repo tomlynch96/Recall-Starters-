@@ -22,6 +22,9 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
   const showScaffold = scaffoldAll || localScaffold;
   const scaffold = question.scaffolded || `${question.question}: _____.`;
 
+  // If the scaffold text has no [brackets], treat it as a hint rather than a fill-in scaffold
+  const isHint = !scaffold.includes('[');
+
   return (
     <div
       className={`group relative h-full rounded-2xl px-6 py-4 cursor-pointer select-none transition-all flex flex-col justify-center ${
@@ -70,19 +73,26 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
         </button>
       </div>
 
-      {showScaffold ? (
+      {showScaffold && !isHint ? (
+        // Bracket-format scaffold: blanks revealed on click
         <p className="text-gray-900 text-3xl font-semibold leading-snug pr-24">
           <span className="font-bold mr-2">{index + 1})</span>
           {renderScaffold(scaffold, revealed)}
         </p>
       ) : (
         <>
-          {/* Normal question */}
+          {/* Question */}
           <p className="text-gray-900 text-3xl font-semibold leading-snug pr-24">
             <span className="font-bold mr-2">{index + 1})</span>
             {question.question}
           </p>
-          {/* Normal answer */}
+          {/* Hint (shown when scaffold button pressed and no brackets in scaffold text) */}
+          {showScaffold && isHint && !revealed && (
+            <p className="mt-3 pt-3 border-t-2 border-orange-200 text-gray-500 text-2xl font-medium">
+              Hint: <span className="italic">{scaffold}</span>
+            </p>
+          )}
+          {/* Answer */}
           {revealed && (
             <p className="mt-3 pt-3 border-t-2 border-orange-200 text-green-800 text-2xl font-medium">
               {question.answer}
