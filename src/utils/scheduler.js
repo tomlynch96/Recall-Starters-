@@ -117,6 +117,36 @@ export function generateStarterQuestions(classId, currentLessonOrder, rotaId, qu
     picks.push(...pickRandom(fallback, need));
   }
 
+  // Ultimate fallback: ignore SR schedule, draw from ALL previously taught questions
+  // This handles the case where all taught questions have been seen but aren't due yet
+  if (selected.length + picks.length < TARGET) {
+    const alreadyIds = new Set([...selected, ...picks].map(q => q.id));
+    const rotaMap = getRotaMap(rotaId);
+    const logMap2 = {};
+    for (const entry of questionLog) {
+      if (entry.class_id === classId) logMap2[entry.question_id] = entry;
+    }
+    const allTaught = getActiveQuestions()
+      .filter(q => {
+        const lo = rotaMap[q.lesson_id];
+        return lo !== undefined && lo < currentLessonOrder && !alreadyIds.has(q.id);
+      })
+      .map(q => {
+        const entry = logMap2[q.id];
+        return {
+          ...q,
+          times_seen: entry ? entry.times_seen : 0,
+          last_seen_lesson: entry ? entry.last_seen_lesson : null,
+          next_due_lesson: entry ? entry.next_due_lesson : 0,
+          flagged: entry ? entry.flagged : false,
+          flag_resolved: entry ? entry.flag_resolved : false,
+          lesson_order: rotaMap[q.lesson_id] ?? 0,
+        };
+      });
+    const need = TARGET - selected.length - picks.length;
+    picks.push(...pickRandom(allTaught, need));
+  }
+
   return [...selected, ...picks].slice(0, TARGET);
 }
 
