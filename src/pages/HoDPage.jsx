@@ -88,8 +88,20 @@ export default function HoDPage() {
       const updatedQuestions = QUESTIONS.map(q => {
         const row = rowMap.get(String(q.id));
         if (!row) return q;
+        const newLessonId = String(row.lesson_id || '').trim() || q.lesson_id;
+        // If lesson_id changed, pull the new lesson's metadata so topic/title stay consistent
+        const lessonMeta = newLessonId !== q.lesson_id
+          ? LESSONS.find(l => l.lesson_id === newLessonId)
+          : null;
         return {
           ...q,
+          lesson_id: newLessonId,
+          ...(lessonMeta ? {
+            topic_id: lessonMeta.topic_id,
+            topic_name: lessonMeta.topic_name,
+            lesson_number: lessonMeta.lesson_number,
+            lesson_title: lessonMeta.lesson_title,
+          } : {}),
           question: String(row.Question ?? q.question).trim() || q.question,
           answer: String(row.Answer ?? q.answer).trim() || q.answer,
           scaffolded: String(row.Scaffold ?? q.scaffolded ?? '').trim() || q.scaffolded,
@@ -335,7 +347,7 @@ export default function HoDPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Question bank</h2>
           <p className="text-sm text-gray-400 mb-4">
-            Download the template, edit questions / answers / scaffolds in Excel or Google Sheets, then re-upload. Topics and rotas are read-only — do not edit the <code>id</code> or <code>lesson_id</code> columns.
+            Download the template, edit questions / answers / scaffolds in Excel or Google Sheets, then re-upload. You can also change a question's <code>lesson_id</code> to move it to a different lesson. Do not edit the <code>id</code> column.
           </p>
 
           <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
