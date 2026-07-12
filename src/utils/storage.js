@@ -359,6 +359,32 @@ export function clearActiveSession(classId, lessonKey) {
   localStorage.removeItem(activeSessionKey(classId, lessonKey));
 }
 
+// ─── Brain Plaza stats ───────────────────────────────────────────────────────
+// Each teacher publishes their own total session count so everyone's brain is
+// sized correctly in the plaza, even for colleagues whose class session logs
+// aren't synced to this device.
+
+export function updatePlazaStats(email) {
+  if (!db || !email) return;
+  const count = getSessionLog().filter(s => s.teacher_email === email).length;
+  setDoc(doc(db, 'plaza_stats', encodeFirestoreId(email)), {
+    email,
+    sessions: count,
+    updated_at: new Date().toISOString(),
+  }, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+}
+
+export async function fetchPlazaStats() {
+  if (!db) return {};
+  const snap = await getDocs(collection(db, 'plaza_stats'));
+  const map = {};
+  for (const d of snap.docs) {
+    const data = d.data();
+    if (data.email) map[data.email] = data.sessions || 0;
+  }
+  return map;
+}
+
 // ─── Brain Plaza messages (easter egg) ───────────────────────────────────────
 
 // Fetch messages left for this teacher in the plaza
@@ -403,4 +429,7 @@ export function appendSession(entry) {
   if (_userId && db) {
     setDoc(doc(db, 'session_log', entry.id), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
+
+  // Keep the plaza brain size in sync with real usage
+  if (entry.teacher_email) updatePlazaStats(entry.teacher_email);
 }

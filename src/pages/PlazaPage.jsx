@@ -7,6 +7,8 @@ import {
   fetchPlazaMessages,
   leavePlazaMessage,
   deletePlazaMessage,
+  fetchPlazaStats,
+  updatePlazaStats,
 } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
 import BrainBuddy from '../components/BrainBuddy.jsx';
@@ -62,6 +64,37 @@ export default function PlazaPage() {
   useEffect(() => {
     if (!email) return;
     fetchPlazaMessages(email).then(setInbox).catch(() => {});
+  }, [email]);
+
+  // Accurate brain sizes: publish my own count, then pull everyone's published
+  // counts (local session logs only cover classes synced to this device)
+  useEffect(() => {
+    if (!email) return;
+    updatePlazaStats(email);
+    fetchPlazaStats().then(stats => {
+      setChars(cs => {
+        const known = new Set(cs.map(c => c.email));
+        const updated = cs.map(c => ({
+          ...c,
+          sessions: Math.max(c.sessions, stats[c.email] ?? 0),
+        }));
+        // Colleagues who've published stats but aren't in this device's teacher list
+        for (const [e, sessions] of Object.entries(stats)) {
+          if (known.has(e) || e === email) continue;
+          updated.push({
+            email: e,
+            isMe: false,
+            sessions,
+            x: 10 + Math.random() * 80,
+            y: 20 + Math.random() * 60,
+            vx: (Math.random() - 0.5) * SPEED_OTHERS * 2,
+            vy: (Math.random() - 0.5) * SPEED_OTHERS * 2,
+            facing: 1,
+          });
+        }
+        return updated;
+      });
+    }).catch(() => {});
   }, [email]);
 
   // Keyboard
