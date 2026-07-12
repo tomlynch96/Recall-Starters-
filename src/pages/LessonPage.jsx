@@ -12,19 +12,41 @@ const ROTA_OPTIONS = [
   { id: 'rota-c-t2', label: 'Rota C — T2 (3/fn)' },
 ];
 
+// Pastel palette cycled per topic in the schedule strip
+const TOPIC_COLOURS = [
+  'bg-blue-100 text-blue-800 border-blue-200',
+  'bg-green-100 text-green-800 border-green-200',
+  'bg-purple-100 text-purple-800 border-purple-200',
+  'bg-amber-100 text-amber-800 border-amber-200',
+  'bg-rose-100 text-rose-800 border-rose-200',
+  'bg-teal-100 text-teal-800 border-teal-200',
+  'bg-indigo-100 text-indigo-800 border-indigo-200',
+  'bg-orange-100 text-orange-800 border-orange-200',
+  'bg-cyan-100 text-cyan-800 border-cyan-200',
+  'bg-lime-100 text-lime-800 border-lime-200',
+  'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200',
+  'bg-emerald-100 text-emerald-800 border-emerald-200',
+  'bg-sky-100 text-sky-800 border-sky-200',
+  'bg-violet-100 text-violet-800 border-violet-200',
+];
+
 function getRotaLessons(rotaId) {
   const entries = ROTAS.filter(r => r.rota_id === rotaId);
   entries.sort((a, b) => a.lesson_order - b.lesson_order);
   return entries;
 }
 
+function getLesson(lessonId) {
+  return LESSONS.find(l => l.lesson_id === lessonId) || null;
+}
+
 function getLessonTitle(lessonId) {
-  const l = LESSONS.find(l => l.lesson_id === lessonId);
+  const l = getLesson(lessonId);
   return l ? l.lesson_title : lessonId;
 }
 
 function getLessonNumber(lessonId) {
-  const l = LESSONS.find(l => l.lesson_id === lessonId);
+  const l = getLesson(lessonId);
   return l ? l.lesson_number : '';
 }
 
@@ -39,7 +61,7 @@ export default function LessonPage() {
 
   const initialRotaId = teacher?.rota_id || 'rota-a';
   const sessionLog = getSessionLog();
-  const mySessions = sessionLog.filter(s => s.class_id === decodedClassId && s.teacher_email === email);
+  const mySessions = sessionLog.filter(s => s.class_id === decodedClassId && s.teacher_email === email && s.lesson_order !== -1);
   mySessions.sort((a, b) => b.lesson_order - a.lesson_order);
   const lastCompletedOrder = mySessions.length > 0 ? mySessions[0].lesson_order : 0;
   const initialRotaLessons = getRotaLessons(initialRotaId);
@@ -59,6 +81,18 @@ export default function LessonPage() {
 
   const rotaLessons = getRotaLessons(rotaId);
   const selectedRota = rotaLessons[Math.min(idx, rotaLessons.length - 1)];
+  const prevRota = idx > 0 ? rotaLessons[idx - 1] : null;
+  const nextRota = idx < rotaLessons.length - 1 ? rotaLessons[idx + 1] : null;
+
+  // Topic → colour index for the schedule strip, in order of first appearance
+  const topicColourMap = new Map();
+  for (const r of rotaLessons) {
+    const lesson = getLesson(r.lesson_id);
+    const topic = lesson?.topic_name || 'Unknown';
+    if (!topicColourMap.has(topic)) {
+      topicColourMap.set(topic, TOPIC_COLOURS[topicColourMap.size % TOPIC_COLOURS.length]);
+    }
+  }
 
   function changeRota(newRotaId) {
     updateTeacherRota(decodedClassId, email, newRotaId);
@@ -68,6 +102,8 @@ export default function LessonPage() {
 
   function startStarter() {
     if (!selectedRota) return;
+    // Go fullscreen for the class display
+    document.documentElement.requestFullscreen?.().catch(() => {});
     const entry = {
       id: generateUUID(),
       class_id: decodedClassId,
@@ -87,6 +123,7 @@ export default function LessonPage() {
 
   function startFiller() {
     const title = fillerTitleInput.trim() || 'Filler Lesson';
+    document.documentElement.requestFullscreen?.().catch(() => {});
     const entry = {
       id: generateUUID(),
       class_id: decodedClassId,
@@ -127,34 +164,46 @@ export default function LessonPage() {
         </select>
       </header>
 
-      <main className="max-w-xl mx-auto px-6 py-16 flex flex-col items-center gap-8">
+      <main className="max-w-3xl mx-auto px-6 py-12 flex flex-col items-center gap-8">
         <h2 className="text-lg font-semibold text-gray-600">Select lesson to start from</h2>
 
-        <div className="flex items-center gap-6">
+        {/* Last | Today | Next */}
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 w-full">
+          {/* Previous lesson */}
           <button
-            onClick={() => setIdx(i => Math.max(0, i - 1))}
-            disabled={idx === 0}
-            className="text-3xl text-gray-400 hover:text-gray-700 disabled:opacity-20"
+            onClick={() => prevRota && setIdx(i => i - 1)}
+            disabled={!prevRota}
+            className="text-right group disabled:opacity-0 disabled:pointer-events-none"
+            title="Go to previous lesson"
           >
-            ‹
+            <div className="text-xs uppercase tracking-wide text-gray-300 group-hover:text-gray-400 mb-1">‹ Last lesson</div>
+            <div className="text-sm text-gray-400 group-hover:text-gray-600 transition-colors leading-snug">
+              {prevRota && getLessonTitle(prevRota.lesson_id)}
+            </div>
           </button>
 
-          <div className="text-center">
-            <div className="text-5xl font-bold text-blue-800 mb-1">
+          {/* Today's lesson */}
+          <div className="text-center px-6">
+            <div className="text-5xl font-bold text-blue-800 mb-1 whitespace-nowrap">
               {getLessonNumber(selectedRota.lesson_id) !== 'Assessment'
                 ? `L${getLessonNumber(selectedRota.lesson_id)}`
                 : 'Assessment'}
             </div>
-            <div className="text-gray-600 text-lg">{getLessonTitle(selectedRota.lesson_id)}</div>
+            <div className="text-gray-700 text-lg font-medium">{getLessonTitle(selectedRota.lesson_id)}</div>
             <div className="text-gray-400 text-sm mt-1">Lesson {selectedRota.lesson_order} in rota</div>
           </div>
 
+          {/* Next lesson */}
           <button
-            onClick={() => setIdx(i => Math.min(rotaLessons.length - 1, i + 1))}
-            disabled={idx === rotaLessons.length - 1}
-            className="text-3xl text-gray-400 hover:text-gray-700 disabled:opacity-20"
+            onClick={() => nextRota && setIdx(i => i + 1)}
+            disabled={!nextRota}
+            className="text-left group disabled:opacity-0 disabled:pointer-events-none"
+            title="Go to next lesson"
           >
-            ›
+            <div className="text-xs uppercase tracking-wide text-gray-300 group-hover:text-gray-400 mb-1">Next lesson ›</div>
+            <div className="text-sm text-gray-400 group-hover:text-gray-600 transition-colors leading-snug">
+              {nextRota && getLessonTitle(nextRota.lesson_id)}
+            </div>
           </button>
         </div>
 
@@ -206,6 +255,48 @@ export default function LessonPage() {
         >
           View Dashboard
         </Link>
+
+        {/* ── Full schedule — colour changes with each new topic ── */}
+        <section className="w-full mt-4">
+          <h3 className="text-sm font-semibold text-gray-500 mb-3">Lesson schedule</h3>
+          <div className="flex flex-wrap gap-1.5">
+            {rotaLessons.map((r, i) => {
+              const lesson = getLesson(r.lesson_id);
+              const topic = lesson?.topic_name || 'Unknown';
+              const colours = topicColourMap.get(topic);
+              const isCurrent = i === idx;
+              const isDone = r.lesson_order <= lastCompletedOrder;
+              return (
+                <button
+                  key={`${r.lesson_id}-${r.lesson_order}`}
+                  onClick={() => setIdx(i)}
+                  title={`${topic} — ${lesson?.lesson_title || r.lesson_id} (lesson ${r.lesson_order} in rota)`}
+                  className={`px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all ${colours} ${
+                    isCurrent
+                      ? 'ring-2 ring-blue-500 ring-offset-1 scale-105'
+                      : isDone
+                        ? 'opacity-40 hover:opacity-70'
+                        : 'hover:scale-105'
+                  }`}
+                >
+                  {lesson?.lesson_number === 'Assessment' ? 'A' : `L${lesson?.lesson_number || '?'}`}
+                  <span className="block text-[10px] font-normal opacity-70 max-w-[72px] truncate">
+                    {lesson?.lesson_title || r.lesson_id}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {/* Topic legend */}
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3">
+            {Array.from(topicColourMap.entries()).map(([topic, colours]) => (
+              <span key={topic} className="flex items-center gap-1.5 text-xs text-gray-500">
+                <span className={`w-3 h-3 rounded ${colours.split(' ')[0]}`} />
+                {topic}
+              </span>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );

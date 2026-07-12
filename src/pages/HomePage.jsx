@@ -1,12 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag, unenrollTeacher } from '../utils/storage.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { ROTAS } from '../data/staticData.js';
+import BrainBuddy, { getBrainStage } from '../components/BrainBuddy.jsx';
+
+const SCIENCE_JOKES = [
+  "Why can't you trust an atom? Because they make up everything!",
+  'A neutron walks into a bar and asks how much a drink costs. The barman says: "For you? No charge."',
+  "Why did the white blood cell get detention? It kept attacking everything in cell-f defence.",
+  "I told a chemistry joke once. There was no reaction.",
+  "Why are chemists great at solving problems? They have all the solutions.",
+  "What did the biologist wear on their first date? Designer genes.",
+  "Why did the physics teacher break up with the biology teacher? There was no chemistry.",
+  "How do you organise a space party? You planet.",
+  "What do you call an acid with an attitude? A-mean-oh acid!",
+  "Why can't plants do maths? Because square roots confuse them.",
+  "Sodium said hello. I said 'Na, not today.'",
+  "The photon checked into a hotel with no luggage. It was travelling light.",
+  "What did one tectonic plate say to the other? Sorry, my fault!",
+  "Why is electricity the model student? It conducts itself perfectly.",
+  "Never trust gravity — it always lets you down.",
+  "What's a physicist's favourite food? Fission chips.",
+  "Oxygen and potassium went on a date. It was OK.",
+  "Why did the germ cross the microscope? To get to the other slide.",
+  "I was reading a book about helium. I couldn't put it down.",
+  "Bacteria: the only culture some people have.",
+];
 
 function getRotaName(rotaId) {
   const entry = ROTAS.find(r => r.rota_id === rotaId);
   return entry ? entry.rota_name : rotaId;
+}
+
+function getFirstName(email) {
+  if (!email) return 'there';
+  const raw = email.split('@')[0].split(/[._-]/)[0];
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 
 function getLastSession(classId, sessionLog) {
@@ -23,10 +53,20 @@ export default function HomePage() {
   const [teachers, setTeachers] = useState(() => getTeachers());
   const sessionLog = getSessionLog();
 
+  // Rotate the science joke every 12 seconds
+  const [jokeIdx, setJokeIdx] = useState(() => Math.floor(Math.random() * SCIENCE_JOKES.length));
+  useEffect(() => {
+    const t = setInterval(() => setJokeIdx(i => (i + 1) % SCIENCE_JOKES.length), 12000);
+    return () => clearInterval(t);
+  }, []);
+
   if (!email) {
     navigate('/login');
     return null;
   }
+
+  const mySessionCount = sessionLog.filter(s => s.teacher_email === email).length;
+  const brainStage = getBrainStage(mySessionCount);
 
   const classSet = new Map();
   for (const t of teachers) {
@@ -84,6 +124,24 @@ export default function HomePage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-10">
+        {/* Welcome banner with brain buddy + rotating science joke */}
+        <section className="mb-8 bg-white border border-gray-200 rounded-2xl px-8 py-6 flex items-center gap-8">
+          <BrainBuddy sessions={mySessionCount} />
+          <div className="min-w-0">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Welcome back, {getFirstName(email)}! 👋
+            </h2>
+            <p key={jokeIdx} className="text-gray-500 italic mt-2 animate-[fadeIn_0.6s_ease]">
+              {SCIENCE_JOKES[jokeIdx]}
+            </p>
+            <p className="text-xs text-gray-400 mt-3">
+              {mySessionCount === 0
+                ? 'Run your first starter to start growing your brain buddy!'
+                : `${mySessionCount} starter${mySessionCount === 1 ? '' : 's'} run — your brain buddy is ${brainStage.label}!`}
+            </p>
+          </div>
+        </section>
+
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-700">Your classes</h2>
           <button
