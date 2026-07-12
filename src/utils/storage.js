@@ -359,6 +359,31 @@ export function clearActiveSession(classId, lessonKey) {
   localStorage.removeItem(activeSessionKey(classId, lessonKey));
 }
 
+// ─── Brain Plaza messages (easter egg) ───────────────────────────────────────
+
+// Fetch messages left for this teacher in the plaza
+export async function fetchPlazaMessages(email) {
+  if (!db) return [];
+  const snap = await getDocs(query(collection(db, 'plaza_messages'), where('to_email', '==', email)));
+  return snap.docs
+    .map(d => ({ docId: d.id, ...d.data() }))
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+}
+
+// Leave a message for another teacher — they'll see it next time they visit the plaza
+export function leavePlazaMessage(msg) {
+  if (!db) return;
+  setDoc(doc(db, 'plaza_messages', msg.id), msg)
+    .catch(err => console.error('Firestore write failed:', err.code, err.message));
+}
+
+// Delete a message once it's been read
+export function deletePlazaMessage(docId) {
+  if (!db) return;
+  deleteDoc(doc(db, 'plaza_messages', docId))
+    .catch(err => console.error('Firestore write failed:', err.code, err.message));
+}
+
 // ─── Session log ─────────────────────────────────────────────────────────────
 
 export function getSessionLog() {

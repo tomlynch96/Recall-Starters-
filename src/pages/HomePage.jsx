@@ -29,22 +29,11 @@ const SCIENCE_JOKES = [
   "Bacteria: the only culture some people have.",
 ];
 
-function getRotaName(rotaId) {
-  const entry = ROTAS.find(r => r.rota_id === rotaId);
-  return entry ? entry.rota_name : rotaId;
-}
 
 function getFirstName(email) {
   if (!email) return 'there';
   const raw = email.split('@')[0].split(/[._-]/)[0];
   return raw.charAt(0).toUpperCase() + raw.slice(1);
-}
-
-function getLastSession(classId, sessionLog) {
-  const sessions = sessionLog.filter(s => s.class_id === classId);
-  if (!sessions.length) return null;
-  sessions.sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at));
-  return sessions[0].opened_at;
 }
 
 // Next lesson for this teacher+class: first rota entry after the last completed one
@@ -157,7 +146,14 @@ export default function HomePage() {
       <main className="max-w-4xl mx-auto px-6 py-10">
         {/* Welcome banner with brain buddy + rotating science joke */}
         <section className="mb-8 bg-white border border-gray-200 rounded-2xl px-8 py-6 flex items-center gap-8">
-          <BrainBuddy sessions={mySessionCount} />
+          {/* Easter egg: the brain leads to the Brain Plaza */}
+          <button
+            onClick={() => navigate('/plaza')}
+            className="shrink-0 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+            title="…?"
+          >
+            <BrainBuddy sessions={mySessionCount} />
+          </button>
           <div className="min-w-0">
             <h2 className="text-2xl font-bold text-gray-800">
               Welcome back, {getFirstName(email)}! 👋
@@ -191,7 +187,6 @@ export default function HomePage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {classes.map(t => {
-              const lastSession = getLastSession(t.class_id, sessionLog);
               const mine = teachers.find(t2 => t2.email === email && t2.class_id === t.class_id) || t;
               const nextLesson = getNextLesson(t.class_id, mine.rota_id, email, sessionLog);
               return (
@@ -200,18 +195,14 @@ export default function HomePage() {
                     onClick={() => navigate(`/lesson/${encodeURIComponent(t.class_id)}`)}
                     className="w-full bg-white border-2 border-gray-200 rounded-2xl p-6 text-left hover:border-blue-400 hover:shadow-md transition-all"
                   >
-                    <div className="text-2xl font-bold text-blue-800 mb-1">{t.class_id}</div>
-                    <div className="text-sm text-gray-500 mb-3">{getRotaName(mine.rota_id)}</div>
-                    {nextLesson && (
-                      <div className="text-sm text-gray-600 font-medium mb-2">
+                    <div className="text-2xl font-bold text-blue-800 mb-2">{t.class_id}</div>
+                    {nextLesson ? (
+                      <div className="text-sm text-gray-600 font-medium pr-10">
                         Next: {nextLesson.lesson_number === 'Assessment' ? 'Assessment' : `L${nextLesson.lesson_number}`} — {nextLesson.lesson_title}
                       </div>
+                    ) : (
+                      <div className="text-sm text-gray-400">No lessons in rota</div>
                     )}
-                    <div className="text-xs text-gray-400">
-                      {lastSession
-                        ? `Last session: ${new Date(lastSession).toLocaleDateString()}`
-                        : 'No sessions yet'}
-                    </div>
                   </button>
 
                   {/* One-click start for the next lesson */}

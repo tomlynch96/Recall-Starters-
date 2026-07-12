@@ -10,6 +10,7 @@ import StarterPage from './pages/StarterPage.jsx';
 import FillerPage from './pages/FillerPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import HoDPage from './pages/HoDPage.jsx';
+import PlazaPage from './pages/PlazaPage.jsx';
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuth();
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/filler/:classId" element={<RequireAuth><FillerPage /></RequireAuth>} />
           <Route path="/dashboard/:classId" element={<RequireAuth><DashboardPage /></RequireAuth>} />
           <Route path="/hod" element={<RequireAuth><HoDPage /></RequireAuth>} />
+          <Route path="/plaza" element={<RequireAuth><PlazaPage /></RequireAuth>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
