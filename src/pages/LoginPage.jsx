@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [signingIn, setSigningIn] = useState(false);
+  const [hydrating, setHydrating] = useState(false);
   const { signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
@@ -16,7 +17,9 @@ export default function LoginPage() {
     setSigningIn(true);
     try {
       await signInWithGoogle();
-      // onAuthStateChanged handles setCurrentTeacher, hydration, and navigation
+      // Popup is closed — show the brain evolution while data hydrates and
+      // onAuthStateChanged redirects us away from this page
+      setHydrating(true);
     } catch (err) {
       console.error('Sign-in error:', err);
       setError(err.message || 'Sign-in failed. Please try again.');
@@ -41,7 +44,11 @@ export default function LoginPage() {
         <h1 className="text-4xl font-bold text-blue-800 mb-2 text-center">Recall Starter</h1>
         <p className="text-gray-500 text-center mb-10">Science Department</p>
 
-        {firebaseEnabled ? (
+        {firebaseEnabled && hydrating ? (
+          <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center">
+            <p className="text-gray-400 text-lg">Signed in! Loading your classes…</p>
+          </div>
+        ) : firebaseEnabled ? (
           <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center gap-4">
             <p className="text-gray-600 text-center mb-2">
               Sign in with your school Google account

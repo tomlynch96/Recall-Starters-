@@ -63,29 +63,53 @@ function pickRandom(arr, n) {
   return shuffled.slice(0, n);
 }
 
-export function generateStarterQuestions(classId, currentLessonOrder, rotaId, questionLog) {
+// Weighted pick favouring the most overdue / least-practised questions.
+// Overdue-ness dominates, with random jitter so equally-due questions vary
+// between sessions. Never-seen questions score highest (next_due 0).
+function pickPrioritised(arr, n, currentLessonOrder) {
+  return [...arr]
+    .map(q => ({
+      q,
+      score: (currentLessonOrder - (q.next_due_lesson ?? 0)) + Math.random() * 3,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, n)
+    .map(x => x.q);
+}
+
+export function generateStarterQuestions(classId, currentLessonOrder, rotaId, questionLog, target = 6) {
   const eligible = getEligibleQuestions(classId, currentLessonOrder, rotaId, questionLog);
 
   // Flagged questions always appear first
   const flagged = eligible.filter(q => q.flagged);
 
-  // Slot definitions by lesson_order distance from current
+  // Slots partition ALL past lessons contiguously so every due question has a
+  // route back into a starter, matching the repetition intervals in
+  // calculateNextDue (1 / 3-5 / 10-15 / 38-42):
+  //   A: last lesson            (1st repetition)          ×2
+  //   B: 2 lessons ago          (catch-up on 1st rep)     ×1
+  //   C: 3-5 lessons ago        (2nd repetition)          ×1
+  //   D: 6-15 lessons ago       (3rd repetition)          ×1
+  //   E: 16+ lessons ago        (4th+ repetition)         ×1
   const lastLesson = currentLessonOrder - 1;
   const slotA = eligible.filter(q => !q.flagged && q.lesson_order === lastLesson);
   const slotB = eligible.filter(q => !q.flagged && q.lesson_order === currentLessonOrder - 2);
   const slotC = eligible.filter(q => !q.flagged && q.lesson_order >= currentLessonOrder - 5 && q.lesson_order <= currentLessonOrder - 3);
-  const slotD = eligible.filter(q => !q.flagged && q.lesson_order >= currentLessonOrder - 15 && q.lesson_order <= currentLessonOrder - 10);
-  const slotE = eligible.filter(q => !q.flagged && q.lesson_order <= currentLessonOrder - 38);
+  const slotD = eligible.filter(q => !q.flagged && q.lesson_order >= currentLessonOrder - 15 && q.lesson_order <= currentLessonOrder - 6);
+  const slotE = eligible.filter(q => !q.flagged && q.lesson_order <= currentLessonOrder - 16);
 
-  const TARGET = 6;
+  // Slot quotas cover 6 questions; anything above (e.g. the 8-question
+  // starter) is filled from the most-overdue eligible via the final fallback,
+  // so the extra capacity works down the spaced-repetition backlog.
+  const TARGET = target;
   const selected = [...flagged];
 
-  // 6-question slots: A=3, B=1, C=1, D=1 — preserves all four spaced-repetition horizons
   const slots = [
-    { pool: slotA, target: 3 },
+    { pool: slotA, target: 2 },
     { pool: slotB, target: 1 },
     { pool: slotC, target: 1 },
     { pool: slotD, target: 1 },
+    { pool: slotE, target: 1 },
   ];
 
   let unfilled = 0;
@@ -96,25 +120,18 @@ export function generateStarterQuestions(classId, currentLessonOrder, rotaId, qu
     const remaining = TARGET - selected.length - picks.length;
     const want = Math.min(slot.target + unfilled, remaining);
     const available = slot.pool.filter(q => !selected.find(s => s.id === q.id) && !picks.find(p => p.id === q.id));
-    const got = pickRandom(available, want);
+    const got = pickPrioritised(available, want, currentLessonOrder);
     picks.push(...got);
     unfilled = want - got.length;
   }
 
-  // If still short, fill from slot A
-  if (selected.length + picks.length < TARGET) {
-    const alreadyIds = new Set([...selected, ...picks].map(q => q.id));
-    const fallback = slotA.filter(q => !alreadyIds.has(q.id));
-    const need = TARGET - selected.length - picks.length;
-    picks.push(...pickRandom(fallback, need));
-  }
-
-  // If STILL short, pull from any eligible
+  // If short (e.g. 8-question starter, or thin slots), fill with the most
+  // overdue eligible questions — extra capacity works down the backlog
   if (selected.length + picks.length < TARGET) {
     const alreadyIds = new Set([...selected, ...picks].map(q => q.id));
     const fallback = eligible.filter(q => !alreadyIds.has(q.id));
     const need = TARGET - selected.length - picks.length;
-    picks.push(...pickRandom(fallback, need));
+    picks.push(...pickPrioritised(fallback, need, currentLessonOrder));
   }
 
   // Ultimate fallback: ignore SR schedule, draw from ALL previously taught questions

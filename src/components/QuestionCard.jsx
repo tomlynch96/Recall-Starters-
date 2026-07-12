@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useFitText } from '../utils/useFitText.js';
 
 // Render a bracket-format scaffold: [word] hidden as _____ until revealed, then shown in colour
 function renderScaffold(scaffold, revealed) {
@@ -15,19 +16,23 @@ function renderScaffold(scaffold, revealed) {
   });
 }
 
-export default function QuestionCard({ question, index, onFlag, onSwap, onRemove, scaffoldAll }) {
+export default function QuestionCard({ question, index, onFlag, onSwap, onRemove, scaffoldAll, revealAll }) {
   const [revealed, setRevealed] = useState(false);
   const [localScaffold, setLocalScaffold] = useState(false);
 
   const showScaffold = scaffoldAll || localScaffold;
   const scaffold = question.scaffolded || `${question.question}: _____.`;
+  const isRevealed = revealed || revealAll;
 
   // If the scaffold text has no [brackets], treat it as a hint rather than a fill-in scaffold
   const isHint = !scaffold.includes('[');
 
+  // Shrink content to fit the card whenever the visible content changes
+  const [fitRef, scale] = useFitText([question.id, isRevealed, showScaffold, scaffold]);
+
   return (
     <div
-      className={`group relative h-full rounded-2xl px-6 py-4 cursor-pointer select-none transition-all flex flex-col justify-center ${
+      className={`group relative h-full rounded-2xl px-6 py-4 cursor-pointer select-none transition-all flex flex-col ${
         question.flagged
           ? 'bg-amber-100 ring-2 ring-amber-400'
           : 'bg-orange-100 hover:bg-orange-50'
@@ -36,7 +41,7 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
     >
       {/* Hover controls */}
       <div
-        className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -73,33 +78,40 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
         </button>
       </div>
 
-      {showScaffold && !isHint ? (
-        // Bracket-format scaffold: blanks revealed on click
-        <p className="text-gray-900 text-3xl font-semibold leading-snug pr-24">
-          <span className="font-bold mr-2">{index + 1})</span>
-          {renderScaffold(scaffold, revealed)}
-        </p>
-      ) : (
-        <>
-          {/* Question */}
-          <p className="text-gray-900 text-3xl font-semibold leading-snug pr-24">
+      {/* Content — fixed-height box; font scales down until everything fits */}
+      <div
+        ref={fitRef}
+        className="flex-1 min-h-0 overflow-hidden flex flex-col justify-center"
+        style={{ fontSize: `${1.875 * scale}rem` }}
+      >
+        {showScaffold && !isHint ? (
+          // Bracket-format scaffold: blanks revealed on click
+          <p className="text-gray-900 font-semibold leading-snug pr-16">
             <span className="font-bold mr-2">{index + 1})</span>
-            {question.question}
+            {renderScaffold(scaffold, isRevealed)}
           </p>
-          {/* Hint (shown when scaffold button pressed and no brackets in scaffold text) */}
-          {showScaffold && isHint && !revealed && (
-            <p className="mt-3 pt-3 border-t-2 border-orange-200 text-gray-500 text-2xl font-medium">
-              Hint: <span className="italic">{scaffold}</span>
+        ) : (
+          <>
+            {/* Question */}
+            <p className="text-gray-900 font-semibold leading-snug pr-16">
+              <span className="font-bold mr-2">{index + 1})</span>
+              {question.question}
             </p>
-          )}
-          {/* Answer */}
-          {revealed && (
-            <p className="mt-3 pt-3 border-t-2 border-orange-200 text-green-800 text-2xl font-medium">
-              {question.answer}
-            </p>
-          )}
-        </>
-      )}
+            {/* Hint (shown when scaffold pressed and no brackets in scaffold text) */}
+            {showScaffold && isHint && !isRevealed && (
+              <p className="mt-2 pt-2 border-t-2 border-orange-200 text-gray-500 font-medium" style={{ fontSize: '0.8em' }}>
+                Hint: <span className="italic">{scaffold}</span>
+              </p>
+            )}
+            {/* Answer */}
+            {isRevealed && (
+              <p className="mt-2 pt-2 border-t-2 border-orange-200 text-green-800 font-medium" style={{ fontSize: '0.8em' }}>
+                {question.answer}
+              </p>
+            )}
+          </>
+        )}
+      </div>
 
       {question.flagged && (
         <span className="absolute bottom-3 left-5 text-amber-600 text-sm font-semibold">⚑ flagged</span>

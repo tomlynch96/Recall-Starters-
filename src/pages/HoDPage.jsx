@@ -148,6 +148,7 @@ export default function HoDPage() {
   }
 
   function handleRevert() {
+    if (!window.confirm('Revert to the default question bank? All uploaded questions and challenge+ edits will be discarded for every teacher.')) return;
     clearCustomQuestions();
     clearCustomChallengePlus();
     setUsingCustom(false);
@@ -172,6 +173,8 @@ export default function HoDPage() {
   }
 
   function handleRemoveClass(id) {
+    const opt = classOptions.find(o => o.id === id);
+    if (!window.confirm(`Remove class "${opt?.class_id || ''}"? Teachers will no longer be able to select it.`)) return;
     removeClassOption(id);
     setClassOptions(getClassOptions());
   }
@@ -186,20 +189,37 @@ export default function HoDPage() {
     if (t.class_id && !classMap.has(t.class_id)) classMap.set(t.class_id, t);
   }
 
+  // Class overview: one sub-row per assigned teacher, with that teacher's
+  // own progress for that particular class
   const classRows = Array.from(classMap.values()).map(t => {
-    const sessions = sessionLog.filter(s => s.class_id === t.class_id);
-    sessions.sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at));
-    const lastSession = sessions[0]?.opened_at || null;
-    const termSessions = sessions.filter(s => new Date(s.opened_at) >= thisTermStart).length;
-    const recentSessions = sessions.filter(s => new Date(s.opened_at) >= twoWeeksAgo).length;
-    return { ...t, lastSession, termSessions, recentSessions };
+    const teacherStats = teachers
+      .filter(x => x.class_id === t.class_id && x.email)
+      .map(x => {
+        const sessions = sessionLog.filter(s => s.class_id === t.class_id && s.teacher_email === x.email);
+        sessions.sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at));
+        return {
+          email: x.email,
+          rota_id: x.rota_id,
+          lastSession: sessions[0]?.opened_at || null,
+          termSessions: sessions.filter(s => new Date(s.opened_at) >= thisTermStart).length,
+          recentSessions: sessions.filter(s => new Date(s.opened_at) >= twoWeeksAgo).length,
+        };
+      });
+    return { class_id: t.class_id, teacherStats };
   });
 
-  const teacherRows = teachers.filter(t => t.class_id).map(t => {
-    const sessions = sessionLog.filter(s => s.teacher_email === t.email && s.class_id === t.class_id);
+  // One row per teacher: overall usage across all of their classes
+  const teacherAgg = new Map();
+  for (const t of teachers) {
+    if (!t.class_id || !t.email) continue;
+    if (!teacherAgg.has(t.email)) teacherAgg.set(t.email, { email: t.email, classes: [] });
+    teacherAgg.get(t.email).classes.push(t.class_id);
+  }
+  const teacherRows = Array.from(teacherAgg.values()).map(t => {
+    const sessions = sessionLog.filter(s => s.teacher_email === t.email);
     sessions.sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at));
     return { ...t, totalSessions: sessions.length, lastSession: sessions[0]?.opened_at || null };
-  });
+  }).sort((a, b) => b.totalSessions - a.totalSessions);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -304,24 +324,39 @@ export default function HoDPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Class', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status'].map(h => (
+                  {['Class', 'Teacher', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status'].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {classRows.map(row => (
-                  <tr key={row.class_id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{row.class_id}</td>
-                    <td className="px-4 py-3 text-gray-500">{getRotaName(row.rota_id)}</td>
-                    <td className="px-4 py-3 text-gray-500">
-                      {row.lastSession ? new Date(row.lastSession).toLocaleDateString() : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">{row.termSessions}</td>
-                    <td className="px-4 py-3 text-gray-700">{row.recentSessions}</td>
-                    <td className="px-4 py-3 text-xl">{statusIcon(row.lastSession)}</td>
-                  </tr>
-                ))}
+                {classRows.flatMap(row => {
+                  if (row.teacherStats.length === 0) {
+                    return [(
+                      <tr key={row.class_id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-medium text-gray-800">{row.class_id}</td>
+                        <td className="px-4 py-3 text-gray-300 italic" colSpan={6}>No teachers assigned yet</td>
+                      </tr>
+                    )];
+                  }
+                  return row.teacherStats.map((ts, i) => (
+                    <tr key={`${row.class_id}-${ts.email}`} className="hover:bg-gray-50">
+                      {i === 0 && (
+                        <td rowSpan={row.teacherStats.length} className="px-4 py-3 font-medium text-gray-800 align-top border-r border-gray-50">
+                          {row.class_id}
+                        </td>
+                      )}
+                      <td className="px-4 py-3 text-gray-600">{ts.email.split('@')[0]}</td>
+                      <td className="px-4 py-3 text-gray-500">{getRotaName(ts.rota_id)}</td>
+                      <td className="px-4 py-3 text-gray-500">
+                        {ts.lastSession ? new Date(ts.lastSession).toLocaleDateString() : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">{ts.termSessions}</td>
+                      <td className="px-4 py-3 text-gray-700">{ts.recentSessions}</td>
+                      <td className="px-4 py-3 text-xl">{statusIcon(ts.lastSession)}</td>
+                    </tr>
+                  ));
+                })}
               </tbody>
             </table>
           </div>
@@ -333,16 +368,16 @@ export default function HoDPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Teacher', 'Class', 'Total sessions', 'Last session'].map(h => (
+                  {['Teacher', 'Classes', 'Total sessions', 'Last session'].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {teacherRows.map((row, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
+                {teacherRows.map(row => (
+                  <tr key={row.email} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-gray-800">{row.email}</td>
-                    <td className="px-4 py-3 text-gray-500">{row.class_id}</td>
+                    <td className="px-4 py-3 text-gray-500">{row.classes.join(', ')}</td>
                     <td className="px-4 py-3 text-gray-700">{row.totalSessions}</td>
                     <td className="px-4 py-3 text-gray-500">
                       {row.lastSession ? new Date(row.lastSession).toLocaleDateString() : '—'}

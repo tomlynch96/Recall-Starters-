@@ -4,12 +4,32 @@ import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsert
 import { generateStarterQuestions, updateQuestionLog } from '../utils/scheduler.js';
 import { ROTAS, LESSONS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
+import SettingsMenu from '../components/SettingsMenu.jsx';
 import FlagResolutionModal from '../components/FlagResolutionModal.jsx';
 
 const TIMER_TOTAL = 5 * 60;
 
 function formatDate(date) {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function exitFullscreen() {
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+// Placeholder slot left behind by a removed question — hover reveals a + to add one back
+function EmptySlot({ onAdd }) {
+  return (
+    <div
+      onClick={onAdd}
+      className="group/slot h-full rounded-2xl border-2 border-dashed border-gray-100 hover:border-blue-300 hover:bg-blue-50/40 flex items-center justify-center cursor-pointer transition-all"
+      title="Add a question"
+    >
+      <span className="text-6xl font-light text-transparent group-hover/slot:text-blue-400 transition-colors select-none">+</span>
+    </div>
+  );
 }
 
 export default function StarterPage() {
@@ -34,12 +54,15 @@ export default function StarterPage() {
   const challengeQ = prevRotaEntry
     ? getActiveChallengePlus().find(c => c.lesson_id === prevRotaEntry.lesson_id)
     : null;
+  const starterSize = teacher?.starter_size === 8 ? 8 : 6;
 
+  // questions may contain null entries — placeholders where a question was removed
   const [questions, setQuestions] = useState([]);
   const [flagQueue, setFlagQueue] = useState([]);
   const [currentFlagIdx, setCurrentFlagIdx] = useState(0);
   const [showResolution, setShowResolution] = useState(false);
   const [scaffoldAll, setScaffoldAll] = useState(false);
+  const [revealAll, setRevealAll] = useState(false);
   const [challengeRevealed, setChallengeRevealed] = useState(false);
 
   // Timer state (lifted here so countdown stays visible in header)
@@ -61,6 +84,10 @@ export default function StarterPage() {
     setTimerActive(a => !a);
   }
 
+  function adjustTimer(delta) {
+    setTimerSeconds(s => Math.max(0, Math.min(60 * 60, s + delta)));
+  }
+
   const timerMM = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
   const timerSS = String(timerSeconds % 60).padStart(2, '0');
   const timerStarted = timerActive || timerSeconds < TIMER_TOTAL;
@@ -68,17 +95,17 @@ export default function StarterPage() {
   useEffect(() => {
     if (!teacher) return;
     const saved = getActiveSession(decodedClassId, String(currentLessonOrder));
-    if (saved?.questions?.length > 0) {
+    if (saved?.questions?.some(Boolean)) {
       setQuestions(saved.questions);
     } else {
       const log = getQuestionLog();
-      const qs = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log);
+      const qs = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log, starterSize);
       setQuestions(qs);
     }
   }, []);
 
   useEffect(() => {
-    if (questions.length > 0) {
+    if (questions.some(Boolean)) {
       saveActiveSession(decodedClassId, String(currentLessonOrder), questions);
     }
   }, [questions]);
@@ -88,47 +115,60 @@ export default function StarterPage() {
     return null;
   }
 
+  const liveQuestions = questions.filter(Boolean);
+
   function handleFlag(question) {
     const nowFlagged = !question.flagged;
     // Persist immediately so both teachers sharing this class see it
     upsertQuestionLogEntry(decodedClassId, question.id, {
       flagged: nowFlagged,
-      // next_due_lesson: 0 so flagged questions surface for all co-teachers immediately
-      ...(nowFlagged ? { next_due_lesson: 0 } : {}),
+      // Flag = the class struggled: surface immediately for all co-teachers
+      // AND reset the repetition ladder so intervals restart short
+      ...(nowFlagged ? { next_due_lesson: 0, times_seen: 0 } : {}),
     });
     setQuestions(qs => qs.map(q =>
-      q.id === question.id ? { ...q, flagged: nowFlagged } : q
+      q && q.id === question.id ? { ...q, flagged: nowFlagged } : q
     ));
   }
 
-  function handleSwap(question, idx) {
+  function pickReplacement(excludeId = null) {
     const log = getQuestionLog();
-    const currentIds = questions.map(q => q.id);
-    const eligible = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log)
-      .filter(q => !currentIds.includes(q.id) || q.id === question.id);
-    const replacement = eligible.find(q => q.id !== question.id);
+    const currentIds = questions.filter(Boolean).map(q => q.id);
+    const pool = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log, starterSize)
+      .filter(q => !currentIds.includes(q.id) && q.id !== excludeId);
+    return pool[0] || null;
+  }
+
+  function handleSwap(question, idx) {
+    const replacement = pickReplacement(question.id);
     if (replacement) {
       setQuestions(qs => qs.map((q, i) => i === idx ? replacement : q));
     }
   }
 
   function handleRemove(question, idx) {
-    const log = getQuestionLog();
-    const entry = log.find(e => e.class_id === decodedClassId && e.question_id === question.id);
-    const timeSeen = entry ? entry.times_seen : 0;
-    const pushBack = (entry?.next_due_lesson || currentLessonOrder) + 2;
-    upsertQuestionLogEntry(decodedClassId, question.id, { next_due_lesson: pushBack });
-    setQuestions(qs => qs.filter((_, i) => i !== idx));
+    // Push back relative to NOW so an overdue question doesn't reappear immediately
+    upsertQuestionLogEntry(decodedClassId, question.id, { next_due_lesson: currentLessonOrder + 2 });
+    // Leave a placeholder slot so the question can be replaced via +
+    setQuestions(qs => qs.map((q, i) => i === idx ? null : q));
+  }
+
+  function handleAddAt(idx) {
+    const replacement = pickReplacement();
+    if (replacement) {
+      setQuestions(qs => qs.map((q, i) => i === idx ? replacement : q));
+    }
   }
 
   function handleEndSession() {
+    exitFullscreen();
     clearActiveSession(decodedClassId, String(currentLessonOrder));
     const log = getQuestionLog();
-    const updated = updateQuestionLog(decodedClassId, questions, currentLessonOrder, log);
+    const updated = updateQuestionLog(decodedClassId, liveQuestions, currentLessonOrder, log);
     saveQuestionLog(updated);
     flushQuestionLogToFirestore(decodedClassId);
 
-    const flagged = questions.filter(q => q.flagged);
+    const flagged = liveQuestions.filter(q => q.flagged);
     if (flagged.length > 0) {
       setFlagQueue(flagged);
       setCurrentFlagIdx(0);
@@ -175,44 +215,49 @@ export default function StarterPage() {
         />
       )}
 
-      {/* Icon menu — fixed top-right hover zone; icons only appear when this corner is hovered */}
-      <div className="group fixed top-0 right-0 w-44 h-16 z-10 pointer-events-none">
-        <div className="absolute top-4 right-5 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
-        <button
-          onClick={() => setScaffoldAll(s => !s)}
-          title={scaffoldAll ? 'Hide scaffolding' : 'Show scaffolding'}
-          className={`text-xl leading-none transition-colors ${scaffoldAll ? 'text-blue-500' : 'text-gray-300 hover:text-gray-500'}`}
-        >
-          [_]
-        </button>
-        <button
-          onClick={toggleTimer}
-          title={timerActive ? 'Pause timer' : timerStarted ? 'Resume timer' : 'Start timer'}
-          className={`text-xl leading-none transition-colors ${timerActive ? 'text-green-500 hover:text-green-600' : 'text-gray-300 hover:text-gray-500'}`}
-        >
-          {timerActive ? '⏸' : timerStarted ? '▶' : '⏱'}
-        </button>
-        <button
-          onClick={handleEndSession}
-          title="End session"
-          className="text-3xl text-gray-300 hover:text-gray-600 leading-none"
-        >
-          ×
-        </button>
-        </div>
-      </div>
+      <SettingsMenu
+        timerSeconds={timerSeconds}
+        timerActive={timerActive}
+        onToggleTimer={toggleTimer}
+        onAdjustTimer={adjustTimer}
+        revealAll={revealAll}
+        onToggleRevealAll={() => setRevealAll(r => !r)}
+        scaffoldAll={scaffoldAll}
+        onToggleScaffoldAll={() => setScaffoldAll(s => !s)}
+        onExit={handleEndSession}
+      />
 
-      {/* Header: date left | title centre | timer countdown right (always visible when running) */}
-      <header className="relative flex items-center px-8 pt-6 pb-4 shrink-0">
-        <span className="text-gray-400 text-5xl">{formatDate(new Date())}</span>
+      {/* Header: date left | title centre | timer countdown right — all sizes adapt to viewport */}
+      <header className="relative flex items-center px-8 pt-6 pb-4 shrink-0 gap-4">
+        <span
+          className="text-gray-400 whitespace-nowrap shrink-0"
+          style={{ fontSize: 'clamp(1.1rem, 2.6vw, 3rem)' }}
+        >
+          {formatDate(new Date())}
+        </span>
 
-        <h1 className="absolute inset-x-0 text-7xl font-light text-gray-900 tracking-tight text-center leading-tight pointer-events-none">
+        <h1
+          className="flex-1 min-w-0 font-light text-gray-900 tracking-tight text-center leading-tight truncate"
+          style={{ fontSize: 'clamp(1.75rem, 4.5vw, 4.5rem)' }}
+        >
           {lessonTitle}
         </h1>
 
-        {timerStarted && (
-          <span className={`ml-auto font-mono text-5xl font-bold tabular-nums ${timerSeconds <= 60 ? 'text-red-500' : 'text-gray-700'}`}>
+        {timerStarted ? (
+          <span
+            className={`font-mono font-bold tabular-nums whitespace-nowrap shrink-0 ${timerSeconds <= 60 ? 'text-red-500' : 'text-gray-700'}`}
+            style={{ fontSize: 'clamp(1.25rem, 2.8vw, 3rem)' }}
+          >
             {timerMM}:{timerSS}
+          </span>
+        ) : (
+          /* Invisible spacer keeps the title centred when timer hidden */
+          <span
+            className="invisible font-mono font-bold whitespace-nowrap shrink-0"
+            style={{ fontSize: 'clamp(1.25rem, 2.8vw, 3rem)' }}
+            aria-hidden="true"
+          >
+            {formatDate(new Date()).length > 12 ? '' : '00:00'}
           </span>
         )}
       </header>
@@ -221,20 +266,25 @@ export default function StarterPage() {
       <div className="shrink-0 h-4" />
 
       <main className="flex-1 min-h-0 flex flex-col gap-3 px-4 pb-4">
-        {/* Grid: 2 cols × 3 rows — fills available height (6 questions) */}
-        <div className="flex-[3] min-h-0 grid grid-cols-2 grid-rows-3 gap-3">
+        {/* Grid: 2 cols × 3 rows (6 questions) or 2 × 4 (8 questions) */}
+        <div className={`flex-[3] min-h-0 grid grid-cols-2 gap-3 ${questions.length > 6 ? 'grid-rows-4' : 'grid-rows-3'}`}>
           {questions.map((q, i) => (
-            <QuestionCard
-              key={q.id}
-              question={q}
-              index={i}
-              scaffoldAll={scaffoldAll}
-              onFlag={handleFlag}
-              onSwap={handleSwap}
-              onRemove={handleRemove}
-            />
+            q ? (
+              <QuestionCard
+                key={q.id}
+                question={q}
+                index={i}
+                scaffoldAll={scaffoldAll}
+                revealAll={revealAll}
+                onFlag={handleFlag}
+                onSwap={handleSwap}
+                onRemove={handleRemove}
+              />
+            ) : (
+              <EmptySlot key={`empty-${i}`} onAdd={() => handleAddAt(i)} />
+            )
           ))}
-          {questions.length === 0 && (
+          {liveQuestions.length === 0 && questions.length === 0 && (
             <div className="col-span-2 row-span-3 flex items-center justify-center text-gray-400">
               <div className="text-center">
                 <p className="text-3xl">No questions available yet.</p>
