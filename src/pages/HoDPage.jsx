@@ -192,14 +192,24 @@ export default function HoDPage() {
     const lastSession = sessions[0]?.opened_at || null;
     const termSessions = sessions.filter(s => new Date(s.opened_at) >= thisTermStart).length;
     const recentSessions = sessions.filter(s => new Date(s.opened_at) >= twoWeeksAgo).length;
-    return { ...t, lastSession, termSessions, recentSessions };
+    const assignedTeachers = teachers
+      .filter(x => x.class_id === t.class_id && x.email)
+      .map(x => x.email);
+    return { ...t, lastSession, termSessions, recentSessions, assignedTeachers };
   });
 
-  const teacherRows = teachers.filter(t => t.class_id).map(t => {
-    const sessions = sessionLog.filter(s => s.teacher_email === t.email && s.class_id === t.class_id);
+  // One row per teacher: overall usage across all of their classes
+  const teacherAgg = new Map();
+  for (const t of teachers) {
+    if (!t.class_id || !t.email) continue;
+    if (!teacherAgg.has(t.email)) teacherAgg.set(t.email, { email: t.email, classes: [] });
+    teacherAgg.get(t.email).classes.push(t.class_id);
+  }
+  const teacherRows = Array.from(teacherAgg.values()).map(t => {
+    const sessions = sessionLog.filter(s => s.teacher_email === t.email);
     sessions.sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at));
     return { ...t, totalSessions: sessions.length, lastSession: sessions[0]?.opened_at || null };
-  });
+  }).sort((a, b) => b.totalSessions - a.totalSessions);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -304,7 +314,7 @@ export default function HoDPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Class', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status'].map(h => (
+                  {['Class', 'Teachers', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status'].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                   ))}
                 </tr>
@@ -313,6 +323,11 @@ export default function HoDPage() {
                 {classRows.map(row => (
                   <tr key={row.class_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-800">{row.class_id}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {row.assignedTeachers.length === 0
+                        ? <span className="text-gray-300 italic">None</span>
+                        : row.assignedTeachers.map(e => <div key={e}>{e.split('@')[0]}</div>)}
+                    </td>
                     <td className="px-4 py-3 text-gray-500">{getRotaName(row.rota_id)}</td>
                     <td className="px-4 py-3 text-gray-500">
                       {row.lastSession ? new Date(row.lastSession).toLocaleDateString() : '—'}
@@ -333,16 +348,16 @@ export default function HoDPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Teacher', 'Class', 'Total sessions', 'Last session'].map(h => (
+                  {['Teacher', 'Classes', 'Total sessions', 'Last session'].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {teacherRows.map((row, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
+                {teacherRows.map(row => (
+                  <tr key={row.email} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-gray-800">{row.email}</td>
-                    <td className="px-4 py-3 text-gray-500">{row.class_id}</td>
+                    <td className="px-4 py-3 text-gray-500">{row.classes.join(', ')}</td>
                     <td className="px-4 py-3 text-gray-700">{row.totalSessions}</td>
                     <td className="px-4 py-3 text-gray-500">
                       {row.lastSession ? new Date(row.lastSession).toLocaleDateString() : '—'}

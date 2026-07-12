@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getTeachers, setCurrentTeacher } from '../utils/storage.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { firebaseEnabled } from '../utils/firebase.js';
+import BrainLoader from '../components/BrainLoader.jsx';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -41,7 +42,11 @@ export default function LoginPage() {
         <h1 className="text-4xl font-bold text-blue-800 mb-2 text-center">Recall Starter</h1>
         <p className="text-gray-500 text-center mb-10">Science Department</p>
 
-        {firebaseEnabled ? (
+        {firebaseEnabled && signingIn ? (
+          <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center">
+            <BrainLoader message="Signing you in…" />
+          </div>
+        ) : firebaseEnabled ? (
           <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center gap-4">
             <p className="text-gray-600 text-center mb-2">
               Sign in with your school Google account
