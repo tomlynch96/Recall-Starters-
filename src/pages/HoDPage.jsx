@@ -186,16 +186,23 @@ export default function HoDPage() {
     if (t.class_id && !classMap.has(t.class_id)) classMap.set(t.class_id, t);
   }
 
+  // Class overview: one sub-row per assigned teacher, with that teacher's
+  // own progress for that particular class
   const classRows = Array.from(classMap.values()).map(t => {
-    const sessions = sessionLog.filter(s => s.class_id === t.class_id);
-    sessions.sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at));
-    const lastSession = sessions[0]?.opened_at || null;
-    const termSessions = sessions.filter(s => new Date(s.opened_at) >= thisTermStart).length;
-    const recentSessions = sessions.filter(s => new Date(s.opened_at) >= twoWeeksAgo).length;
-    const assignedTeachers = teachers
+    const teacherStats = teachers
       .filter(x => x.class_id === t.class_id && x.email)
-      .map(x => x.email);
-    return { ...t, lastSession, termSessions, recentSessions, assignedTeachers };
+      .map(x => {
+        const sessions = sessionLog.filter(s => s.class_id === t.class_id && s.teacher_email === x.email);
+        sessions.sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at));
+        return {
+          email: x.email,
+          rota_id: x.rota_id,
+          lastSession: sessions[0]?.opened_at || null,
+          termSessions: sessions.filter(s => new Date(s.opened_at) >= thisTermStart).length,
+          recentSessions: sessions.filter(s => new Date(s.opened_at) >= twoWeeksAgo).length,
+        };
+      });
+    return { class_id: t.class_id, teacherStats };
   });
 
   // One row per teacher: overall usage across all of their classes
@@ -314,29 +321,39 @@ export default function HoDPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Class', 'Teachers', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status'].map(h => (
+                  {['Class', 'Teacher', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status'].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {classRows.map(row => (
-                  <tr key={row.class_id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{row.class_id}</td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {row.assignedTeachers.length === 0
-                        ? <span className="text-gray-300 italic">None</span>
-                        : row.assignedTeachers.map(e => <div key={e}>{e.split('@')[0]}</div>)}
-                    </td>
-                    <td className="px-4 py-3 text-gray-500">{getRotaName(row.rota_id)}</td>
-                    <td className="px-4 py-3 text-gray-500">
-                      {row.lastSession ? new Date(row.lastSession).toLocaleDateString() : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">{row.termSessions}</td>
-                    <td className="px-4 py-3 text-gray-700">{row.recentSessions}</td>
-                    <td className="px-4 py-3 text-xl">{statusIcon(row.lastSession)}</td>
-                  </tr>
-                ))}
+                {classRows.flatMap(row => {
+                  if (row.teacherStats.length === 0) {
+                    return [(
+                      <tr key={row.class_id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-medium text-gray-800">{row.class_id}</td>
+                        <td className="px-4 py-3 text-gray-300 italic" colSpan={6}>No teachers assigned yet</td>
+                      </tr>
+                    )];
+                  }
+                  return row.teacherStats.map((ts, i) => (
+                    <tr key={`${row.class_id}-${ts.email}`} className="hover:bg-gray-50">
+                      {i === 0 && (
+                        <td rowSpan={row.teacherStats.length} className="px-4 py-3 font-medium text-gray-800 align-top border-r border-gray-50">
+                          {row.class_id}
+                        </td>
+                      )}
+                      <td className="px-4 py-3 text-gray-600">{ts.email.split('@')[0]}</td>
+                      <td className="px-4 py-3 text-gray-500">{getRotaName(ts.rota_id)}</td>
+                      <td className="px-4 py-3 text-gray-500">
+                        {ts.lastSession ? new Date(ts.lastSession).toLocaleDateString() : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">{ts.termSessions}</td>
+                      <td className="px-4 py-3 text-gray-700">{ts.recentSessions}</td>
+                      <td className="px-4 py-3 text-xl">{statusIcon(ts.lastSession)}</td>
+                    </tr>
+                  ));
+                })}
               </tbody>
             </table>
           </div>
