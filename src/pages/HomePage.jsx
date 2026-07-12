@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag, unenrollTeacher } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag, unenrollTeacher, appendSession } from '../utils/storage.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
-import { ROTAS } from '../data/staticData.js';
+import { ROTAS, LESSONS } from '../data/staticData.js';
+import { generateUUID } from '../utils/uuid.js';
 import BrainBuddy, { getBrainStage } from '../components/BrainBuddy.jsx';
 
 const SCIENCE_JOKES = [
@@ -44,6 +45,21 @@ function getLastSession(classId, sessionLog) {
   if (!sessions.length) return null;
   sessions.sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at));
   return sessions[0].opened_at;
+}
+
+// Next lesson for this teacher+class: first rota entry after the last completed one
+function getNextLesson(classId, rotaId, email, sessionLog) {
+  const rotaLessons = ROTAS.filter(r => r.rota_id === rotaId).sort((a, b) => a.lesson_order - b.lesson_order);
+  if (rotaLessons.length === 0) return null;
+  const mySessions = sessionLog.filter(s => s.class_id === classId && s.teacher_email === email && s.lesson_order !== -1);
+  const lastCompleted = mySessions.length > 0 ? Math.max(...mySessions.map(s => s.lesson_order)) : 0;
+  const next = rotaLessons.find(r => r.lesson_order > lastCompleted) || rotaLessons[rotaLessons.length - 1];
+  const lesson = LESSONS.find(l => l.lesson_id === next.lesson_id);
+  return {
+    ...next,
+    lesson_title: lesson?.lesson_title || next.lesson_id,
+    lesson_number: lesson?.lesson_number || '',
+  };
 }
 
 export default function HomePage() {
@@ -89,6 +105,21 @@ export default function HomePage() {
   function toggleHoD() {
     updateHoDFlag(email, !isHoD);
     setTeachers(getTeachers());
+  }
+
+  // One-click start: log the session, go fullscreen, jump straight into the starter
+  function startNextStarter(e, classId, nextLesson) {
+    e.stopPropagation();
+    document.documentElement.requestFullscreen?.().catch(() => {});
+    appendSession({
+      id: generateUUID(),
+      class_id: classId,
+      teacher_email: email,
+      lesson_order: nextLesson.lesson_order,
+      lesson_id: nextLesson.lesson_id,
+      opened_at: new Date().toISOString(),
+    });
+    navigate(`/starter/${encodeURIComponent(classId)}/${nextLesson.lesson_order}`);
   }
 
   return (
@@ -161,6 +192,8 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {classes.map(t => {
               const lastSession = getLastSession(t.class_id, sessionLog);
+              const mine = teachers.find(t2 => t2.email === email && t2.class_id === t.class_id) || t;
+              const nextLesson = getNextLesson(t.class_id, mine.rota_id, email, sessionLog);
               return (
                 <div key={t.class_id} className="group relative">
                   <button
@@ -168,15 +201,33 @@ export default function HomePage() {
                     className="w-full bg-white border-2 border-gray-200 rounded-2xl p-6 text-left hover:border-blue-400 hover:shadow-md transition-all"
                   >
                     <div className="text-2xl font-bold text-blue-800 mb-1">{t.class_id}</div>
-                    <div className="text-sm text-gray-500 mb-3">{getRotaName(t.rota_id)}</div>
+                    <div className="text-sm text-gray-500 mb-3">{getRotaName(mine.rota_id)}</div>
+                    {nextLesson && (
+                      <div className="text-sm text-gray-600 font-medium mb-2">
+                        Next: {nextLesson.lesson_number === 'Assessment' ? 'Assessment' : `L${nextLesson.lesson_number}`} — {nextLesson.lesson_title}
+                      </div>
+                    )}
                     <div className="text-xs text-gray-400">
                       {lastSession
                         ? `Last session: ${new Date(lastSession).toLocaleDateString()}`
                         : 'No sessions yet'}
                     </div>
                   </button>
+
+                  {/* One-click start for the next lesson */}
+                  {nextLesson && (
+                    <button
+                      onClick={e => startNextStarter(e, t.class_id, nextLesson)}
+                      title={`Start starter: ${nextLesson.lesson_title}`}
+                      className="absolute bottom-4 right-4 w-11 h-11 rounded-full bg-blue-700 text-white shadow-md hover:bg-blue-800 hover:scale-105 transition-all flex items-center justify-center text-lg"
+                    >
+                      ▶
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
+                      if (!window.confirm(`Remove ${t.class_id} from your homepage? Your session history for this class is kept.`)) return;
                       unenrollTeacher(email, t.class_id);
                       setTeachers(getTeachers());
                     }}

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, updateTeacherRota, appendSession } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, updateTeacherRota, updateTeacherStarterSize, appendSession } from '../utils/storage.js';
 import { ROTAS, LESSONS } from '../data/staticData.js';
 import { generateUUID } from '../utils/uuid.js';
 
@@ -70,6 +70,7 @@ export default function LessonPage() {
 
   const [rotaId, setRotaId] = useState(initialRotaId);
   const [idx, setIdx] = useState(startIdx);
+  const [starterSize, setStarterSize] = useState(teacher?.starter_size === 8 ? 8 : 6);
   const [showFillerInput, setShowFillerInput] = useState(false);
   const [fillerTitleInput, setFillerTitleInput] = useState('');
   const fillerInputRef = useRef(null);
@@ -213,6 +214,27 @@ export default function LessonPage() {
         >
           Start Starter
         </button>
+
+        {/* Starter size: 6 questions (classic) or 8 (extra capacity works down the review backlog) */}
+        <div className="flex items-center gap-2 -mt-4">
+          <span className="text-xs text-gray-400">Questions per starter:</span>
+          {[6, 8].map(size => (
+            <button
+              key={size}
+              onClick={() => {
+                setStarterSize(size);
+                updateTeacherStarterSize(decodedClassId, email, size);
+              }}
+              className={`w-8 h-8 rounded-full text-sm font-semibold transition-colors ${
+                starterSize === size
+                  ? 'bg-blue-700 text-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
 
         {/* Filler lesson section */}
         {!showFillerInput ? (

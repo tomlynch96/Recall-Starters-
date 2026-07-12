@@ -140,6 +140,19 @@ export function updateTeacherRota(classId, email, rotaId) {
   }
 }
 
+// Set the teacher's preferred starter size (6 or 8) for a class
+export function updateTeacherStarterSize(classId, email, size) {
+  const all = getTeachers().map(t =>
+    t.class_id === classId && t.email === email ? { ...t, starter_size: size } : t
+  );
+  setJSON(KEYS.TEACHERS, all);
+
+  if (_userId && db) {
+    const docId = `${_userId}__${encodeFirestoreId(classId)}`;
+    setDoc(doc(db, 'teachers', docId), { starter_size: size }, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
 // Toggle HoD flag for current teacher
 export function updateHoDFlag(email, isHoD) {
   const all = getTeachers().map(t =>

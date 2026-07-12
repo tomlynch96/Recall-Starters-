@@ -54,6 +54,7 @@ export default function StarterPage() {
   const challengeQ = prevRotaEntry
     ? getActiveChallengePlus().find(c => c.lesson_id === prevRotaEntry.lesson_id)
     : null;
+  const starterSize = teacher?.starter_size === 8 ? 8 : 6;
 
   // questions may contain null entries — placeholders where a question was removed
   const [questions, setQuestions] = useState([]);
@@ -98,7 +99,7 @@ export default function StarterPage() {
       setQuestions(saved.questions);
     } else {
       const log = getQuestionLog();
-      const qs = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log);
+      const qs = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log, starterSize);
       setQuestions(qs);
     }
   }, []);
@@ -121,8 +122,9 @@ export default function StarterPage() {
     // Persist immediately so both teachers sharing this class see it
     upsertQuestionLogEntry(decodedClassId, question.id, {
       flagged: nowFlagged,
-      // next_due_lesson: 0 so flagged questions surface for all co-teachers immediately
-      ...(nowFlagged ? { next_due_lesson: 0 } : {}),
+      // Flag = the class struggled: surface immediately for all co-teachers
+      // AND reset the repetition ladder so intervals restart short
+      ...(nowFlagged ? { next_due_lesson: 0, times_seen: 0 } : {}),
     });
     setQuestions(qs => qs.map(q =>
       q && q.id === question.id ? { ...q, flagged: nowFlagged } : q
@@ -132,7 +134,7 @@ export default function StarterPage() {
   function pickReplacement(excludeId = null) {
     const log = getQuestionLog();
     const currentIds = questions.filter(Boolean).map(q => q.id);
-    const pool = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log)
+    const pool = generateStarterQuestions(decodedClassId, currentLessonOrder, teacher.rota_id, log, starterSize)
       .filter(q => !currentIds.includes(q.id) && q.id !== excludeId);
     return pool[0] || null;
   }
@@ -145,10 +147,8 @@ export default function StarterPage() {
   }
 
   function handleRemove(question, idx) {
-    const log = getQuestionLog();
-    const entry = log.find(e => e.class_id === decodedClassId && e.question_id === question.id);
-    const pushBack = (entry?.next_due_lesson || currentLessonOrder) + 2;
-    upsertQuestionLogEntry(decodedClassId, question.id, { next_due_lesson: pushBack });
+    // Push back relative to NOW so an overdue question doesn't reappear immediately
+    upsertQuestionLogEntry(decodedClassId, question.id, { next_due_lesson: currentLessonOrder + 2 });
     // Leave a placeholder slot so the question can be replaced via +
     setQuestions(qs => qs.map((q, i) => i === idx ? null : q));
   }
@@ -266,8 +266,8 @@ export default function StarterPage() {
       <div className="shrink-0 h-4" />
 
       <main className="flex-1 min-h-0 flex flex-col gap-3 px-4 pb-4">
-        {/* Grid: 2 cols × 3 rows — fills available height (6 questions) */}
-        <div className="flex-[3] min-h-0 grid grid-cols-2 grid-rows-3 gap-3">
+        {/* Grid: 2 cols × 3 rows (6 questions) or 2 × 4 (8 questions) */}
+        <div className={`flex-[3] min-h-0 grid grid-cols-2 gap-3 ${questions.length > 6 ? 'grid-rows-4' : 'grid-rows-3'}`}>
           {questions.map((q, i) => (
             q ? (
               <QuestionCard

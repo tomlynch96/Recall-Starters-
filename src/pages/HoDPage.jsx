@@ -148,6 +148,7 @@ export default function HoDPage() {
   }
 
   function handleRevert() {
+    if (!window.confirm('Revert to the default question bank? All uploaded questions and challenge+ edits will be discarded for every teacher.')) return;
     clearCustomQuestions();
     clearCustomChallengePlus();
     setUsingCustom(false);
@@ -172,6 +173,8 @@ export default function HoDPage() {
   }
 
   function handleRemoveClass(id) {
+    const opt = classOptions.find(o => o.id === id);
+    if (!window.confirm(`Remove class "${opt?.class_id || ''}"? Teachers will no longer be able to select it.`)) return;
     removeClassOption(id);
     setClassOptions(getClassOptions());
   }

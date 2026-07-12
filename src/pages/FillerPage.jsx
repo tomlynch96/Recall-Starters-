@@ -115,7 +115,8 @@ export default function FillerPage() {
     const nowFlagged = !question.flagged;
     upsertQuestionLogEntry(decodedClassId, question.id, {
       flagged: nowFlagged,
-      ...(nowFlagged ? { next_due_lesson: 0 } : {}),
+      // Flag = struggled: surface immediately and restart the repetition ladder
+      ...(nowFlagged ? { next_due_lesson: 0, times_seen: 0 } : {}),
     });
     setQuestions(qs => qs.map(q =>
       q && q.id === question.id ? { ...q, flagged: nowFlagged } : q

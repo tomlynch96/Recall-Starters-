@@ -77,7 +77,7 @@ function pickPrioritised(arr, n, currentLessonOrder) {
     .map(x => x.q);
 }
 
-export function generateStarterQuestions(classId, currentLessonOrder, rotaId, questionLog) {
+export function generateStarterQuestions(classId, currentLessonOrder, rotaId, questionLog, target = 6) {
   const eligible = getEligibleQuestions(classId, currentLessonOrder, rotaId, questionLog);
 
   // Flagged questions always appear first
@@ -98,7 +98,10 @@ export function generateStarterQuestions(classId, currentLessonOrder, rotaId, qu
   const slotD = eligible.filter(q => !q.flagged && q.lesson_order >= currentLessonOrder - 15 && q.lesson_order <= currentLessonOrder - 6);
   const slotE = eligible.filter(q => !q.flagged && q.lesson_order <= currentLessonOrder - 16);
 
-  const TARGET = 6;
+  // Slot quotas cover 6 questions; anything above (e.g. the 8-question
+  // starter) is filled from the most-overdue eligible via the final fallback,
+  // so the extra capacity works down the spaced-repetition backlog.
+  const TARGET = target;
   const selected = [...flagged];
 
   const slots = [
@@ -122,15 +125,8 @@ export function generateStarterQuestions(classId, currentLessonOrder, rotaId, qu
     unfilled = want - got.length;
   }
 
-  // If still short, fill from slot A (fresh material takes priority)
-  if (selected.length + picks.length < TARGET) {
-    const alreadyIds = new Set([...selected, ...picks].map(q => q.id));
-    const fallback = slotA.filter(q => !alreadyIds.has(q.id));
-    const need = TARGET - selected.length - picks.length;
-    picks.push(...pickRandom(fallback, need));
-  }
-
-  // If STILL short, pull the most overdue from any eligible
+  // If short (e.g. 8-question starter, or thin slots), fill with the most
+  // overdue eligible questions — extra capacity works down the backlog
   if (selected.length + picks.length < TARGET) {
     const alreadyIds = new Set([...selected, ...picks].map(q => q.id));
     const fallback = eligible.filter(q => !alreadyIds.has(q.id));
