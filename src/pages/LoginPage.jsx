@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { getTeachers, setCurrentTeacher } from '../utils/storage.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { firebaseEnabled } from '../utils/firebase.js';
-import BrainLoader from '../components/BrainLoader.jsx';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -46,8 +45,8 @@ export default function LoginPage() {
         <p className="text-gray-500 text-center mb-10">Science Department</p>
 
         {firebaseEnabled && hydrating ? (
-          <div className="flex flex-col items-center">
-            <BrainLoader message="Signed in! Loading your classes…" />
+          <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center">
+            <p className="text-gray-400 text-lg">Signed in! Loading your classes…</p>
           </div>
         ) : firebaseEnabled ? (
           <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center gap-4">
