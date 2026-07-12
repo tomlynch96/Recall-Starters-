@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { getCurrentTeacher } from './utils/storage.js';
 import { firebaseEnabled } from './utils/firebase.js';
-import BrainLoader from './components/BrainLoader.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import SetupPage from './pages/SetupPage.jsx';
 import HomePage from './pages/HomePage.jsx';
@@ -18,7 +17,7 @@ function RequireAuth({ children }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <BrainLoader message="Warming up the brain cells…" />
+        <div className="text-gray-400 text-lg">Loading…</div>
       </div>
     );
   }
