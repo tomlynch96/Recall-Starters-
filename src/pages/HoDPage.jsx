@@ -33,6 +33,16 @@ export default function HoDPage() {
   const [uploadStatus, setUploadStatus] = useState('');
   const fileInputRef = useRef(null);
 
+
+  // Topic list for static download links (files generated at build time by exportTopicTemplates.py)
+  const topicList = Array.from(
+    LESSONS.reduce((m, l) => { m.set(l.topic_name, (m.get(l.topic_name) || 0) + 1); return m; }, new Map())
+  ).map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name));
+
+  function topicFilename(topicName) {
+    return topicName.replace(/[/\\?*[\]:,&]/g, '-').replace(/\s+/g, ' ').trim() + '-template.xlsx';
+  }
+
   function downloadTemplate() {
     const wb = XLSX.utils.book_new();
 
@@ -390,6 +400,28 @@ export default function HoDPage() {
                   Revert to defaults
                 </button>
               )}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Per-topic input templates ── */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-700 mb-1">Per-topic input templates</h2>
+          <p className="text-sm text-gray-400 mb-4">
+            Download one file per topic to send to teachers. Each file has a Lesson dropdown — selecting a lesson auto-fills the lesson_id. Questions are pre-filled; 30 blank rows are included for new entries. Collate the returned files and re-upload using the question bank uploader above.
+          </p>
+          <div className="bg-white border border-gray-200 rounded-xl p-6">
+            <div className="flex flex-wrap gap-2">
+              {topicList.map(({ name, count }) => (
+                <a
+                  key={name}
+                  href={`/topic-templates/${topicFilename(name)}`}
+                  download
+                  className="px-4 py-2 bg-gray-100 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 text-gray-700 hover:text-blue-700 text-sm font-medium rounded-lg transition-colors"
+                >
+                  ↓ {name} <span className="text-gray-400 font-normal">({count} lessons)</span>
+                </a>
+              ))}
             </div>
           </div>
         </section>
