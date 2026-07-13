@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag, unenrollTeacher, appendSession } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag, unenrollTeacher, appendSession, getActiveRotas } from '../utils/storage.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
-import { ROTAS, LESSONS } from '../data/staticData.js';
+import { LESSONS } from '../data/staticData.js';
 import { generateUUID } from '../utils/uuid.js';
 import BrainBuddy, { getBrainStage } from '../components/BrainBuddy.jsx';
 
@@ -38,7 +38,7 @@ function getFirstName(email) {
 
 // Next lesson for this teacher+class: first rota entry after the last completed one
 function getNextLesson(classId, rotaId, email, sessionLog) {
-  const rotaLessons = ROTAS.filter(r => r.rota_id === rotaId).sort((a, b) => a.lesson_order - b.lesson_order);
+  const rotaLessons = getActiveRotas().filter(r => r.rota_id === rotaId).sort((a, b) => a.lesson_order - b.lesson_order);
   if (rotaLessons.length === 0) return null;
   const mySessions = sessionLog.filter(s => s.class_id === classId && s.teacher_email === email && s.lesson_order !== -1);
   const lastCompleted = mySessions.length > 0 ? Math.max(...mySessions.map(s => s.lesson_order)) : 0;

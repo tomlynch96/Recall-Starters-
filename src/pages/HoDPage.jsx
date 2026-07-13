@@ -1,14 +1,21 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, resetClassProgress } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
-import { ROTAS, QUESTIONS, LESSONS } from '../data/staticData.js';
+import { QUESTIONS, LESSONS } from '../data/staticData.js';
 import * as XLSX from 'xlsx';
+import RotaEditor from '../components/RotaEditor.jsx';
 
 function getRotaName(rotaId) {
-  const e = ROTAS.find(r => r.rota_id === rotaId);
+  const e = getActiveRotas().find(r => r.rota_id === rotaId);
   return e ? e.rota_name : rotaId;
 }
+
+const NAV = [
+  { id: 'analytics', label: 'Analytics', icon: '📊' },
+  { id: 'questions', label: 'Question files', icon: '📄' },
+  { id: 'rotas', label: 'Rotas', icon: '🗓️' },
+];
 
 function daysSince(dateStr) {
   if (!dateStr) return Infinity;
@@ -27,6 +34,8 @@ export default function HoDPage() {
   const email = getCurrentTeacher();
   const teachers = getTeachers();
 
+  const [section, setSection] = useState('analytics');
+  const [, forceRefresh] = useState(0);
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
   const [usingCustom, setUsingCustom] = useState(() => !!(getCustomQuestions() || getCustomChallengePlus()));
@@ -91,32 +100,52 @@ export default function HoDPage() {
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer);
 
-      // Sheet 1: Questions
+      // Sheet 1: Questions — the spreadsheet is the complete source of truth.
+      // Every row with question text becomes a question; new rows are added
+      // (not just matched by id), so questions authored in the per-topic
+      // templates — which have no id column — come through too.
       const wsQ = wb.Sheets['Questions'] || wb.Sheets[wb.SheetNames[0]];
       const qRows = XLSX.utils.sheet_to_json(wsQ, { defval: '' });
-      const rowMap = new Map(qRows.map(r => [String(r.id), r]));
-      const updatedQuestions = QUESTIONS.map(q => {
-        const row = rowMap.get(String(q.id));
-        if (!row) return q;
-        const newLessonId = String(row.lesson_id || '').trim() || q.lesson_id;
-        // If lesson_id changed, pull the new lesson's metadata so topic/title stay consistent
-        const lessonMeta = newLessonId !== q.lesson_id
-          ? LESSONS.find(l => l.lesson_id === newLessonId)
-          : null;
-        return {
-          ...q,
-          lesson_id: newLessonId,
-          ...(lessonMeta ? {
-            topic_id: lessonMeta.topic_id,
-            topic_name: lessonMeta.topic_name,
-            lesson_number: lessonMeta.lesson_number,
-            lesson_title: lessonMeta.lesson_title,
-          } : {}),
-          question: String(row.Question ?? q.question).trim() || q.question,
-          answer: String(row.Answer ?? q.answer).trim() || q.answer,
-          scaffolded: String(row.Scaffold ?? q.scaffolded ?? '').trim() || q.scaffolded,
-        };
-      });
+
+      const lessonMeta = new Map(LESSONS.map(l => [l.lesson_id, l]));
+
+      // Reserve any ids already present in the file so generated ids never collide
+      const usedIds = new Set();
+      for (const r of qRows) {
+        const rid = String(r.id || '').trim();
+        if (rid) usedIds.add(rid);
+      }
+      let idCounter = 0;
+      const freshId = () => {
+        let id;
+        do { idCounter += 1; id = `q${String(idCounter).padStart(4, '0')}`; } while (usedIds.has(id));
+        usedIds.add(id);
+        return id;
+      };
+
+      const emitted = new Set();
+      const updatedQuestions = qRows
+        .filter(r => String(r.Question || '').trim())
+        .map(r => {
+          // Keep the row's id if it has a unique one; otherwise assign a fresh id
+          let rid = String(r.id || '').trim();
+          if (!rid || emitted.has(rid)) rid = freshId();
+          emitted.add(rid);
+
+          const lessonId = String(r.lesson_id || '').trim();
+          const meta = lessonMeta.get(lessonId);
+          return {
+            id: rid,
+            lesson_id: lessonId,
+            topic_id: meta ? meta.topic_id : '',
+            topic_name: meta ? meta.topic_name : '',
+            lesson_number: meta ? meta.lesson_number : '',
+            lesson_title: meta ? meta.lesson_title : String(r.Lesson || '').trim(),
+            question: String(r.Question).trim(),
+            answer: String(r.Answer || '').trim(),
+            scaffolded: String(r.Scaffold || '').trim(),
+          };
+        });
       saveCustomQuestions(updatedQuestions);
 
       // Sheet 2: Challenge+ — find by name (flexible) or fall back to second sheet
@@ -179,6 +208,19 @@ export default function HoDPage() {
     setClassOptions(getClassOptions());
   }
 
+  function handleResetProgress(classId, email) {
+    const name = email.split('@')[0];
+    if (!window.confirm(
+      `Reset ${name}'s progress for ${classId}?\n\n` +
+      `This clears their lesson history (back to lesson 1) and the class's ` +
+      `question and flag progress, as if the class had never been started. ` +
+      `Question/flag progress is shared, so it also resets for any co-teachers of this class.\n\n` +
+      `This cannot be undone.`
+    )) return;
+    resetClassProgress(classId, email);
+    forceRefresh(n => n + 1);
+  }
+
   const sessionLog = getSessionLog();
   const now = new Date();
   const twoWeeksAgo = new Date(now - 14 * 24 * 60 * 60 * 1000);
@@ -228,8 +270,27 @@ export default function HoDPage() {
         <h1 className="text-xl font-bold text-blue-800">HoD Dashboard</h1>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-10">
+      <div className="max-w-6xl mx-auto px-6 py-8 flex gap-8">
+        {/* Sidebar navigation */}
+        <nav className="w-44 shrink-0">
+          <div className="sticky top-8 space-y-1">
+            {NAV.map(item => (
+              <button
+                key={item.id}
+                onClick={() => setSection(item.id)}
+                className={`w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium text-left transition-colors ${section === item.id ? 'bg-blue-700 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                <span>{item.icon}</span> {item.label}
+              </button>
+            ))}
+          </div>
+        </nav>
 
+        {/* Content panel */}
+        <main className="flex-1 min-w-0 space-y-10">
+
+        {section === 'analytics' && (
+        <>
         {/* ── Class management ── */}
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Class setup</h2>
@@ -324,8 +385,8 @@ export default function HoDPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Class', 'Teacher', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
+                  {['Class', 'Teacher', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status', ''].map((h, i) => (
+                    <th key={h || `col${i}`} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -335,7 +396,7 @@ export default function HoDPage() {
                     return [(
                       <tr key={row.class_id} className="hover:bg-gray-50">
                         <td className="px-4 py-3 font-medium text-gray-800">{row.class_id}</td>
-                        <td className="px-4 py-3 text-gray-300 italic" colSpan={6}>No teachers assigned yet</td>
+                        <td className="px-4 py-3 text-gray-300 italic" colSpan={7}>No teachers assigned yet</td>
                       </tr>
                     )];
                   }
@@ -354,6 +415,16 @@ export default function HoDPage() {
                       <td className="px-4 py-3 text-gray-700">{ts.termSessions}</td>
                       <td className="px-4 py-3 text-gray-700">{ts.recentSessions}</td>
                       <td className="px-4 py-3 text-xl">{statusIcon(ts.lastSession)}</td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => handleResetProgress(row.class_id, ts.email)}
+                          disabled={!ts.lastSession}
+                          title={ts.lastSession ? 'Reset this teacher’s progress for this class' : 'No progress to reset'}
+                          className="text-xs font-semibold text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                        >
+                          ↺ Reset
+                        </button>
+                      </td>
                     </tr>
                   ));
                 })}
@@ -388,11 +459,16 @@ export default function HoDPage() {
             </table>
           </div>
         </section>
+        </>
+        )}
+
+        {section === 'questions' && (
+        <>
         {/* ── Question bank ── */}
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Question bank</h2>
           <p className="text-sm text-gray-400 mb-4">
-            Download the template, edit questions / answers / scaffolds in Excel or Google Sheets, then re-upload. You can also change a question's <code>lesson_id</code> to move it to a different lesson. Do not edit the <code>id</code> column.
+            Download the template, edit questions / answers / scaffolds in Excel or Google Sheets, then re-upload. The uploaded sheet fully replaces the question bank, so you can add, edit, remove or move questions freely. New rows don't need an <code>id</code> — leave it blank and one is assigned automatically. Each row's <code>lesson_id</code> decides which lesson it belongs to.
           </p>
 
           <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
@@ -460,8 +536,21 @@ export default function HoDPage() {
             </div>
           </div>
         </section>
+        </>
+        )}
 
-      </main>
+        {section === 'rotas' && (
+          <section>
+            <h2 className="text-lg font-semibold text-gray-700 mb-1">Rota sequencing</h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Reorder the topics taught in each rota by dragging the cards.
+            </p>
+            <RotaEditor />
+          </section>
+        )}
+
+        </main>
+      </div>
     </div>
   );
 }

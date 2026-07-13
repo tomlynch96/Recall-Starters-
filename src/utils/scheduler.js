@@ -1,5 +1,4 @@
-import { ROTAS } from '../data/staticData.js';
-import { getActiveQuestions } from './storage.js';
+import { getActiveQuestions, getActiveRotas } from './storage.js';
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -15,7 +14,7 @@ export function calculateNextDue(timesSeenAfterSession, currentLessonOrder) {
 // Get all rota entries for a given rota_id, keyed by lesson_id → lesson_order
 export function getRotaMap(rotaId) {
   const map = {};
-  for (const r of ROTAS) {
+  for (const r of getActiveRotas()) {
     if (r.rota_id === rotaId) {
       map[r.lesson_id] = r.lesson_order;
     }
