@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry, flushQuestionLogToFirestore, getActiveChallengePlus, saveActiveSession, getActiveSession, clearActiveSession } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getQuestionLog, saveQuestionLog, upsertQuestionLogEntry, flushQuestionLogToFirestore, getActiveChallengePlus, getActiveRotas, saveActiveSession, getActiveSession, clearActiveSession } from '../utils/storage.js';
 import { generateStarterQuestions, updateQuestionLog } from '../utils/scheduler.js';
-import { ROTAS, LESSONS } from '../data/staticData.js';
+import { LESSONS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
 import SettingsMenu from '../components/SettingsMenu.jsx';
 import FlagResolutionModal from '../components/FlagResolutionModal.jsx';
@@ -42,12 +42,13 @@ export default function StarterPage() {
   const email = getCurrentTeacher();
   const teacher = teachers.find(t => t.class_id === decodedClassId && t.email === email);
 
+  const activeRotas = getActiveRotas();
   const rotaEntry = teacher
-    ? ROTAS.find(r => r.rota_id === teacher.rota_id && r.lesson_order === currentLessonOrder)
+    ? activeRotas.find(r => r.rota_id === teacher.rota_id && r.lesson_order === currentLessonOrder)
     : null;
   // Show the challenge+ question from the PREVIOUS lesson (set last time, reviewed this lesson)
   const prevRotaEntry = teacher
-    ? ROTAS.find(r => r.rota_id === teacher.rota_id && r.lesson_order === currentLessonOrder - 1)
+    ? activeRotas.find(r => r.rota_id === teacher.rota_id && r.lesson_order === currentLessonOrder - 1)
     : null;
   const lessonData = rotaEntry ? LESSONS.find(l => l.lesson_id === rotaEntry.lesson_id) : null;
   const lessonTitle = lessonData?.lesson_title || `Lesson ${currentLessonOrder}`;

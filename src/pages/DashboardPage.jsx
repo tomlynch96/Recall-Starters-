@@ -1,6 +1,6 @@
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getQuestionLog, getActiveQuestions } from '../utils/storage.js';
-import { LESSONS, ROTAS } from '../data/staticData.js';
+import { getTeachers, getCurrentTeacher, getQuestionLog, getActiveQuestions, getActiveRotas } from '../utils/storage.js';
+import { LESSONS } from '../data/staticData.js';
 import TopicAccordion from '../components/TopicAccordion.jsx';
 
 export default function DashboardPage() {
@@ -16,7 +16,7 @@ export default function DashboardPage() {
   const questionLog = getQuestionLog();
   const classLog = questionLog.filter(e => e.class_id === decodedClassId);
 
-  const rotaEntries = ROTAS.filter(r => r.rota_id === teacher.rota_id);
+  const rotaEntries = getActiveRotas().filter(r => r.rota_id === teacher.rota_id);
   const rotaLessonIds = new Set(rotaEntries.map(r => r.lesson_id));
   const maxLessonOrder = Math.max(0, ...rotaEntries.map(r => r.lesson_order));
 

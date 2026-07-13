@@ -1,6 +1,6 @@
 import { doc, setDoc, deleteDoc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase.js';
-import { QUESTIONS, CHALLENGE_PLUS } from '../data/staticData.js';
+import { QUESTIONS, CHALLENGE_PLUS, ROTAS } from '../data/staticData.js';
 
 const KEYS = {
   TEACHERS: 'rs_teachers',
@@ -10,6 +10,7 @@ const KEYS = {
   CLASS_OPTIONS: 'rs_class_options',
   CUSTOM_QUESTIONS: 'rs_custom_questions',
   CUSTOM_CHALLENGE_PLUS: 'rs_custom_challenge_plus',
+  CUSTOM_ROTAS: 'rs_custom_rotas',
 };
 
 function getJSON(key, fallback) {
@@ -45,11 +46,12 @@ export async function hydrateFromFirestore(userId, email) {
   _userId = userId;
   try {
     // Phase 1 (blocking): fetch teachers, classes, custom questions
-    const [teachersSnap, classesSnap, customQSnap, challengeSnap] = await Promise.all([
+    const [teachersSnap, classesSnap, customQSnap, challengeSnap, rotasSnap] = await Promise.all([
       getDocs(collection(db, 'teachers')),
       getDocs(collection(db, 'classes')),
       getDoc(doc(db, 'config', 'custom_questions')),
       getDoc(doc(db, 'config', 'challenge_plus')),
+      getDoc(doc(db, 'config', 'custom_rotas')),
     ]);
     const teachers = teachersSnap.docs.map(d => d.data());
     setJSON(KEYS.TEACHERS, teachers);
@@ -63,6 +65,11 @@ export async function hydrateFromFirestore(userId, email) {
       setJSON(KEYS.CUSTOM_CHALLENGE_PLUS, challengeSnap.data().entries);
     } else {
       localStorage.removeItem(KEYS.CUSTOM_CHALLENGE_PLUS);
+    }
+    if (rotasSnap.exists()) {
+      setJSON(KEYS.CUSTOM_ROTAS, rotasSnap.data().entries);
+    } else {
+      localStorage.removeItem(KEYS.CUSTOM_ROTAS);
     }
 
     // Phase 2 (background): fetch question log + session log — not needed until StarterPage
@@ -332,6 +339,38 @@ export function clearCustomChallengePlus() {
   localStorage.removeItem(KEYS.CUSTOM_CHALLENGE_PLUS);
   if (_userId && db) {
     deleteDoc(doc(db, 'config', 'challenge_plus'))
+      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+// ─── Custom rotas (HoD-editable topic sequencing) ────────────────────────────
+// A rota is an array of { rota_id, rota_name, lesson_id, lesson_order }. The HoD
+// can reorder the topic blocks within a rota; the result is saved here and
+// overrides the bundled ROTAS everywhere (scheduler, lesson picker, dashboard).
+
+export function getCustomRotas() {
+  return getJSON(KEYS.CUSTOM_ROTAS, null);
+}
+
+export function getActiveRotas() {
+  const custom = getCustomRotas();
+  return custom && custom.length > 0 ? custom : ROTAS;
+}
+
+export function saveCustomRotas(entries) {
+  setJSON(KEYS.CUSTOM_ROTAS, entries);
+  if (_userId && db) {
+    setDoc(doc(db, 'config', 'custom_rotas'), {
+      entries,
+      updated_at: new Date().toISOString(),
+    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+export function clearCustomRotas() {
+  localStorage.removeItem(KEYS.CUSTOM_ROTAS);
+  if (_userId && db) {
+    deleteDoc(doc(db, 'config', 'custom_rotas'))
       .catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }

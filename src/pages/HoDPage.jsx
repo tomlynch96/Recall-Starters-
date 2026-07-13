@@ -1,14 +1,21 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
-import { ROTAS, QUESTIONS, LESSONS } from '../data/staticData.js';
+import { QUESTIONS, LESSONS } from '../data/staticData.js';
 import * as XLSX from 'xlsx';
+import RotaEditor from '../components/RotaEditor.jsx';
 
 function getRotaName(rotaId) {
-  const e = ROTAS.find(r => r.rota_id === rotaId);
+  const e = getActiveRotas().find(r => r.rota_id === rotaId);
   return e ? e.rota_name : rotaId;
 }
+
+const NAV = [
+  { id: 'analytics', label: 'Analytics', icon: '📊' },
+  { id: 'questions', label: 'Question files', icon: '📄' },
+  { id: 'rotas', label: 'Rotas', icon: '🗓️' },
+];
 
 function daysSince(dateStr) {
   if (!dateStr) return Infinity;
@@ -27,6 +34,7 @@ export default function HoDPage() {
   const email = getCurrentTeacher();
   const teachers = getTeachers();
 
+  const [section, setSection] = useState('analytics');
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
   const [usingCustom, setUsingCustom] = useState(() => !!(getCustomQuestions() || getCustomChallengePlus()));
@@ -248,8 +256,27 @@ export default function HoDPage() {
         <h1 className="text-xl font-bold text-blue-800">HoD Dashboard</h1>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-10">
+      <div className="max-w-6xl mx-auto px-6 py-8 flex gap-8">
+        {/* Sidebar navigation */}
+        <nav className="w-44 shrink-0">
+          <div className="sticky top-8 space-y-1">
+            {NAV.map(item => (
+              <button
+                key={item.id}
+                onClick={() => setSection(item.id)}
+                className={`w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium text-left transition-colors ${section === item.id ? 'bg-blue-700 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                <span>{item.icon}</span> {item.label}
+              </button>
+            ))}
+          </div>
+        </nav>
 
+        {/* Content panel */}
+        <main className="flex-1 min-w-0 space-y-10">
+
+        {section === 'analytics' && (
+        <>
         {/* ── Class management ── */}
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Class setup</h2>
@@ -408,6 +435,11 @@ export default function HoDPage() {
             </table>
           </div>
         </section>
+        </>
+        )}
+
+        {section === 'questions' && (
+        <>
         {/* ── Question bank ── */}
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Question bank</h2>
@@ -480,8 +512,21 @@ export default function HoDPage() {
             </div>
           </div>
         </section>
+        </>
+        )}
 
-      </main>
+        {section === 'rotas' && (
+          <section>
+            <h2 className="text-lg font-semibold text-gray-700 mb-1">Rota sequencing</h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Reorder the topics taught in each rota by dragging the cards.
+            </p>
+            <RotaEditor />
+          </section>
+        )}
+
+        </main>
+      </div>
     </div>
   );
 }

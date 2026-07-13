@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, updateTeacherRota, updateTeacherStarterSize, appendSession } from '../utils/storage.js';
-import { ROTAS, LESSONS } from '../data/staticData.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, updateTeacherRota, updateTeacherStarterSize, appendSession, getActiveRotas } from '../utils/storage.js';
+import { LESSONS } from '../data/staticData.js';
 import { generateUUID } from '../utils/uuid.js';
 
 const ROTA_OPTIONS = [
@@ -31,7 +31,7 @@ const TOPIC_COLOURS = [
 ];
 
 function getRotaLessons(rotaId) {
-  const entries = ROTAS.filter(r => r.rota_id === rotaId);
+  const entries = getActiveRotas().filter(r => r.rota_id === rotaId);
   entries.sort((a, b) => a.lesson_order - b.lesson_order);
   return entries;
 }
