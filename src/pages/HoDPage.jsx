@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, resetClassProgress } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
 import { QUESTIONS, LESSONS } from '../data/staticData.js';
 import * as XLSX from 'xlsx';
@@ -35,6 +35,7 @@ export default function HoDPage() {
   const teachers = getTeachers();
 
   const [section, setSection] = useState('analytics');
+  const [, forceRefresh] = useState(0);
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
   const [usingCustom, setUsingCustom] = useState(() => !!(getCustomQuestions() || getCustomChallengePlus()));
@@ -207,6 +208,19 @@ export default function HoDPage() {
     setClassOptions(getClassOptions());
   }
 
+  function handleResetProgress(classId, email) {
+    const name = email.split('@')[0];
+    if (!window.confirm(
+      `Reset ${name}'s progress for ${classId}?\n\n` +
+      `This clears their lesson history (back to lesson 1) and the class's ` +
+      `question and flag progress, as if the class had never been started. ` +
+      `Question/flag progress is shared, so it also resets for any co-teachers of this class.\n\n` +
+      `This cannot be undone.`
+    )) return;
+    resetClassProgress(classId, email);
+    forceRefresh(n => n + 1);
+  }
+
   const sessionLog = getSessionLog();
   const now = new Date();
   const twoWeeksAgo = new Date(now - 14 * 24 * 60 * 60 * 1000);
@@ -371,8 +385,8 @@ export default function HoDPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Class', 'Teacher', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
+                  {['Class', 'Teacher', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status', ''].map((h, i) => (
+                    <th key={h || `col${i}`} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -382,7 +396,7 @@ export default function HoDPage() {
                     return [(
                       <tr key={row.class_id} className="hover:bg-gray-50">
                         <td className="px-4 py-3 font-medium text-gray-800">{row.class_id}</td>
-                        <td className="px-4 py-3 text-gray-300 italic" colSpan={6}>No teachers assigned yet</td>
+                        <td className="px-4 py-3 text-gray-300 italic" colSpan={7}>No teachers assigned yet</td>
                       </tr>
                     )];
                   }
@@ -401,6 +415,16 @@ export default function HoDPage() {
                       <td className="px-4 py-3 text-gray-700">{ts.termSessions}</td>
                       <td className="px-4 py-3 text-gray-700">{ts.recentSessions}</td>
                       <td className="px-4 py-3 text-xl">{statusIcon(ts.lastSession)}</td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => handleResetProgress(row.class_id, ts.email)}
+                          disabled={!ts.lastSession}
+                          title={ts.lastSession ? 'Reset this teacher’s progress for this class' : 'No progress to reset'}
+                          className="text-xs font-semibold text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                        >
+                          ↺ Reset
+                        </button>
+                      </td>
                     </tr>
                   ));
                 })}

@@ -284,6 +284,41 @@ export function flushQuestionLogToFirestore(classId) {
   }
 }
 
+// Reset a teacher's progress for a class back to zero: clears their session
+// history (lesson position) and the class's question log (spaced-repetition +
+// flags, which are shared across co-teachers of that class).
+export function resetClassProgress(classId, email) {
+  // 1. Session log — remove this teacher's sessions for the class
+  const sessions = getSessionLog();
+  const removedSessions = sessions.filter(s => s.class_id === classId && s.teacher_email === email);
+  setJSON(KEYS.SESSION_LOG, sessions.filter(s => !(s.class_id === classId && s.teacher_email === email)));
+
+  // 2. Question log — clear the class's spaced-repetition / flag state
+  const qlog = getQuestionLog();
+  const removedQ = qlog.filter(e => e.class_id === classId);
+  setJSON(KEYS.QUESTION_LOG, qlog.filter(e => e.class_id !== classId));
+
+  // 3. Drop any cached in-progress starter for this class
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(`rs_active_session__${classId}__`)) localStorage.removeItem(k);
+  }
+
+  // 4. Mirror the deletes to Firestore
+  if (_userId && db) {
+    for (const s of removedSessions) {
+      if (s.id) deleteDoc(doc(db, 'session_log', s.id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }
+    for (const e of removedQ) {
+      const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
+      deleteDoc(doc(db, 'question_log', docId)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }
+  }
+
+  // Keep the plaza brain size in step with the reduced session count
+  updatePlazaStats(email);
+}
+
 // ─── Custom questions (HoD-managed overrides) ────────────────────────────────
 
 export function getCustomQuestions() {
