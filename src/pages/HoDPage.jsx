@@ -91,32 +91,52 @@ export default function HoDPage() {
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer);
 
-      // Sheet 1: Questions
+      // Sheet 1: Questions — the spreadsheet is the complete source of truth.
+      // Every row with question text becomes a question; new rows are added
+      // (not just matched by id), so questions authored in the per-topic
+      // templates — which have no id column — come through too.
       const wsQ = wb.Sheets['Questions'] || wb.Sheets[wb.SheetNames[0]];
       const qRows = XLSX.utils.sheet_to_json(wsQ, { defval: '' });
-      const rowMap = new Map(qRows.map(r => [String(r.id), r]));
-      const updatedQuestions = QUESTIONS.map(q => {
-        const row = rowMap.get(String(q.id));
-        if (!row) return q;
-        const newLessonId = String(row.lesson_id || '').trim() || q.lesson_id;
-        // If lesson_id changed, pull the new lesson's metadata so topic/title stay consistent
-        const lessonMeta = newLessonId !== q.lesson_id
-          ? LESSONS.find(l => l.lesson_id === newLessonId)
-          : null;
-        return {
-          ...q,
-          lesson_id: newLessonId,
-          ...(lessonMeta ? {
-            topic_id: lessonMeta.topic_id,
-            topic_name: lessonMeta.topic_name,
-            lesson_number: lessonMeta.lesson_number,
-            lesson_title: lessonMeta.lesson_title,
-          } : {}),
-          question: String(row.Question ?? q.question).trim() || q.question,
-          answer: String(row.Answer ?? q.answer).trim() || q.answer,
-          scaffolded: String(row.Scaffold ?? q.scaffolded ?? '').trim() || q.scaffolded,
-        };
-      });
+
+      const lessonMeta = new Map(LESSONS.map(l => [l.lesson_id, l]));
+
+      // Reserve any ids already present in the file so generated ids never collide
+      const usedIds = new Set();
+      for (const r of qRows) {
+        const rid = String(r.id || '').trim();
+        if (rid) usedIds.add(rid);
+      }
+      let idCounter = 0;
+      const freshId = () => {
+        let id;
+        do { idCounter += 1; id = `q${String(idCounter).padStart(4, '0')}`; } while (usedIds.has(id));
+        usedIds.add(id);
+        return id;
+      };
+
+      const emitted = new Set();
+      const updatedQuestions = qRows
+        .filter(r => String(r.Question || '').trim())
+        .map(r => {
+          // Keep the row's id if it has a unique one; otherwise assign a fresh id
+          let rid = String(r.id || '').trim();
+          if (!rid || emitted.has(rid)) rid = freshId();
+          emitted.add(rid);
+
+          const lessonId = String(r.lesson_id || '').trim();
+          const meta = lessonMeta.get(lessonId);
+          return {
+            id: rid,
+            lesson_id: lessonId,
+            topic_id: meta ? meta.topic_id : '',
+            topic_name: meta ? meta.topic_name : '',
+            lesson_number: meta ? meta.lesson_number : '',
+            lesson_title: meta ? meta.lesson_title : String(r.Lesson || '').trim(),
+            question: String(r.Question).trim(),
+            answer: String(r.Answer || '').trim(),
+            scaffolded: String(r.Scaffold || '').trim(),
+          };
+        });
       saveCustomQuestions(updatedQuestions);
 
       // Sheet 2: Challenge+ — find by name (flexible) or fall back to second sheet
@@ -392,7 +412,7 @@ export default function HoDPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Question bank</h2>
           <p className="text-sm text-gray-400 mb-4">
-            Download the template, edit questions / answers / scaffolds in Excel or Google Sheets, then re-upload. You can also change a question's <code>lesson_id</code> to move it to a different lesson. Do not edit the <code>id</code> column.
+            Download the template, edit questions / answers / scaffolds in Excel or Google Sheets, then re-upload. The uploaded sheet fully replaces the question bank, so you can add, edit, remove or move questions freely. New rows don't need an <code>id</code> — leave it blank and one is assigned automatically. Each row's <code>lesson_id</code> decides which lesson it belongs to.
           </p>
 
           <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
