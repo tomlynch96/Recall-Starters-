@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, saveCustomRotas, getQuestionVersions, pushQuestionVersion, resetClassProgress } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, saveCustomRotas, getQuestionVersions, pushQuestionVersion, resetClassProgress, resetAllProgress, removeTeacherFromClass } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
 import { QUESTIONS, CHALLENGE_PLUS, LESSONS } from '../data/staticData.js';
 import { parseQuestionWorkbook, assignIds, buildQuestionWorkbook, diffLessonOrder, reorderRotasByFileOrder } from '../utils/questionFiles.js';
@@ -217,6 +217,27 @@ export default function HoDPage() {
     forceRefresh(n => n + 1);
   }
 
+  async function handleResetAll() {
+    if (!window.confirm(
+      'Reset ALL class progress across the whole department?\n\n' +
+      'Every teacher\'s lesson history and all spaced-repetition / flag data ' +
+      'for every class will be wiped, as if no lessons had ever been taught. ' +
+      'This affects everyone and cannot be undone.'
+    )) return;
+    if (!window.confirm('Are you absolutely sure? This wipes progress for every class and every teacher.')) return;
+    setUploadStatus('Resetting all classes…');
+    await resetAllProgress();
+    forceRefresh(n => n + 1);
+    setUploadStatus('');
+    window.alert('All class progress has been reset.');
+  }
+
+  function handleRemoveTeacher(teacher) {
+    if (!window.confirm(`Remove ${teacher.email} from ${teacher.class_id}? They will no longer have this class on their homepage.`)) return;
+    removeTeacherFromClass(teacher);
+    forceRefresh(n => n + 1);
+  }
+
   const sessionLog = getSessionLog();
   const now = new Date();
   const twoWeeksAgo = new Date(now - 14 * 24 * 60 * 60 * 1000);
@@ -378,7 +399,7 @@ export default function HoDPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    {['Class', 'Teachers', 'Rotas'].map(h => (
+                    {['Class', 'Teachers'].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                     ))}
                   </tr>
@@ -387,17 +408,28 @@ export default function HoDPage() {
                   {classOptions.map(opt => {
                     const assigned = teachers.filter(t => t.class_id === opt.class_id && t.email);
                     return (
-                      <tr key={opt.id} className="hover:bg-gray-50">
+                      <tr key={opt.id} className="hover:bg-gray-50 align-top">
                         <td className="px-4 py-3 font-medium text-gray-800">{opt.class_id}</td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {assigned.length === 0
-                            ? <span className="text-gray-300 italic">None yet</span>
-                            : assigned.map(t => <div key={t.id}>{t.email}</div>)}
-                        </td>
-                        <td className="px-4 py-3 text-gray-500">
-                          {assigned.length === 0
-                            ? '—'
-                            : assigned.map(t => <div key={t.id}>{getRotaName(t.rota_id)}</div>)}
+                        <td className="px-4 py-3">
+                          {assigned.length === 0 ? (
+                            <span className="text-gray-300 italic">None yet</span>
+                          ) : (
+                            <div className="space-y-1">
+                              {assigned.map(t => (
+                                <div key={t.id} className="group flex items-center gap-2">
+                                  <span className="text-gray-700">{t.email}</span>
+                                  <span className="text-xs text-gray-400">· {getRotaName(t.rota_id)}</span>
+                                  <button
+                                    onClick={() => handleRemoveTeacher(t)}
+                                    title={`Remove ${t.email} from ${opt.class_id}`}
+                                    className="ml-1 w-5 h-5 flex items-center justify-center rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all text-base leading-none"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     );
@@ -460,6 +492,14 @@ export default function HoDPage() {
                 })}
               </tbody>
             </table>
+          </div>
+          <div className="mt-3 flex justify-end">
+            <button
+              onClick={handleResetAll}
+              className="text-sm font-semibold text-gray-500 hover:text-red-600 border-2 border-gray-200 hover:border-red-300 rounded-xl px-4 py-2 transition-colors"
+            >
+              ↺ Reset ALL class progress
+            </button>
           </div>
         </section>
 

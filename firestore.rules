@@ -5,10 +5,18 @@ service cloud.firestore {
     // Any authenticated user can read all collections
     // (teachers need to see co-teachers, classes, shared question logs)
 
+    // A Head of Department has a teachers doc at "<uid>__hod"
+    function isHoD() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/teachers/$(request.auth.uid + '__hod'));
+    }
+
     match /teachers/{docId} {
       allow read: if request.auth != null;
-      // Users can only write their own teacher documents (docId starts with their uid)
-      allow write: if request.auth != null && docId.matches(request.auth.uid + '__.*');
+      // Users can write their own teacher documents (docId starts with their uid);
+      // an HoD may also remove/adjust any teacher's enrollment.
+      allow write: if request.auth != null &&
+        (docId.matches(request.auth.uid + '__.*') || isHoD());
     }
 
     match /classes/{classId} {
