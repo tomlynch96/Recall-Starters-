@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, resetClassProgress } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, saveCustomRotas, getQuestionVersions, pushQuestionVersion, resetClassProgress } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
-import { QUESTIONS, LESSONS } from '../data/staticData.js';
-import * as XLSX from 'xlsx';
+import { QUESTIONS, CHALLENGE_PLUS, LESSONS } from '../data/staticData.js';
+import { parseQuestionWorkbook, assignIds, buildQuestionWorkbook, diffLessonOrder, reorderRotasByFileOrder } from '../utils/questionFiles.js';
 import RotaEditor from '../components/RotaEditor.jsx';
 
 function getRotaName(rotaId) {
@@ -40,7 +40,10 @@ export default function HoDPage() {
   const [newClassName, setNewClassName] = useState('');
   const [usingCustom, setUsingCustom] = useState(() => !!(getCustomQuestions() || getCustomChallengePlus()));
   const [uploadStatus, setUploadStatus] = useState('');
+  const [versions, setVersions] = useState(() => getQuestionVersions());
+  const [pendingOrder, setPendingOrder] = useState(null);
   const fileInputRef = useRef(null);
+  const topicFileInputRef = useRef(null);
 
 
   // Topic list for static download links (files generated at build time by exportTopicTemplates.py)
@@ -52,128 +55,120 @@ export default function HoDPage() {
     return topicName.replace(/[/\\?*[\]:,&]/g, '-').replace(/\s+/g, ' ').trim() + '-template.xlsx';
   }
 
-  function downloadTemplate() {
-    const wb = XLSX.utils.book_new();
-
-    // Sheet 1: Questions
-    const questions = getActiveQuestions();
-    const qRows = questions.map(q => ({
-      id: q.id,
-      lesson_id: q.lesson_id,
-      Lesson: q.lesson_title,
-      Question: q.question,
-      Answer: q.answer,
-      Scaffold: q.scaffolded || '',
-    }));
-    const wsQ = XLSX.utils.json_to_sheet(qRows, {
-      header: ['id', 'lesson_id', 'Lesson', 'Question', 'Answer', 'Scaffold'],
-    });
-    wsQ['!cols'] = [{ wch: 38 }, { wch: 14 }, { wch: 28 }, { wch: 60 }, { wch: 60 }, { wch: 60 }];
-    XLSX.utils.book_append_sheet(wb, wsQ, 'Questions');
-
-    // Sheet 2: Challenge+ — one row per lesson, pre-filled where a challenge question exists
-    const activeChallenge = getActiveChallengePlus();
-    const challengeMap = new Map(activeChallenge.map(c => [c.lesson_id, c]));
-    const cRows = LESSONS.map(l => {
-      const existing = challengeMap.get(l.lesson_id);
-      return {
-        lesson_id: l.lesson_id,
-        Lesson: l.lesson_title,
-        'Challenge Question': existing?.question || '',
-        'Challenge Answer': existing?.answer || '',
-      };
-    });
-    const wsC = XLSX.utils.json_to_sheet(cRows, {
-      header: ['lesson_id', 'Lesson', 'Challenge Question', 'Challenge Answer'],
-    });
-    wsC['!cols'] = [{ wch: 14 }, { wch: 28 }, { wch: 80 }, { wch: 80 }];
-    XLSX.utils.book_append_sheet(wb, wsC, 'Challenge+');
-
-    XLSX.writeFile(wb, 'recall-starter-questions.xlsx');
+  // Save a new bank, record a version snapshot, refresh state
+  function recordAndSave(questions, challenge, meta) {
+    saveCustomQuestions(questions);
+    saveCustomChallengePlus(challenge);
+    const version = {
+      id: generateUUID(),
+      at: new Date().toISOString(),
+      by: email,
+      kind: meta.kind,                 // 'full' | 'topic' | 'restore'
+      topics: meta.topics || [],
+      questionCount: questions.length,
+      challengeCount: challenge.length,
+      questions,                       // snapshot for redownload / restore
+      challenge,
+    };
+    setVersions(pushQuestionVersion(version));
+    setUsingCustom(true);
   }
 
+  // After parsing an upload, warn if the lesson order differs from natural
+  // (alphabetical) order, then save. "Use Excel order" also reorders rotas.
+  function finalizeUpload({ questions, challenge, kind, topics, fileOrderByTopic }) {
+    const diffs = diffLessonOrder(fileOrderByTopic);
+    const commit = (useExcelOrder) => {
+      if (useExcelOrder) {
+        saveCustomRotas(reorderRotasByFileOrder(getActiveRotas(), fileOrderByTopic));
+      }
+      recordAndSave(questions, challenge, { kind, topics });
+      setPendingOrder(null);
+      setUploadStatus(
+        `✓ Saved ${questions.length} questions` +
+        (topics.length ? ` · ${topics.length} topic${topics.length !== 1 ? 's' : ''}` : '') +
+        (useExcelOrder ? ' · rota order updated' : '')
+      );
+    };
+    if (diffs.length > 0) {
+      setPendingOrder({ diffs, onExcel: () => commit(true), onNatural: () => commit(false) });
+    } else {
+      commit(false);
+    }
+  }
+
+  function downloadCurrent() {
+    buildQuestionWorkbook(getActiveQuestions(), getActiveChallengePlus(), 'recall-starter-questions.xlsx');
+  }
+
+  function downloadOriginal() {
+    buildQuestionWorkbook(QUESTIONS, CHALLENGE_PLUS, 'recall-starter-questions-ORIGINAL.xlsx');
+  }
+
+  // Full-bank upload — the sheet completely replaces the bank
   async function handleUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
-    setUploadStatus('Uploading…');
+    setUploadStatus('Reading file…');
     try {
-      const buffer = await file.arrayBuffer();
-      const wb = XLSX.read(buffer);
-
-      // Sheet 1: Questions — the spreadsheet is the complete source of truth.
-      // Every row with question text becomes a question; new rows are added
-      // (not just matched by id), so questions authored in the per-topic
-      // templates — which have no id column — come through too.
-      const wsQ = wb.Sheets['Questions'] || wb.Sheets[wb.SheetNames[0]];
-      const qRows = XLSX.utils.sheet_to_json(wsQ, { defval: '' });
-
-      const lessonMeta = new Map(LESSONS.map(l => [l.lesson_id, l]));
-
-      // Reserve any ids already present in the file so generated ids never collide
-      const usedIds = new Set();
-      for (const r of qRows) {
-        const rid = String(r.id || '').trim();
-        if (rid) usedIds.add(rid);
-      }
-      let idCounter = 0;
-      const freshId = () => {
-        let id;
-        do { idCounter += 1; id = `q${String(idCounter).padStart(4, '0')}`; } while (usedIds.has(id));
-        usedIds.add(id);
-        return id;
-      };
-
-      const emitted = new Set();
-      const updatedQuestions = qRows
-        .filter(r => String(r.Question || '').trim())
-        .map(r => {
-          // Keep the row's id if it has a unique one; otherwise assign a fresh id
-          let rid = String(r.id || '').trim();
-          if (!rid || emitted.has(rid)) rid = freshId();
-          emitted.add(rid);
-
-          const lessonId = String(r.lesson_id || '').trim();
-          const meta = lessonMeta.get(lessonId);
-          return {
-            id: rid,
-            lesson_id: lessonId,
-            topic_id: meta ? meta.topic_id : '',
-            topic_name: meta ? meta.topic_name : '',
-            lesson_number: meta ? meta.lesson_number : '',
-            lesson_title: meta ? meta.lesson_title : String(r.Lesson || '').trim(),
-            question: String(r.Question).trim(),
-            answer: String(r.Answer || '').trim(),
-            scaffolded: String(r.Scaffold || '').trim(),
-          };
-        });
-      saveCustomQuestions(updatedQuestions);
-
-      // Sheet 2: Challenge+ — find by name (flexible) or fall back to second sheet
-      const challengeSheetName = wb.SheetNames.find(n =>
-        n.toLowerCase().includes('challenge')
-      ) || wb.SheetNames[1];
-      const wsC = challengeSheetName ? wb.Sheets[challengeSheetName] : null;
-      let challengeCount = 0;
-      if (wsC) {
-        const cRows = XLSX.utils.sheet_to_json(wsC, { defval: '' });
-        const updatedChallenge = cRows
-          .filter(r => String(r['Challenge Question'] || '').trim())
-          .map(r => ({
-            lesson_id: String(r.lesson_id ?? r.lesson_id ?? '').trim(),
-            question: String(r['Challenge Question']).trim(),
-            answer: String(r['Challenge Answer'] || '').trim(),
-          }))
-          .filter(r => r.lesson_id);
-        challengeCount = updatedChallenge.length;
-        saveCustomChallengePlus(updatedChallenge);
-      }
-
-      setUsingCustom(true);
-      setUploadStatus(`✓ ${updatedQuestions.length} questions · ${challengeCount} challenge+ question${challengeCount !== 1 ? 's' : ''} saved`);
-    } catch {
+      const buf = await file.arrayBuffer();
+      const { questions, challenge, topics, fileOrderByTopic } = parseQuestionWorkbook(buf);
+      finalizeUpload({ questions: assignIds(questions), challenge, kind: 'full', topics, fileOrderByTopic });
+    } catch (err) {
+      console.error(err);
       setUploadStatus('Upload failed — check the file format');
     }
     e.target.value = '';
+  }
+
+  // Per-topic upload — each file replaces only its own topic(s) in the bank
+  async function handleTopicUpload(e) {
+    const files = [...e.target.files];
+    if (!files.length) return;
+    setUploadStatus('Reading files…');
+    try {
+      let bankQ = [...getActiveQuestions()];
+      let bankC = [...getActiveChallengePlus()];
+      const topicOfLesson = new Map(LESSONS.map(l => [l.lesson_id, l.topic_name]));
+      const allTopics = new Set();
+      const combinedOrder = new Map();
+
+      for (const file of files) {
+        const buf = await file.arrayBuffer();
+        const { questions, challenge, topics, fileOrderByTopic } = parseQuestionWorkbook(buf);
+        if (topics.length === 0) continue;
+        for (const [t, order] of fileOrderByTopic.entries()) combinedOrder.set(t, order);
+        const topicSet = new Set(topics);
+        topics.forEach(t => allTopics.add(t));
+        // Drop the bank's existing questions/challenge for these topics, add the file's
+        bankQ = bankQ.filter(q => !topicSet.has(q.topic_name));
+        bankC = bankC.filter(c => !topicSet.has(topicOfLesson.get(c.lesson_id)));
+        const newQ = assignIds(questions, bankQ.map(q => q.id));
+        bankQ = [...bankQ, ...newQ];
+        bankC = [...bankC, ...challenge];
+      }
+
+      if (allTopics.size === 0) {
+        setUploadStatus('No recognised topics found in those files.');
+      } else {
+        finalizeUpload({ questions: bankQ, challenge: bankC, kind: 'topic', topics: [...allTopics], fileOrderByTopic: combinedOrder });
+      }
+    } catch (err) {
+      console.error(err);
+      setUploadStatus('Upload failed — check the file format');
+    }
+    e.target.value = '';
+  }
+
+  function downloadVersion(v) {
+    buildQuestionWorkbook(v.questions || [], v.challenge || [], `recall-questions-${new Date(v.at).toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  function restoreVersion(v) {
+    if (!v.questions) return;
+    if (!window.confirm(`Restore the question bank to the version from ${new Date(v.at).toLocaleString()}? This replaces the current bank for everyone.`)) return;
+    recordAndSave(v.questions, v.challenge || [], { kind: 'restore', topics: v.topics || [] });
+    setUploadStatus('✓ Restored earlier version');
   }
 
   function handleRevert() {
@@ -269,6 +264,40 @@ export default function HoDPage() {
         <button onClick={() => navigate('/')} className="text-blue-600 hover:underline text-sm">← Back</button>
         <h1 className="text-xl font-bold text-blue-800">HoD Dashboard</h1>
       </header>
+
+      {/* Lesson-order mismatch prompt */}
+      {pendingOrder && (
+        <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-6">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg">
+            <h2 className="font-bold text-gray-800 text-lg mb-1">Lesson order differs from expected</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              The uploaded file lists lessons in a different order to the natural (alphabetical) lesson order. Which order should the rota sequence use?
+            </p>
+            <div className="space-y-3 max-h-64 overflow-y-auto mb-5">
+              {pendingOrder.diffs.map(d => (
+                <div key={d.topic} className="border border-gray-100 rounded-xl p-3">
+                  <div className="text-sm font-semibold text-gray-700 mb-1">{d.topic}</div>
+                  <div className="text-xs text-gray-500">
+                    <span className="font-medium text-blue-700">Excel order:</span> {d.fileOrder.map(l => l.id).join(' → ')}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    <span className="font-medium text-gray-600">Alphabetical:</span> {d.naturalOrder.map(l => l.id).join(' → ')}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap justify-end gap-2">
+              <button onClick={() => setPendingOrder(null)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancel</button>
+              <button onClick={pendingOrder.onNatural} className="px-5 py-2 bg-white border-2 border-gray-200 text-gray-600 text-sm font-semibold rounded-xl hover:border-gray-400">
+                Keep alphabetical order
+              </button>
+              <button onClick={pendingOrder.onExcel} className="px-5 py-2 bg-blue-700 text-white text-sm font-semibold rounded-xl hover:bg-blue-800">
+                Use Excel order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-6xl mx-auto px-6 py-8 flex gap-8">
         {/* Sidebar navigation */}
@@ -468,50 +497,112 @@ export default function HoDPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Question bank</h2>
           <p className="text-sm text-gray-400 mb-4">
-            Download the template, edit questions / answers / scaffolds in Excel or Google Sheets, then re-upload. The uploaded sheet fully replaces the question bank, so you can add, edit, remove or move questions freely. New rows don't need an <code>id</code> — leave it blank and one is assigned automatically. Each row's <code>lesson_id</code> decides which lesson it belongs to.
+            Edit questions / answers / scaffolds in Excel or Google Sheets, then re-upload. Upload the whole bank to replace everything, or upload individual topic files to update just those topics. Each row's <code>lesson_id</code> decides which lesson it belongs to; new rows can leave <code>id</code> blank.
           </p>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-            <div className="flex items-center gap-2">
+          <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className={`text-sm font-medium px-3 py-1 rounded-full ${usingCustom ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
-                {usingCustom ? 'Custom questions active' : `Default questions (${QUESTIONS.length})`}
+                {usingCustom ? `Custom questions active (${getActiveQuestions().length})` : `Default questions (${QUESTIONS.length})`}
               </span>
               {uploadStatus && (
                 <span className="text-sm text-gray-500">{uploadStatus}</span>
               )}
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={downloadTemplate}
-                className="px-5 py-2 bg-blue-700 text-white text-sm font-semibold rounded-xl hover:bg-blue-800 transition-colors"
-              >
-                ↓ Download template
-              </button>
-
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="px-5 py-2 bg-white border-2 border-blue-300 text-blue-700 text-sm font-semibold rounded-xl hover:border-blue-500 transition-colors"
-              >
-                ↑ Upload edited file
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".xlsx,.csv"
-                onChange={handleUpload}
-                className="hidden"
-              />
-
-              {usingCustom && (
+            {/* Downloads */}
+            <div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Download</div>
+              <div className="flex flex-wrap gap-3">
                 <button
-                  onClick={handleRevert}
-                  className="px-5 py-2 bg-white border-2 border-gray-200 text-gray-500 text-sm font-semibold rounded-xl hover:border-red-300 hover:text-red-500 transition-colors"
+                  onClick={downloadCurrent}
+                  className="px-5 py-2 bg-blue-700 text-white text-sm font-semibold rounded-xl hover:bg-blue-800 transition-colors"
                 >
-                  Revert to defaults
+                  ↓ Current bank
                 </button>
-              )}
+                <button
+                  onClick={downloadOriginal}
+                  className="px-5 py-2 bg-white border-2 border-gray-200 text-gray-600 text-sm font-semibold rounded-xl hover:border-gray-400 transition-colors"
+                  title="Download the original bundled question bank"
+                >
+                  ↺ Original (default) bank
+                </button>
+              </div>
             </div>
+
+            {/* Uploads */}
+            <div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Upload</div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-5 py-2 bg-white border-2 border-blue-300 text-blue-700 text-sm font-semibold rounded-xl hover:border-blue-500 transition-colors"
+                >
+                  ↑ Whole bank (replaces all)
+                </button>
+                <input ref={fileInputRef} type="file" accept=".xlsx,.csv" onChange={handleUpload} className="hidden" />
+
+                <button
+                  onClick={() => topicFileInputRef.current?.click()}
+                  className="px-5 py-2 bg-white border-2 border-blue-300 text-blue-700 text-sm font-semibold rounded-xl hover:border-blue-500 transition-colors"
+                >
+                  ↑ Topic file(s) (replaces those topics)
+                </button>
+                <input ref={topicFileInputRef} type="file" accept=".xlsx,.csv" multiple onChange={handleTopicUpload} className="hidden" />
+
+                {usingCustom && (
+                  <button
+                    onClick={handleRevert}
+                    className="px-5 py-2 bg-white border-2 border-gray-200 text-gray-500 text-sm font-semibold rounded-xl hover:border-red-300 hover:text-red-500 transition-colors"
+                  >
+                    Revert to defaults
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Version history ── */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-700 mb-1">Upload history</h2>
+          <p className="text-sm text-gray-400 mb-4">
+            The most recent {versions.length === 1 ? 'upload' : `${versions.length} uploads`} are kept. Redownload or restore any of them.
+          </p>
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            {versions.length === 0 ? (
+              <p className="px-4 py-4 text-sm text-gray-400">No uploads yet — the default question bank is in use.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    {['When', 'By', 'Change', 'Questions', ''].map((h, i) => (
+                      <th key={h || `c${i}`} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {versions.map(v => (
+                    <tr key={v.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-gray-700">{new Date(v.at).toLocaleString()}</td>
+                      <td className="px-4 py-3 text-gray-500">{(v.by || '').split('@')[0]}</td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {v.kind === 'full' && 'Whole bank replaced'}
+                        {v.kind === 'restore' && 'Restored a version'}
+                        {v.kind === 'topic' && (
+                          <span>Topics: <span className="text-gray-500">{(v.topics || []).join(', ') || '—'}</span></span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">{v.questionCount}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <button onClick={() => downloadVersion(v)} className="text-xs font-semibold text-blue-600 hover:text-blue-800 mr-3">↓ Download</button>
+                        <button onClick={() => restoreVersion(v)} className="text-xs font-semibold text-gray-500 hover:text-amber-600">↺ Restore</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </section>
 
