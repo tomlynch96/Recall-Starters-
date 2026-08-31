@@ -58,7 +58,9 @@ export async function hydrateFromFirestore(userId, email) {
       getDoc(doc(db, 'config', 'custom_rotas')),
       getDoc(doc(db, 'config', 'questions_history')),
     ]);
-    const teachers = teachersSnap.docs.map(d => d.data());
+    // Keep each teacher's Firestore doc id so the HoD can delete the exact
+    // enrollment doc (its id is keyed by the teacher's own uid, not ours)
+    const teachers = teachersSnap.docs.map(d => ({ ...d.data(), _docId: d.id }));
     setJSON(KEYS.TEACHERS, teachers);
     setJSON(KEYS.CLASS_OPTIONS, classesSnap.docs.map(d => d.data()));
     if (customQSnap.exists()) {
@@ -327,6 +329,47 @@ export function resetClassProgress(classId, email) {
 
   // Keep the plaza brain size in step with the reduced session count
   updatePlazaStats(email);
+}
+
+// Reset EVERY class's progress at once (HoD action): wipes all session and
+// question logs (locally and in Firestore) plus plaza stats, so the whole
+// department starts from scratch.
+export async function resetAllProgress() {
+  // Local
+  setJSON(KEYS.SESSION_LOG, []);
+  setJSON(KEYS.QUESTION_LOG, []);
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('rs_active_session__')) localStorage.removeItem(k);
+  }
+
+  // Firestore — delete every doc in the shared logs (and plaza stats)
+  if (_userId && db) {
+    const [slSnap, qlSnap, psSnap] = await Promise.all([
+      getDocs(collection(db, 'session_log')),
+      getDocs(collection(db, 'question_log')),
+      getDocs(collection(db, 'plaza_stats')),
+    ]);
+    await Promise.all([
+      ...slSnap.docs.map(d => deleteDoc(d.ref)),
+      ...qlSnap.docs.map(d => deleteDoc(d.ref)),
+      ...psSnap.docs.map(d => deleteDoc(d.ref)),
+    ]).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+// Remove a teacher's enrollment in a class (HoD action). The enrollment doc is
+// keyed by that teacher's own uid, captured as _docId during hydration.
+export function removeTeacherFromClass(teacher) {
+  const all = getTeachers().filter(t =>
+    !(t.email === teacher.email && t.class_id === teacher.class_id)
+  );
+  setJSON(KEYS.TEACHERS, all);
+
+  if (_userId && db && teacher._docId) {
+    deleteDoc(doc(db, 'teachers', teacher._docId))
+      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
 }
 
 // ─── Custom questions (HoD-managed overrides) ────────────────────────────────
