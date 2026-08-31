@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function TopicAccordion({ topicName, lessons, questionLog, classId, maxLessonOrder, rotaOrderMap, lessonIdToOrder }) {
+export default function TopicAccordion({ order, topicName, lessons, questionLog, classId, maxLessonOrder, rotaOrderMap, lessonIdToOrder }) {
   const [open, setOpen] = useState(false);
 
   const logMap = {};
@@ -18,7 +18,14 @@ export default function TopicAccordion({ topicName, lessons, questionLog, classI
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 hover:bg-gray-100 text-left"
       >
-        <span className="font-semibold text-gray-800">{topicName}</span>
+        <span className="flex items-center gap-3">
+          {order != null && (
+            <span className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+              {order}
+            </span>
+          )}
+          <span className="font-semibold text-gray-800">{topicName}</span>
+        </span>
         <div className="flex items-center gap-3">
           <span className="text-xs text-gray-400">{seenQs}/{totalQs} seen</span>
           <span className="text-gray-400 text-lg">{open ? '▲' : '▼'}</span>

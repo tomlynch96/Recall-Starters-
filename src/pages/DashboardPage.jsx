@@ -48,12 +48,28 @@ export default function DashboardPage() {
     lessonMap.get(q.lesson_id).questions.push(q);
   }
 
-  const topics = Array.from(topicMap.entries()).map(([name, lessonMap]) => ({
-    topicName: name,
-    lessons: Array.from(lessonMap.values()).sort((a, b) =>
-      Number(a.lesson_number) - Number(b.lesson_number)
-    ),
-  }));
+  // Teaching order: when each topic's first lesson appears in the rota
+  const topicFirstOrder = new Map();
+  for (const r of rotaEntries) {
+    const lesson = LESSONS.find(l => l.lesson_id === r.lesson_id);
+    const topic = lesson?.topic_name;
+    if (topic && (!topicFirstOrder.has(topic) || r.lesson_order < topicFirstOrder.get(topic))) {
+      topicFirstOrder.set(topic, r.lesson_order);
+    }
+  }
+
+  const topics = Array.from(topicMap.entries())
+    .map(([name, lessonMap]) => ({
+      topicName: name,
+      // Lessons within a topic follow the rota teaching order
+      lessons: Array.from(lessonMap.values()).sort((a, b) =>
+        (lessonIdToOrder[a.lesson_id] ?? Infinity) - (lessonIdToOrder[b.lesson_id] ?? Infinity)
+      ),
+    }))
+    // Topics in the order they are taught in this rota
+    .sort((a, b) =>
+      (topicFirstOrder.get(a.topicName) ?? Infinity) - (topicFirstOrder.get(b.topicName) ?? Infinity)
+    );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,9 +97,10 @@ export default function DashboardPage() {
         </div>
 
         <div>
-          {topics.map(t => (
+          {topics.map((t, i) => (
             <TopicAccordion
               key={t.topicName}
+              order={i + 1}
               topicName={t.topicName}
               lessons={t.lessons}
               questionLog={questionLog}
