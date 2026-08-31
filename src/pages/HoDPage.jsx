@@ -5,6 +5,7 @@ import { generateUUID } from '../utils/uuid.js';
 import { QUESTIONS, CHALLENGE_PLUS, LESSONS } from '../data/staticData.js';
 import { parseQuestionWorkbook, assignIds, buildQuestionWorkbook, diffLessonOrder, reorderRotasByFileOrder } from '../utils/questionFiles.js';
 import RotaEditor from '../components/RotaEditor.jsx';
+import QuestionPreview from '../components/QuestionPreview.jsx';
 
 function getRotaName(rotaId) {
   const e = getActiveRotas().find(r => r.rota_id === rotaId);
@@ -493,6 +494,15 @@ export default function HoDPage() {
 
         {section === 'questions' && (
         <>
+        {/* ── Preview ── */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-700 mb-1">Preview</h2>
+          <p className="text-sm text-gray-400 mb-4">
+            Browse the lessons in teaching order and the questions in each. Pick a rota, then click a lesson.
+          </p>
+          <QuestionPreview />
+        </section>
+
         {/* ── Question bank ── */}
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Question bank</h2>
