@@ -22,21 +22,40 @@ export default function SetupPage() {
   const existingHoD = teachers.find(t => t.is_hod && t.email);
   const iAmHoD = teachers.some(t => t.email === email && t.is_hod);
 
-  const [selectedId, setSelectedId] = useState('');
-  const [rotaId, setRotaId] = useState('rota-a');
+  // selected: { [optionId]: true } · rotas: { [optionId]: rotaId } (starts empty)
+  const [selected, setSelected] = useState({});
+  const [rotas, setRotas] = useState({});
+
+  const chosenIds = Object.keys(selected).filter(id => selected[id]);
+  const allRotasChosen = chosenIds.every(id => rotas[id]);
+  const canSubmit = chosenIds.length > 0 && allRotasChosen;
+
+  function toggleClass(optionId) {
+    setSelected(s => {
+      const next = { ...s, [optionId]: !s[optionId] };
+      if (!next[optionId]) {
+        // Clearing a class also clears its rota choice
+        setRotas(r => { const rr = { ...r }; delete rr[optionId]; return rr; });
+      }
+      return next;
+    });
+  }
 
   function handleSave(e) {
     e.preventDefault();
-    const option = available.find(o => o.id === selectedId);
-    if (!option) return;
-    enrollTeacher({
-      id: generateUUID(),
-      email,
-      class_id: option.class_id,
-      rota_id: rotaId,
-      is_hod: false,
-      created_at: new Date().toISOString(),
-    });
+    if (!canSubmit) return;
+    for (const id of chosenIds) {
+      const option = available.find(o => o.id === id);
+      if (!option) continue;
+      enrollTeacher({
+        id: generateUUID(),
+        email,
+        class_id: option.class_id,
+        rota_id: rotas[id],
+        is_hod: false,
+        created_at: new Date().toISOString(),
+      });
+    }
     navigate('/');
   }
 
@@ -99,73 +118,78 @@ export default function SetupPage() {
     );
   }
 
-  const selectedOption = available.find(o => o.id === selectedId);
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold text-blue-800 mb-2 text-center">Add a class</h1>
+        <h1 className="text-3xl font-bold text-blue-800 mb-2 text-center">Add classes</h1>
         <p className="text-gray-500 text-center mb-8">Logged in as <strong>{email}</strong></p>
 
         <form onSubmit={handleSave} className="bg-white rounded-2xl shadow-md p-8 space-y-4">
+          <p className="text-sm text-gray-500">Tick every class you teach, then choose a rota for each.</p>
           <div className="space-y-3">
             {available.map(option => {
               const coTeachers = teachers.filter(t => t.class_id === option.class_id && t.email);
+              const isTicked = !!selected[option.id];
+              const needsRota = isTicked && !rotas[option.id];
               return (
-                <label
+                <div
                   key={option.id}
-                  className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                    selectedId === option.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
+                  className={`rounded-xl border-2 transition-colors ${
+                    isTicked ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
                   }`}
                 >
-                  <input
-                    type="radio"
-                    name="class"
-                    value={option.id}
-                    checked={selectedId === option.id}
-                    onChange={() => setSelectedId(option.id)}
-                    className="accent-blue-600 mt-1"
-                  />
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-800">{option.class_id}</div>
-                    {coTeachers.length > 0 ? (
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {coTeachers.map(t => (
-                          <span key={t.id} className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                            {t.email}
-                          </span>
+                  <label className="flex items-start gap-4 p-4 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isTicked}
+                      onChange={() => toggleClass(option.id)}
+                      className="accent-blue-600 mt-1 w-4 h-4"
+                    />
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-800">{option.class_id}</div>
+                      {coTeachers.length > 0 ? (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {coTeachers.map(t => (
+                            <span key={t.id} className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                              {t.email}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-400 mt-0.5">No teachers yet</div>
+                      )}
+                    </div>
+                  </label>
+
+                  {isTicked && (
+                    <div className="px-4 pb-4 -mt-1">
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Your teaching rota</label>
+                      <select
+                        value={rotas[option.id] || ''}
+                        onChange={e => setRotas(r => ({ ...r, [option.id]: e.target.value }))}
+                        className={`w-full border-2 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-500 ${
+                          needsRota ? 'border-amber-300 text-gray-400' : 'border-gray-200 text-gray-800'
+                        }`}
+                      >
+                        <option value="" disabled>Select a rota…</option>
+                        {ROTA_OPTIONS.map(r => (
+                          <option key={r.id} value={r.id}>{r.label}</option>
                         ))}
-                      </div>
-                    ) : (
-                      <div className="text-xs text-gray-400 mt-0.5">No teachers yet</div>
-                    )}
-                  </div>
-                </label>
+                      </select>
+                      {needsRota && <p className="text-xs text-amber-600 mt-1">Choose a rota to continue.</p>}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
 
-          {selectedOption && (
-            <div className="pt-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Your teaching rota for {selectedOption.class_id}</label>
-              <select
-                value={rotaId}
-                onChange={e => setRotaId(e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500"
-              >
-                {ROTA_OPTIONS.map(r => (
-                  <option key={r.id} value={r.id}>{r.label}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
           <button
             type="submit"
-            disabled={!selectedId}
-            className="w-full bg-blue-700 text-white text-lg font-semibold py-3 rounded-xl hover:bg-blue-800 disabled:opacity-40 transition-colors"
+            disabled={!canSubmit}
+            className="w-full bg-blue-700 text-white text-lg font-semibold py-3 rounded-xl hover:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            Join class
+            {chosenIds.length > 1 ? `Join ${chosenIds.length} classes` : 'Join class'}
           </button>
         </form>
 
