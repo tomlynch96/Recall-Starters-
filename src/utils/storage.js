@@ -11,7 +11,11 @@ const KEYS = {
   CUSTOM_QUESTIONS: 'rs_custom_questions',
   CUSTOM_CHALLENGE_PLUS: 'rs_custom_challenge_plus',
   CUSTOM_ROTAS: 'rs_custom_rotas',
+  QUESTION_VERSIONS: 'rs_question_versions',
 };
+
+// Keep at most this many full version snapshots (Firestore doc size limit)
+const MAX_VERSIONS = 8;
 
 function getJSON(key, fallback) {
   try {
@@ -46,12 +50,13 @@ export async function hydrateFromFirestore(userId, email) {
   _userId = userId;
   try {
     // Phase 1 (blocking): fetch teachers, classes, custom questions
-    const [teachersSnap, classesSnap, customQSnap, challengeSnap, rotasSnap] = await Promise.all([
+    const [teachersSnap, classesSnap, customQSnap, challengeSnap, rotasSnap, historySnap] = await Promise.all([
       getDocs(collection(db, 'teachers')),
       getDocs(collection(db, 'classes')),
       getDoc(doc(db, 'config', 'custom_questions')),
       getDoc(doc(db, 'config', 'challenge_plus')),
       getDoc(doc(db, 'config', 'custom_rotas')),
+      getDoc(doc(db, 'config', 'questions_history')),
     ]);
     const teachers = teachersSnap.docs.map(d => d.data());
     setJSON(KEYS.TEACHERS, teachers);
@@ -70,6 +75,11 @@ export async function hydrateFromFirestore(userId, email) {
       setJSON(KEYS.CUSTOM_ROTAS, rotasSnap.data().entries);
     } else {
       localStorage.removeItem(KEYS.CUSTOM_ROTAS);
+    }
+    if (historySnap.exists()) {
+      setJSON(KEYS.QUESTION_VERSIONS, historySnap.data().versions);
+    } else {
+      localStorage.removeItem(KEYS.QUESTION_VERSIONS);
     }
 
     // Phase 2 (background): fetch question log + session log — not needed until StarterPage
@@ -408,6 +418,27 @@ export function clearCustomRotas() {
     deleteDoc(doc(db, 'config', 'custom_rotas'))
       .catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
+}
+
+// ─── Question bank version history ───────────────────────────────────────────
+// Each version records who uploaded, when, what kind (full / per-topic), and a
+// snapshot of the whole bank at that point so it can be redownloaded/restored.
+
+export function getQuestionVersions() {
+  return getJSON(KEYS.QUESTION_VERSIONS, []);
+}
+
+// Prepend a version and persist (capped to MAX_VERSIONS, newest first)
+export function pushQuestionVersion(entry) {
+  const versions = [entry, ...getQuestionVersions()].slice(0, MAX_VERSIONS);
+  setJSON(KEYS.QUESTION_VERSIONS, versions);
+  if (_userId && db) {
+    setDoc(doc(db, 'config', 'questions_history'), {
+      versions,
+      updated_at: new Date().toISOString(),
+    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+  return versions;
 }
 
 // ─── Active starter session (persists question list across navigation) ────────
