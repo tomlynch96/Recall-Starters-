@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, saveCustomRotas, getQuestionVersions, pushQuestionVersion, resetClassProgress, resetAllProgress, removeTeacherFromClass } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, getRawRotas, saveCustomRotas, getQuestionVersions, pushQuestionVersion, resetClassProgress, resetAllProgress, removeTeacherFromClass } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
 import { QUESTIONS, CHALLENGE_PLUS, LESSONS } from '../data/staticData.js';
 import { parseQuestionWorkbook, assignIds, buildQuestionWorkbook, diffLessonOrder, reorderRotasByFileOrder } from '../utils/questionFiles.js';
@@ -81,7 +81,7 @@ export default function HoDPage() {
     const diffs = diffLessonOrder(fileOrderByTopic);
     const commit = (useExcelOrder) => {
       if (useExcelOrder) {
-        saveCustomRotas(reorderRotasByFileOrder(getActiveRotas(), fileOrderByTopic));
+        saveCustomRotas(reorderRotasByFileOrder(getRawRotas(), fileOrderByTopic));
       }
       recordAndSave(questions, challenge, { kind, topics });
       setPendingOrder(null);

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { ROTAS, LESSONS } from '../data/staticData.js';
-import { getActiveRotas, saveCustomRotas, clearCustomRotas, getCustomRotas } from '../utils/storage.js';
+import { getRawRotas, saveCustomRotas, clearCustomRotas, getCustomRotas } from '../utils/storage.js';
 
 const TOPIC_COLOURS = [
   'bg-blue-100 border-blue-300 text-blue-800',
@@ -64,7 +64,7 @@ function blocksToEntries(rotaId, rotaName, blocks) {
 
 export default function RotaEditor() {
   // All active rota entries (custom override or bundled default)
-  const [entries, setEntries] = useState(() => getActiveRotas());
+  const [entries, setEntries] = useState(() => getRawRotas());
   const [isCustom, setIsCustom] = useState(() => !!getCustomRotas());
   const [savedFlash, setSavedFlash] = useState(false);
   const dragRef = useRef(null); // { rotaId, index }
