@@ -11,6 +11,7 @@ const KEYS = {
   CUSTOM_QUESTIONS: 'rs_custom_questions',
   CUSTOM_CHALLENGE_PLUS: 'rs_custom_challenge_plus',
   CUSTOM_ROTAS: 'rs_custom_rotas',
+  HIDDEN_LESSONS: 'rs_hidden_lessons',
   QUESTION_VERSIONS: 'rs_question_versions',
 };
 
@@ -50,13 +51,14 @@ export async function hydrateFromFirestore(userId, email) {
   _userId = userId;
   try {
     // Phase 1 (blocking): fetch teachers, classes, custom questions
-    const [teachersSnap, classesSnap, customQSnap, challengeSnap, rotasSnap, historySnap] = await Promise.all([
+    const [teachersSnap, classesSnap, customQSnap, challengeSnap, rotasSnap, historySnap, hiddenSnap] = await Promise.all([
       getDocs(collection(db, 'teachers')),
       getDocs(collection(db, 'classes')),
       getDoc(doc(db, 'config', 'custom_questions')),
       getDoc(doc(db, 'config', 'challenge_plus')),
       getDoc(doc(db, 'config', 'custom_rotas')),
       getDoc(doc(db, 'config', 'questions_history')),
+      getDoc(doc(db, 'config', 'hidden_lessons')),
     ]);
     // Keep each teacher's Firestore doc id so the HoD can delete the exact
     // enrollment doc (its id is keyed by the teacher's own uid, not ours)
@@ -82,6 +84,11 @@ export async function hydrateFromFirestore(userId, email) {
       setJSON(KEYS.QUESTION_VERSIONS, historySnap.data().versions);
     } else {
       localStorage.removeItem(KEYS.QUESTION_VERSIONS);
+    }
+    if (hiddenSnap.exists()) {
+      setJSON(KEYS.HIDDEN_LESSONS, hiddenSnap.data().ids);
+    } else {
+      localStorage.removeItem(KEYS.HIDDEN_LESSONS);
     }
 
     // Phase 2 (background): fetch question log + session log — not needed until StarterPage
@@ -440,9 +447,47 @@ export function getCustomRotas() {
   return getJSON(KEYS.CUSTOM_ROTAS, null);
 }
 
-export function getActiveRotas() {
+// Full rota entries (custom override or bundled), INCLUDING hidden lessons.
+// Editing/saving works on this so hidden lessons are never lost.
+export function getRawRotas() {
   const custom = getCustomRotas();
   return custom && custom.length > 0 ? custom : ROTAS;
+}
+
+// Hidden/skipped lessons — never scheduled in any rota
+export function getHiddenLessons() {
+  return getJSON(KEYS.HIDDEN_LESSONS, []);
+}
+
+export function saveHiddenLessons(ids) {
+  setJSON(KEYS.HIDDEN_LESSONS, ids);
+  if (_userId && db) {
+    setDoc(doc(db, 'config', 'hidden_lessons'), {
+      ids,
+      updated_at: new Date().toISOString(),
+    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+// Effective rotas used everywhere: raw rotas with hidden lessons removed and
+// lesson_order renumbered contiguously per rota.
+export function getActiveRotas() {
+  const raw = getRawRotas();
+  const hidden = new Set(getHiddenLessons());
+  if (hidden.size === 0) return raw;
+
+  const byRota = new Map();
+  for (const e of raw) {
+    if (hidden.has(e.lesson_id)) continue;
+    if (!byRota.has(e.rota_id)) byRota.set(e.rota_id, []);
+    byRota.get(e.rota_id).push(e);
+  }
+  const out = [];
+  for (const entries of byRota.values()) {
+    entries.sort((a, b) => a.lesson_order - b.lesson_order);
+    entries.forEach((e, i) => out.push({ ...e, lesson_order: i + 1 }));
+  }
+  return out;
 }
 
 export function saveCustomRotas(entries) {
