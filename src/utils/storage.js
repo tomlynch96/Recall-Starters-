@@ -401,6 +401,14 @@ export function saveCustomQuestions(questions) {
   }
 }
 
+// Edit a single question's fields in place (copies defaults into the custom
+// bank on first edit). Returns the updated question list.
+export function updateQuestion(id, updates) {
+  const next = getActiveQuestions().map(q => (q.id === id ? { ...q, ...updates } : q));
+  saveCustomQuestions(next);
+  return next;
+}
+
 export function clearCustomQuestions() {
   localStorage.removeItem(KEYS.CUSTOM_QUESTIONS);
   if (_userId && db) {
