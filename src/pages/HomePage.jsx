@@ -113,8 +113,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="relative bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-end">
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl font-bold text-blue-800 underline underline-offset-4 decoration-2">Recall Starter</h1>
+      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-blue-800">Recall Starter</h1>
         <div className="flex items-center gap-4">
           <span className="text-gray-500 text-sm">{email}</span>
 

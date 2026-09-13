@@ -216,7 +216,7 @@ export default function FillerPage() {
       />
 
       {/* Header: date left | custom title centre | timer right — adaptive sizes */}
-      <header className="relative flex items-center px-8 pt-6 pb-4 shrink-0 gap-4">
+      <header className="relative flex items-center justify-between px-8 pt-6 pb-4 shrink-0 gap-4">
         <span
           className="text-gray-400 whitespace-nowrap shrink-0"
           style={{ fontSize: 'clamp(1.1rem, 2.6vw, 3rem)' }}
@@ -225,7 +225,7 @@ export default function FillerPage() {
         </span>
 
         <h1
-          className="flex-1 min-w-0 font-light text-gray-900 tracking-tight text-center leading-tight truncate"
+          className="absolute left-1/2 -translate-x-1/2 max-w-[60%] truncate font-light text-gray-900 tracking-tight text-center leading-tight underline underline-offset-8 decoration-2"
           style={{ fontSize: 'clamp(1.75rem, 4.5vw, 4.5rem)' }}
         >
           {fillerTitle}
