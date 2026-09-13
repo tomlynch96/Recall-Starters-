@@ -1,6 +1,39 @@
-import { useState, useMemo, useRef } from 'react';
-import { getRawRotas, getActiveQuestions, getHiddenLessons, saveHiddenLessons, saveCustomRotas } from '../utils/storage.js';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { getRawRotas, getActiveQuestions, getHiddenLessons, saveHiddenLessons, saveCustomRotas, updateQuestion } from '../utils/storage.js';
 import { LESSONS } from '../data/staticData.js';
+
+// Click-to-edit text field. Blur or Ctrl/Cmd+Enter saves; Escape cancels.
+function EditableText({ value, onSave, className = '', placeholder = 'empty', inputClass = '' }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  useEffect(() => { if (!editing) setDraft(value); }, [value, editing]);
+
+  if (editing) {
+    return (
+      <textarea
+        autoFocus
+        value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onBlur={() => { setEditing(false); const v = draft.trim(); if (v && v !== value) onSave(v); }}
+        onKeyDown={e => {
+          if (e.key === 'Escape') { setDraft(value); setEditing(false); }
+          if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) e.currentTarget.blur();
+        }}
+        rows={2}
+        className={`w-full border-2 border-blue-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-blue-500 resize-y ${inputClass}`}
+      />
+    );
+  }
+  return (
+    <span
+      onClick={() => setEditing(true)}
+      title="Click to edit"
+      className={`cursor-text rounded px-0.5 -mx-0.5 hover:bg-yellow-100 transition-colors ${className}`}
+    >
+      {value || <span className="text-gray-300 italic">{placeholder}</span>}
+    </span>
+  );
+}
 
 const TOPIC_DOT = [
   'bg-blue-400', 'bg-green-400', 'bg-purple-400', 'bg-amber-400', 'bg-rose-400',
@@ -27,15 +60,19 @@ export default function QuestionPreview() {
     return t => map.get(t) || 'bg-gray-300';
   }, []);
 
-  // Question counts per lesson (unaffected by hide/order)
+  const [questions, setQuestions] = useState(() => getActiveQuestions());
   const byLesson = useMemo(() => {
     const m = new Map();
-    for (const q of getActiveQuestions()) {
+    for (const q of questions) {
       if (!m.has(q.lesson_id)) m.set(q.lesson_id, []);
       m.get(q.lesson_id).push(q);
     }
     return m;
-  }, []);
+  }, [questions]);
+
+  function saveQuestionField(id, field, value) {
+    setQuestions(updateQuestion(id, { [field]: value }));
+  }
 
   const [raw, setRaw] = useState(() => getRawRotas());
   const [hidden, setHidden] = useState(() => new Set(getHiddenLessons()));
@@ -121,7 +158,7 @@ export default function QuestionPreview() {
         </span>
       </div>
       <p className="text-xs text-gray-400 mb-4">
-        Drag a lesson to reorder it within its topic for <span className="font-medium text-gray-500">{rotaName}</span>. Use the eye toggle to skip a lesson — skipped lessons are removed from <span className="italic">every</span> rota.
+        Drag a lesson to reorder it within its topic for <span className="font-medium text-gray-500">{rotaName}</span>. Use the eye toggle to skip a lesson — skipped lessons are removed from <span className="italic">every</span> rota. Click any question or answer to edit it in place.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -196,10 +233,24 @@ export default function QuestionPreview() {
                     <li key={q.id} className="border border-gray-100 rounded-xl p-4">
                       <div className="flex gap-2">
                         <span className="text-sm font-bold text-gray-400">{i + 1}.</span>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-gray-800">{q.question}</p>
-                          <p className="text-sm text-green-700 mt-1">{q.answer}</p>
-                          <p className="text-xs text-gray-500 mt-2">
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <div className="text-sm font-semibold text-gray-800">
+                            <EditableText
+                              value={q.question}
+                              onSave={v => saveQuestionField(q.id, 'question', v)}
+                              placeholder="question"
+                            />
+                          </div>
+                          <div className="text-sm text-green-700">
+                            <span className="text-gray-400 text-xs mr-1">A:</span>
+                            <EditableText
+                              value={q.answer}
+                              onSave={v => saveQuestionField(q.id, 'answer', v)}
+                              placeholder="answer"
+                              inputClass="text-green-800"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 pt-1">
                             <span className="text-gray-400">Scaffold: </span>{renderScaffold(q.scaffolded)}
                           </p>
                         </div>
