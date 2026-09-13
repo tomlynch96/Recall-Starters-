@@ -3,7 +3,9 @@ import { getRawRotas, getActiveQuestions, getHiddenLessons, saveHiddenLessons, s
 import { LESSONS } from '../data/staticData.js';
 
 // Click-to-edit text field. Blur or Ctrl/Cmd+Enter saves; Escape cancels.
-function EditableText({ value, onSave, className = '', placeholder = 'empty', inputClass = '' }) {
+// `renderView` overrides the non-editing display (e.g. a highlighted scaffold)
+// while the editor still edits the raw `value`. `allowEmpty` permits clearing.
+function EditableText({ value, onSave, className = '', placeholder = 'empty', inputClass = '', renderView = null, allowEmpty = false }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   useEffect(() => { if (!editing) setDraft(value); }, [value, editing]);
@@ -14,7 +16,11 @@ function EditableText({ value, onSave, className = '', placeholder = 'empty', in
         autoFocus
         value={draft}
         onChange={e => setDraft(e.target.value)}
-        onBlur={() => { setEditing(false); const v = draft.trim(); if (v && v !== value) onSave(v); }}
+        onBlur={() => {
+          setEditing(false);
+          const v = draft.trim();
+          if (allowEmpty ? v !== value : (v && v !== value)) onSave(v);
+        }}
         onKeyDown={e => {
           if (e.key === 'Escape') { setDraft(value); setEditing(false); }
           if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) e.currentTarget.blur();
@@ -30,7 +36,7 @@ function EditableText({ value, onSave, className = '', placeholder = 'empty', in
       title="Click to edit"
       className={`cursor-text rounded px-0.5 -mx-0.5 hover:bg-yellow-100 transition-colors ${className}`}
     >
-      {value || <span className="text-gray-300 italic">{placeholder}</span>}
+      {renderView != null ? renderView : (value || <span className="text-gray-300 italic">{placeholder}</span>)}
     </span>
   );
 }
@@ -158,7 +164,7 @@ export default function QuestionPreview() {
         </span>
       </div>
       <p className="text-xs text-gray-400 mb-4">
-        Drag a lesson to reorder it within its topic for <span className="font-medium text-gray-500">{rotaName}</span>. Use the eye toggle to skip a lesson — skipped lessons are removed from <span className="italic">every</span> rota. Click any question or answer to edit it in place.
+        Drag a lesson to reorder it within its topic for <span className="font-medium text-gray-500">{rotaName}</span>. Use the eye toggle to skip a lesson — skipped lessons are removed from <span className="italic">every</span> rota. Click any question, answer or scaffold to edit it in place (scaffolds use [brackets] for the gap words).
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -251,7 +257,14 @@ export default function QuestionPreview() {
                             />
                           </div>
                           <p className="text-xs text-gray-500 pt-1">
-                            <span className="text-gray-400">Scaffold: </span>{renderScaffold(q.scaffolded)}
+                            <span className="text-gray-400">Scaffold: </span>
+                            <EditableText
+                              value={q.scaffolded || ''}
+                              onSave={v => saveQuestionField(q.id, 'scaffolded', v)}
+                              placeholder="no scaffold"
+                              allowEmpty
+                              renderView={renderScaffold(q.scaffolded)}
+                            />
                           </p>
                         </div>
                       </div>
