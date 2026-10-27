@@ -4,13 +4,13 @@ import {
   getTeachers,
   getCurrentTeacher,
   getQuestionLog,
-  getSessionLog,
   upsertQuestionLogEntry,
   saveActiveSession,
   getActiveSession,
   clearActiveSession,
 } from '../utils/storage.js';
 import { generateFillerQuestions } from '../utils/fillerScheduler.js';
+import { getDeliveredMap, getNextIndex } from '../utils/schedule.js';
 import QuestionCard from '../components/QuestionCard.jsx';
 import SettingsMenu from '../components/SettingsMenu.jsx';
 import FlagResolutionModal from '../components/FlagResolutionModal.jsx';
@@ -91,9 +91,7 @@ export default function FillerPage() {
     if (saved?.questions?.some(Boolean)) {
       setQuestions(saved.questions);
     } else {
-      const log = getQuestionLog();
-      const sessionLog = getSessionLog();
-      const qs = generateFillerQuestions(decodedClassId, teacher.rota_id, log, sessionLog);
+      const qs = generateFillerQuestions(decodedClassId, getDeliveredMap(decodedClassId, email), getNextIndex(decodedClassId, email), getQuestionLog());
       setQuestions(qs);
     }
   }, []);
@@ -124,10 +122,8 @@ export default function FillerPage() {
   }
 
   function pickReplacement(excludeId = null) {
-    const log = getQuestionLog();
-    const sessionLog = getSessionLog();
     const currentIds = questions.filter(Boolean).map(q => q.id);
-    const pool = generateFillerQuestions(decodedClassId, teacher.rota_id, log, sessionLog)
+    const pool = generateFillerQuestions(decodedClassId, getDeliveredMap(decodedClassId, email), getNextIndex(decodedClassId, email), getQuestionLog())
       .filter(q => !currentIds.includes(q.id) && q.id !== excludeId);
     return pool[0] || null;
   }

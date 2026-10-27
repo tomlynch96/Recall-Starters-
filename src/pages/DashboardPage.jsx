@@ -1,5 +1,6 @@
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getQuestionLog, getActiveQuestions, getActiveRotas } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getQuestionLog, getActiveQuestions } from '../utils/storage.js';
+import { getTimeline } from '../utils/schedule.js';
 import { LESSONS } from '../data/staticData.js';
 import TopicAccordion from '../components/TopicAccordion.jsx';
 
@@ -16,20 +17,22 @@ export default function DashboardPage() {
   const questionLog = getQuestionLog();
   const classLog = questionLog.filter(e => e.class_id === decodedClassId);
 
-  const rotaEntries = getActiveRotas().filter(r => r.rota_id === teacher.rota_id);
-  const rotaLessonIds = new Set(rotaEntries.map(r => r.lesson_id));
-  const maxLessonOrder = Math.max(0, ...rotaEntries.map(r => r.lesson_order));
+  // The teacher's lesson clock: lessons actually taught, then the projected
+  // upcoming ones (their next choice first, then untaught rota lessons)
+  const timeline = getTimeline(decodedClassId, email);
+  const rotaLessonIds = new Set(timeline.map(r => r.lesson_id));
+  const maxLessonOrder = timeline.length;
 
-  // Map lesson_order → { lesson_id, lesson_title, lesson_number }
+  // Map lesson index → { lesson_id, lesson_title, lesson_number }
   const rotaOrderMap = {};
-  // Map lesson_id → lesson_order (for projecting unseen questions)
+  // Map lesson_id → index it was (last) taught at / is projected for
   const lessonIdToOrder = {};
-  for (const r of rotaEntries) {
+  for (const r of timeline) {
     const lesson = LESSONS.find(l => l.lesson_id === r.lesson_id);
-    rotaOrderMap[r.lesson_order] = lesson
+    rotaOrderMap[r.index] = lesson
       ? { lesson_id: r.lesson_id, lesson_title: lesson.lesson_title, lesson_number: lesson.lesson_number }
-      : { lesson_id: r.lesson_id, lesson_title: r.lesson_id, lesson_number: String(r.lesson_order) };
-    lessonIdToOrder[r.lesson_id] = r.lesson_order;
+      : { lesson_id: r.lesson_id, lesson_title: r.lesson_id, lesson_number: String(r.index) };
+    lessonIdToOrder[r.lesson_id] = r.index;
   }
 
   const rotaQuestions = getActiveQuestions().filter(q => rotaLessonIds.has(q.lesson_id));
@@ -48,25 +51,25 @@ export default function DashboardPage() {
     lessonMap.get(q.lesson_id).questions.push(q);
   }
 
-  // Teaching order: when each topic's first lesson appears in the rota
+  // Teaching order: when each topic's first lesson is (or will be) taught
   const topicFirstOrder = new Map();
-  for (const r of rotaEntries) {
+  for (const r of timeline) {
     const lesson = LESSONS.find(l => l.lesson_id === r.lesson_id);
     const topic = lesson?.topic_name;
-    if (topic && (!topicFirstOrder.has(topic) || r.lesson_order < topicFirstOrder.get(topic))) {
-      topicFirstOrder.set(topic, r.lesson_order);
+    if (topic && (!topicFirstOrder.has(topic) || r.index < topicFirstOrder.get(topic))) {
+      topicFirstOrder.set(topic, r.index);
     }
   }
 
   const topics = Array.from(topicMap.entries())
     .map(([name, lessonMap]) => ({
       topicName: name,
-      // Lessons within a topic follow the rota teaching order
+      // Lessons within a topic follow the teaching order
       lessons: Array.from(lessonMap.values()).sort((a, b) =>
         (lessonIdToOrder[a.lesson_id] ?? Infinity) - (lessonIdToOrder[b.lesson_id] ?? Infinity)
       ),
     }))
-    // Topics in the order they are taught in this rota
+    // Topics in the order they are taught
     .sort((a, b) =>
       (topicFirstOrder.get(a.topicName) ?? Infinity) - (topicFirstOrder.get(b.topicName) ?? Infinity)
     );

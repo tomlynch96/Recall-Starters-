@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag, unenrollTeacher, appendSession, getActiveRotas } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag, unenrollTeacher } from '../utils/storage.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
-import { LESSONS } from '../data/staticData.js';
-import { generateUUID } from '../utils/uuid.js';
+import { getNextLesson, needsReboarding, startTeach } from '../utils/schedule.js';
+import { useHydrated } from '../utils/useHydrated.js';
+import { lessonLabel } from '../utils/topicColours.js';
 import BrainBuddy, { getBrainStage } from '../components/BrainBuddy.jsx';
 
 const SCIENCE_JOKES = [
@@ -36,27 +37,13 @@ function getFirstName(email) {
   return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 
-// Next lesson for this teacher+class: first rota entry after the last completed one
-function getNextLesson(classId, rotaId, email, sessionLog) {
-  const rotaLessons = getActiveRotas().filter(r => r.rota_id === rotaId).sort((a, b) => a.lesson_order - b.lesson_order);
-  if (rotaLessons.length === 0) return null;
-  const mySessions = sessionLog.filter(s => s.class_id === classId && s.teacher_email === email && s.lesson_order !== -1);
-  const lastCompleted = mySessions.length > 0 ? Math.max(...mySessions.map(s => s.lesson_order)) : 0;
-  const next = rotaLessons.find(r => r.lesson_order > lastCompleted) || rotaLessons[rotaLessons.length - 1];
-  const lesson = LESSONS.find(l => l.lesson_id === next.lesson_id);
-  return {
-    ...next,
-    lesson_title: lesson?.lesson_title || next.lesson_id,
-    lesson_number: lesson?.lesson_number || '',
-  };
-}
-
 export default function HomePage() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const email = getCurrentTeacher();
   const [teachers, setTeachers] = useState(() => getTeachers());
   const sessionLog = getSessionLog();
+  const hydrated = useHydrated();
 
   // Rotate the science joke every 12 seconds
   const [jokeIdx, setJokeIdx] = useState(() => Math.floor(Math.random() * SCIENCE_JOKES.length));
@@ -96,20 +83,20 @@ export default function HomePage() {
     setTeachers(getTeachers());
   }
 
-  // One-click start: log the session, go fullscreen, jump straight into the starter
-  function startNextStarter(e, classId, nextLesson) {
+  // One-click Teach for the next lesson on the schedule. Classes whose lesson
+  // history still needs checking go to the class page instead.
+  function teachNext(e, classId, lessonId) {
     e.stopPropagation();
+    if (needsReboarding(classId, email)) {
+      navigate(`/lesson/${encodeURIComponent(classId)}`);
+      return;
+    }
     document.documentElement.requestFullscreen?.().catch(() => {});
-    appendSession({
-      id: generateUUID(),
-      class_id: classId,
-      teacher_email: email,
-      lesson_order: nextLesson.lesson_order,
-      lesson_id: nextLesson.lesson_id,
-      opened_at: new Date().toISOString(),
-    });
-    navigate(`/starter/${encodeURIComponent(classId)}/${nextLesson.lesson_order}`);
+    startTeach(classId, email, lessonId);
+    navigate(`/starter/${encodeURIComponent(classId)}/teach/${encodeURIComponent(lessonId)}`);
   }
+
+  const classesToCheck = hydrated ? classes.filter(t => needsReboarding(t.class_id, email)) : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -169,6 +156,26 @@ export default function HomePage() {
           </div>
         </section>
 
+        {classesToCheck.length > 0 && (
+          <div className="mb-6 bg-amber-50 border border-amber-300 rounded-2xl px-5 py-4">
+            <p className="text-sm font-semibold text-amber-800">Check your lesson history</p>
+            <p className="text-sm text-amber-700 mt-1">
+              Starters now only use lessons you've actually taught. We've made a best guess of where each class is up to — please check it before teaching:
+            </p>
+            <div className="flex flex-wrap gap-2 mt-3">
+              {classesToCheck.map(t => (
+                <button
+                  key={t.class_id}
+                  onClick={() => navigate(`/lesson/${encodeURIComponent(t.class_id)}`)}
+                  className="px-3 py-1.5 bg-white border border-amber-300 text-amber-800 text-sm font-semibold rounded-lg hover:bg-amber-100"
+                >
+                  {t.class_id} →
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-700">Your classes</h2>
           <button
@@ -187,8 +194,8 @@ export default function HomePage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {classes.map(t => {
-              const mine = teachers.find(t2 => t2.email === email && t2.class_id === t.class_id) || t;
-              const nextLesson = getNextLesson(t.class_id, mine.rota_id, email, sessionLog);
+              const next = getNextLesson(t.class_id, email);
+              const toCheck = classesToCheck.includes(t);
               return (
                 <div key={t.class_id} className="group relative">
                   <button
@@ -196,20 +203,22 @@ export default function HomePage() {
                     className="w-full bg-white border-2 border-gray-200 rounded-2xl p-6 text-left hover:border-blue-400 hover:shadow-md transition-all"
                   >
                     <div className="text-2xl font-bold text-blue-800 mb-2">{t.class_id}</div>
-                    {nextLesson ? (
+                    {toCheck ? (
+                      <div className="text-sm text-amber-700 font-medium pr-10">⚠ Check lesson history</div>
+                    ) : next.lessonId ? (
                       <div className="text-sm text-gray-600 font-medium pr-10">
-                        Next: {nextLesson.lesson_number === 'Assessment' ? 'Assessment' : `L${nextLesson.lesson_number}`} — {nextLesson.lesson_title}
+                        Next: {lessonLabel(next.lessonId)}
                       </div>
                     ) : (
-                      <div className="text-sm text-gray-400">No lessons in rota</div>
+                      <div className="text-sm text-gray-400">Every lesson in your rota is taught</div>
                     )}
                   </button>
 
-                  {/* One-click start for the next lesson */}
-                  {nextLesson && (
+                  {/* One-click Teach for the next lesson */}
+                  {next.lessonId && !toCheck && (
                     <button
-                      onClick={e => startNextStarter(e, t.class_id, nextLesson)}
-                      title={`Start starter: ${nextLesson.lesson_title}`}
+                      onClick={e => teachNext(e, t.class_id, next.lessonId)}
+                      title={`Teach: ${lessonLabel(next.lessonId)}`}
                       className="absolute bottom-4 right-4 w-11 h-11 rounded-full bg-blue-700 text-white shadow-md hover:bg-blue-800 hover:scale-105 transition-all flex items-center justify-center text-lg"
                     >
                       ▶

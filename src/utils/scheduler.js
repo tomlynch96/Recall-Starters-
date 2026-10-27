@@ -22,39 +22,44 @@ export function getRotaMap(rotaId) {
   return map;
 }
 
-export function getEligibleQuestions(classId, currentLessonOrder, rotaId, questionLog) {
-  const rotaMap = getRotaMap(rotaId);
+// The clock is the teacher's own taught-lesson count for the class:
+// `currentLessonOrder` is the index of the lesson being taught now, and
+// `deliveredMap` maps each lesson they have taught → the index it was taught at.
+// Only lessons the teacher has actually taught can supply recall questions, so
+// looking ahead or teaching out of rota order never leaks untaught content.
+function withLogState(q, entry, deliveredMap) {
+  return {
+    ...q,
+    times_seen: entry ? entry.times_seen : 0,
+    last_seen_lesson: entry ? entry.last_seen_lesson : null,
+    next_due_lesson: entry ? entry.next_due_lesson : 0,
+    flagged: entry ? entry.flagged : false,
+    flag_resolved: entry ? entry.flag_resolved : false,
+    lesson_order: deliveredMap[q.lesson_id] ?? 0,
+  };
+}
+
+function classLogMap(classId, questionLog) {
   const logMap = {};
   for (const entry of questionLog) {
-    if (entry.class_id === classId) {
-      logMap[entry.question_id] = entry;
-    }
+    if (entry.class_id === classId) logMap[entry.question_id] = entry;
   }
+  return logMap;
+}
+
+export function getEligibleQuestions(classId, currentLessonOrder, deliveredMap, questionLog) {
+  const logMap = classLogMap(classId, questionLog);
 
   return getActiveQuestions().filter(q => {
+    const taughtAt = deliveredMap[q.lesson_id];
+    if (taughtAt === undefined || taughtAt >= currentLessonOrder) return false;
+
     const entry = logMap[q.id];
-    // Flagged questions always surface for all co-teachers of the class,
-    // regardless of which teacher's rota originally contained the question.
+    // Flagged questions from your own taught lessons always come back
     if (entry && entry.flagged) return true;
-
-    const lessonOrder = rotaMap[q.lesson_id];
-    if (lessonOrder === undefined) return false;
-    if (lessonOrder >= currentLessonOrder) return false;
-
     if (!entry) return true; // unseen
     return entry.next_due_lesson <= currentLessonOrder;
-  }).map(q => {
-    const entry = logMap[q.id];
-    return {
-      ...q,
-      times_seen: entry ? entry.times_seen : 0,
-      last_seen_lesson: entry ? entry.last_seen_lesson : null,
-      next_due_lesson: entry ? entry.next_due_lesson : 0,
-      flagged: entry ? entry.flagged : false,
-      flag_resolved: entry ? entry.flag_resolved : false,
-      lesson_order: rotaMap[q.lesson_id] ?? 0,
-    };
-  });
+  }).map(q => withLogState(q, logMap[q.id], deliveredMap));
 }
 
 function pickRandom(arr, n) {
@@ -76,8 +81,8 @@ function pickPrioritised(arr, n, currentLessonOrder) {
     .map(x => x.q);
 }
 
-export function generateStarterQuestions(classId, currentLessonOrder, rotaId, questionLog, target = 6) {
-  const eligible = getEligibleQuestions(classId, currentLessonOrder, rotaId, questionLog);
+export function generateStarterQuestions(classId, currentLessonOrder, deliveredMap, questionLog, target = 6) {
+  const eligible = getEligibleQuestions(classId, currentLessonOrder, deliveredMap, questionLog);
 
   // Flagged questions always appear first
   const flagged = eligible.filter(q => q.flagged);
@@ -137,28 +142,13 @@ export function generateStarterQuestions(classId, currentLessonOrder, rotaId, qu
   // This handles the case where all taught questions have been seen but aren't due yet
   if (selected.length + picks.length < TARGET) {
     const alreadyIds = new Set([...selected, ...picks].map(q => q.id));
-    const rotaMap = getRotaMap(rotaId);
-    const logMap2 = {};
-    for (const entry of questionLog) {
-      if (entry.class_id === classId) logMap2[entry.question_id] = entry;
-    }
+    const logMap = classLogMap(classId, questionLog);
     const allTaught = getActiveQuestions()
       .filter(q => {
-        const lo = rotaMap[q.lesson_id];
-        return lo !== undefined && lo < currentLessonOrder && !alreadyIds.has(q.id);
+        const taughtAt = deliveredMap[q.lesson_id];
+        return taughtAt !== undefined && taughtAt < currentLessonOrder && !alreadyIds.has(q.id);
       })
-      .map(q => {
-        const entry = logMap2[q.id];
-        return {
-          ...q,
-          times_seen: entry ? entry.times_seen : 0,
-          last_seen_lesson: entry ? entry.last_seen_lesson : null,
-          next_due_lesson: entry ? entry.next_due_lesson : 0,
-          flagged: entry ? entry.flagged : false,
-          flag_resolved: entry ? entry.flag_resolved : false,
-          lesson_order: rotaMap[q.lesson_id] ?? 0,
-        };
-      });
+      .map(q => withLogState(q, logMap[q.id], deliveredMap));
     const need = TARGET - selected.length - picks.length;
     picks.push(...pickRandom(allTaught, need));
   }
@@ -166,7 +156,7 @@ export function generateStarterQuestions(classId, currentLessonOrder, rotaId, qu
   return [...selected, ...picks].slice(0, TARGET);
 }
 
-export function updateQuestionLog(classId, shownQuestions, currentLessonOrder, existingLog) {
+export function updateQuestionLog(classId, shownQuestions, currentLessonOrder, existingLog, teacherEmail = null) {
   const log = [...existingLog];
   const now = new Date().toISOString();
 
@@ -183,12 +173,14 @@ export function updateQuestionLog(classId, shownQuestions, currentLessonOrder, e
         last_seen_lesson: currentLessonOrder,
         // If still flagged, keep next_due at current+1; otherwise use normal schedule
         next_due_lesson: isFlagged ? currentLessonOrder + 1 : nextDue,
+        ...(teacherEmail ? { teacher_email: teacherEmail } : {}),
         updated_at: now,
       };
     } else {
       log.push({
         class_id: classId,
         question_id: q.id,
+        ...(teacherEmail ? { teacher_email: teacherEmail } : {}),
         times_seen: timesSeen,
         last_seen_lesson: currentLessonOrder,
         next_due_lesson: nextDue,

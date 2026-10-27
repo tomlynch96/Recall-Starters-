@@ -1,26 +1,17 @@
 import { getActiveQuestions } from './storage.js';
-import { getRotaMap } from './scheduler.js';
 
 /**
  * Generate 6 questions for a filler session.
- * Draws from ALL questions whose lesson_order < the highest lesson_order the
- * teacher has already taught for this class. Overdue questions (due on or
- * before that lesson) are prioritised — filler lessons are the pressure valve
- * for the spaced-repetition backlog. Any remaining slots are filled randomly
- * from the rest of the taught pool.
- * Filler sessions in the session log have lesson_order = -1 and are excluded
- * from the max calculation.
+ * Draws only from lessons the teacher has actually taught this class
+ * (`deliveredMap`: lesson_id → index taught at). Overdue questions are
+ * prioritised — filler lessons are the pressure valve for the
+ * spaced-repetition backlog — and any remaining slots are filled randomly
+ * from the rest of the taught pool. `now` is the teacher's next lesson index.
+ * Fillers never advance the lesson schedule.
  */
-export function generateFillerQuestions(classId, rotaId, questionLog, sessionLog) {
-  // Find highest lesson_order taught (excluding filler sessions)
-  const classSessions = sessionLog.filter(
-    s => s.class_id === classId && s.lesson_order !== -1
-  );
-  if (classSessions.length === 0) return [];
+export function generateFillerQuestions(classId, deliveredMap, now, questionLog) {
+  if (Object.keys(deliveredMap).length === 0) return [];
 
-  const maxLessonOrder = Math.max(...classSessions.map(s => s.lesson_order));
-
-  const rotaMap = getRotaMap(rotaId);
   const logMap = {};
   for (const entry of questionLog) {
     if (entry.class_id === classId) {
@@ -28,12 +19,8 @@ export function generateFillerQuestions(classId, rotaId, questionLog, sessionLog
     }
   }
 
-  // All questions from lessons already taught (lesson_order < maxLessonOrder)
   const pool = getActiveQuestions()
-    .filter(q => {
-      const lo = rotaMap[q.lesson_id];
-      return lo !== undefined && lo < maxLessonOrder;
-    })
+    .filter(q => deliveredMap[q.lesson_id] !== undefined)
     .map(q => {
       const entry = logMap[q.id];
       return {
@@ -43,7 +30,7 @@ export function generateFillerQuestions(classId, rotaId, questionLog, sessionLog
         next_due_lesson: entry ? entry.next_due_lesson : 0,
         flagged: entry ? entry.flagged : false,
         flag_resolved: entry ? entry.flag_resolved : false,
-        lesson_order: rotaMap[q.lesson_id] ?? 0,
+        lesson_order: deliveredMap[q.lesson_id],
       };
     });
 
@@ -52,8 +39,8 @@ export function generateFillerQuestions(classId, rotaId, questionLog, sessionLog
   // Backlog first: overdue questions ranked by how overdue they are (with
   // jitter so equally-overdue questions vary between fillers)
   const overdue = pool
-    .filter(q => q.next_due_lesson <= maxLessonOrder)
-    .map(q => ({ q, score: (maxLessonOrder - q.next_due_lesson) + Math.random() * 3 }))
+    .filter(q => q.next_due_lesson <= now)
+    .map(q => ({ q, score: (now - q.next_due_lesson) + Math.random() * 3 }))
     .sort((a, b) => b.score - a.score)
     .map(x => x.q);
 

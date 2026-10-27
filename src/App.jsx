@@ -44,7 +44,7 @@ export default function App() {
           <Route path="/setup" element={<SetupPage />} />
           <Route path="/" element={<RequireAuth><HomePage /></RequireAuth>} />
           <Route path="/lesson/:classId" element={<RequireAuth><LessonPage /></RequireAuth>} />
-          <Route path="/starter/:classId/:lessonOrder" element={<RequireAuth><StarterPage /></RequireAuth>} />
+          <Route path="/starter/:classId/:mode/:lessonId" element={<RequireAuth><StarterPage /></RequireAuth>} />
           <Route path="/filler/:classId" element={<RequireAuth><FillerPage /></RequireAuth>} />
           <Route path="/dashboard/:classId" element={<RequireAuth><DashboardPage /></RequireAuth>} />
           <Route path="/hod" element={<RequireAuth><HoDPage /></RequireAuth>} />

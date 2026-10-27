@@ -5,6 +5,8 @@ import { generateUUID } from '../utils/uuid.js';
 import { QUESTIONS, CHALLENGE_PLUS, LESSONS } from '../data/staticData.js';
 import { parseQuestionWorkbook, assignIds, buildQuestionWorkbook, diffLessonOrder, reorderRotasByFileOrder } from '../utils/questionFiles.js';
 import RotaEditor from '../components/RotaEditor.jsx';
+import { getMySchedule, getClassTimeline } from '../utils/schedule.js';
+import { lessonLabel } from '../utils/topicColours.js';
 import QuestionPreview from '../components/QuestionPreview.jsx';
 
 function getRotaName(rotaId) {
@@ -36,6 +38,7 @@ export default function HoDPage() {
   const teachers = getTeachers();
 
   const [section, setSection] = useState('analytics');
+  const [timelineClass, setTimelineClass] = useState(null);
   const [, forceRefresh] = useState(0);
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
@@ -262,6 +265,8 @@ export default function HoDPage() {
           lastSession: sessions[0]?.opened_at || null,
           termSessions: sessions.filter(s => new Date(s.opened_at) >= thisTermStart).length,
           recentSessions: sessions.filter(s => new Date(s.opened_at) >= twoWeeksAgo).length,
+          taught: getMySchedule(t.class_id, x.email),
+          historyChecked: !!x.schedule_confirmed,
         };
       });
     return { class_id: t.class_id, teacherStats };
@@ -286,6 +291,31 @@ export default function HoDPage() {
         <button onClick={() => navigate('/')} className="text-blue-600 hover:underline text-sm">← Back</button>
         <h1 className="text-xl font-bold text-blue-800">HoD Dashboard</h1>
       </header>
+
+      {/* Combined class timeline: every teacher's taught lessons for one class */}
+      {timelineClass && (
+        <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-6" onClick={() => setTimelineClass(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center mb-1">
+              <h2 className="font-bold text-gray-800 text-lg">{timelineClass} — class timeline</h2>
+              <button onClick={() => setTimelineClass(null)} className="ml-auto text-gray-400 hover:text-gray-700 text-2xl leading-none">×</button>
+            </div>
+            <p className="text-xs text-gray-400 mb-4">Every lesson taught to this class, by all its teachers.</p>
+            <div className="max-h-[60vh] overflow-y-auto space-y-1">
+              {getClassTimeline(timelineClass).length === 0 && <p className="text-sm text-gray-400 italic">Nothing taught yet.</p>}
+              {getClassTimeline(timelineClass).map(e => (
+                <div key={e.id} className="flex items-center gap-3 py-1.5 text-sm">
+                  <span className="text-xs text-gray-400 w-16 shrink-0">
+                    {e.taught_at ? new Date(e.taught_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}
+                  </span>
+                  <span className="flex-1 text-gray-700 truncate">{lessonLabel(e.lesson_id)}</span>
+                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{e.teacher_email.split('@')[0]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lesson-order mismatch prompt */}
       {pendingOrder && (
@@ -447,7 +477,7 @@ export default function HoDPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Class', 'Teacher', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status', ''].map((h, i) => (
+                  {['Class', 'Teacher', 'Rota', 'Taught', 'History check', 'Last session', 'This term', 'Last 2 weeks', 'Status', ''].map((h, i) => (
                     <th key={h || `col${i}`} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                   ))}
                 </tr>
@@ -458,7 +488,7 @@ export default function HoDPage() {
                     return [(
                       <tr key={row.class_id} className="hover:bg-gray-50">
                         <td className="px-4 py-3 font-medium text-gray-800">{row.class_id}</td>
-                        <td className="px-4 py-3 text-gray-300 italic" colSpan={7}>No teachers assigned yet</td>
+                        <td className="px-4 py-3 text-gray-300 italic" colSpan={9}>No teachers assigned yet</td>
                       </tr>
                     )];
                   }
@@ -467,10 +497,27 @@ export default function HoDPage() {
                       {i === 0 && (
                         <td rowSpan={row.teacherStats.length} className="px-4 py-3 font-medium text-gray-800 align-top border-r border-gray-50">
                           {row.class_id}
+                          <button
+                            onClick={() => setTimelineClass(row.class_id)}
+                            className="block mt-1 text-xs font-normal text-blue-600 hover:underline"
+                          >
+                            Timeline
+                          </button>
                         </td>
                       )}
                       <td className="px-4 py-3 text-gray-600">{ts.email.split('@')[0]}</td>
                       <td className="px-4 py-3 text-gray-500">{getRotaName(ts.rota_id)}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {ts.taught.length}
+                        {ts.taught.length > 0 && (
+                          <div className="text-xs text-gray-400 whitespace-nowrap">last: {lessonLabel(ts.taught[ts.taught.length - 1].lesson_id)}</div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {ts.historyChecked
+                          ? <span className="text-xs text-green-700">✓ Checked</span>
+                          : <span className="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full whitespace-nowrap">Not checked</span>}
+                      </td>
                       <td className="px-4 py-3 text-gray-500">
                         {ts.lastSession ? new Date(ts.lastSession).toLocaleDateString() : '—'}
                       </td>
