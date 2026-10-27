@@ -11,6 +11,7 @@ import FillerPage from './pages/FillerPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import HoDPage from './pages/HoDPage.jsx';
 import PlazaPage from './pages/PlazaPage.jsx';
+import SyncWarning from './components/SyncWarning.jsx';
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuth();
@@ -39,6 +40,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <SyncWarning />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/setup" element={<SetupPage />} />

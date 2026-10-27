@@ -82,12 +82,52 @@ function hasOldHistory(classId, email) {
   return getSessionLog().some(s => s.class_id === classId && s.teacher_email === email && s.lesson_order !== -1);
 }
 
-// Teach is blocked until a teacher with old history has checked it
+// Lessons taught with Teach also leave a session pointing at their schedule
+// entry. If a class's taught lessons are missing entirely (e.g. they never
+// reached the server), rebuild them from those sessions.
+export function recoverSchedule(classId, email) {
+  if (getMySchedule(classId, email).length > 0) return false;
+  const sessions = getSessionLog()
+    .filter(s => s.class_id === classId && s.teacher_email === email && s.schedule_entry_id && s.lesson_id)
+    .sort((a, b) => a.lesson_order - b.lesson_order);
+  for (const s of sessions) {
+    saveScheduleEntry({
+      id: s.schedule_entry_id,
+      class_id: classId,
+      teacher_email: email,
+      lesson_id: s.lesson_id,
+      index: s.lesson_order,
+      taught_at: s.opened_at,
+      source: 'teach',
+      finalized: true,
+      session_id: s.id,
+    });
+  }
+  return sessions.length > 0;
+}
+
+// Taught lessons are numbered 1, 2, 3…; a gap means some have gone missing
+function scheduleHasGaps(schedule) {
+  return schedule.some((e, i) => e.index !== i + 1);
+}
+
+// Teach is blocked until a teacher with old history has checked it — and
+// again if a checked history has lost lessons
 export function needsReboarding(classId, email) {
   const t = getTeacher(classId, email);
-  if (!t || t.schedule_confirmed) return false;
-  if (getMySchedule(classId, email).length > 0) return false;
-  return hasOldHistory(classId, email);
+  if (!t) return false;
+  const schedule = getMySchedule(classId, email);
+  if (schedule.length === 0) {
+    if (!hasOldHistory(classId, email)) return false;
+    // A history deliberately confirmed as "nothing taught yet" stays confirmed
+    return !(t.schedule_confirmed && t.schedule_count_at_confirm === 0);
+  }
+  return !!t.schedule_confirmed && scheduleHasGaps(schedule);
+}
+
+// True when the check is being asked again because lessons went missing
+export function isRecheck(classId, email) {
+  return !!getTeacher(classId, email)?.schedule_confirmed;
 }
 
 // Teachers with no history have nothing to check
@@ -124,9 +164,12 @@ export function confirmHistory(classId, email, lessonIds, dateByLesson = {}) {
 
   const existing = getMySchedule(classId, email);
   const keptDate = Object.fromEntries(existing.map(e => [e.lesson_id, e.taught_at]));
-  existing.forEach(e => deleteScheduleEntry(e.id));
+  const keptId = {};
+  for (const e of existing) if (!keptId[e.lesson_id]) keptId[e.lesson_id] = e.id;
+  const keepIds = new Set(ordered.map(id => keptId[id]).filter(Boolean));
+  existing.filter(e => !keepIds.has(e.id)).forEach(e => deleteScheduleEntry(e.id));
   ordered.forEach((lessonId, i) => saveScheduleEntry({
-    id: generateUUID(),
+    id: keptId[lessonId] || generateUUID(),
     class_id: classId,
     teacher_email: email,
     lesson_id: lessonId,
@@ -148,7 +191,11 @@ export function confirmHistory(classId, email, lessonIds, dateByLesson = {}) {
 
   clearClassCaches(classId);
   localStorage.removeItem(undoKey(classId, email));
-  updateTeacherFields(classId, email, { schedule_confirmed: true, schedule_confirmed_at: new Date().toISOString() });
+  updateTeacherFields(classId, email, {
+    schedule_confirmed: true,
+    schedule_confirmed_at: new Date().toISOString(),
+    schedule_count_at_confirm: ordered.length,
+  });
 }
 
 // ─── Teaching ─────────────────────────────────────────────────────────────────

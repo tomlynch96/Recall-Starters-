@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTeachers, getCurrentTeacher, getSessionLog, updateHoDFlag, unenrollTeacher } from '../utils/storage.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
-import { getNextLesson, needsReboarding, startTeach } from '../utils/schedule.js';
+import { getNextLesson, needsReboarding, startTeach, recoverSchedule } from '../utils/schedule.js';
 import { useHydrated } from '../utils/useHydrated.js';
 import { lessonLabel } from '../utils/topicColours.js';
 import BrainBuddy, { getBrainStage } from '../components/BrainBuddy.jsx';
@@ -44,6 +44,14 @@ export default function HomePage() {
   const [teachers, setTeachers] = useState(() => getTeachers());
   const sessionLog = getSessionLog();
   const hydrated = useHydrated();
+
+  // Once fresh data is in, rebuild any class schedule that went missing
+  const [, setRecovered] = useState(0);
+  useEffect(() => {
+    if (!hydrated || !email) return;
+    const mine = getTeachers().filter(t => t.email === email && t.class_id);
+    if (mine.map(t => recoverSchedule(t.class_id, email)).some(Boolean)) setRecovered(n => n + 1);
+  }, [hydrated]);
 
   // Rotate the science joke every 12 seconds
   const [jokeIdx, setJokeIdx] = useState(() => Math.floor(Math.random() * SCIENCE_JOKES.length));

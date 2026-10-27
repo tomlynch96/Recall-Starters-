@@ -52,22 +52,32 @@ export function buildTimeline({ schedule, rotaSequence, plannedNext }) {
 // Best guess of what a teacher has taught, from their old session history.
 // Each distinct day they ran a normal starter counts as one lesson, so several
 // look-ahead opens on one day only count once.
+// Lessons taught with Teach are known exactly (their session points at a
+// schedule entry); only older sessions need the one-lesson-per-day guess.
 export function inferHistory({ sessions, rotaSequence, rotaId, now = new Date() }) {
   const taught = sessions
     .filter(s => s.lesson_order !== -1 && s.opened_at)
     .sort((a, b) => new Date(a.opened_at) - new Date(b.opened_at));
+  const viaTeach = taught.filter(s => s.schedule_entry_id && s.lesson_id);
+  const older = taught.filter(s => !s.schedule_entry_id);
 
   const firstOpenOfDay = new Map();
-  for (const s of taught) {
+  for (const s of older) {
     const day = localDay(s.opened_at);
     if (!firstOpenOfDay.has(day)) firstOpenOfDay.set(day, s.opened_at);
   }
   const days = [...firstOpenOfDay.values()];
 
   const count = Math.min(days.length, rotaSequence.length);
-  const lessonIds = rotaSequence.slice(0, count);
+  const guessed = rotaSequence.slice(0, count);
   const dateByLesson = {};
-  lessonIds.forEach((id, i) => { dateByLesson[id] = days[i]; });
+  guessed.forEach((id, i) => { dateByLesson[id] = days[i]; });
+  for (const s of viaTeach) {
+    if (!dateByLesson[s.lesson_id]) dateByLesson[s.lesson_id] = s.opened_at;
+  }
+  const position = new Map(rotaSequence.map((id, i) => [id, i]));
+  const lessonIds = [...new Set([...guessed, ...viaTeach.map(s => s.lesson_id)])]
+    .sort((a, b) => (position.get(a) ?? Infinity) - (position.get(b) ?? Infinity));
 
   // Expected lessons from the time elapsed and the rota's pace
   let expected = null;
@@ -75,10 +85,9 @@ export function inferHistory({ sessions, rotaSequence, rotaId, now = new Date() 
     const weeks = Math.max(0, (now - new Date(taught[0].opened_at)) / (7 * 864e5));
     expected = Math.max(1, Math.round((weeks * (PACE[rotaId] || 6)) / 2));
   }
-  const offPace = expected != null && Math.abs(count - expected) > Math.max(3, expected * 0.5);
+  const offPace = expected != null && Math.abs(lessonIds.length - expected) > Math.max(3, expected * 0.5);
 
   // Furthest lesson they ever opened (often a look-ahead)
-  const position = new Map(rotaSequence.map((id, i) => [id, i]));
   let furthestLessonId = null;
   for (const s of taught) {
     if (position.has(s.lesson_id) && (furthestLessonId == null || position.get(s.lesson_id) > position.get(furthestLessonId))) {
@@ -86,7 +95,7 @@ export function inferHistory({ sessions, rotaSequence, rotaId, now = new Date() 
     }
   }
 
-  return { lessonIds, dateByLesson, daysCount: days.length, expected, offPace, furthestLessonId };
+  return { lessonIds, dateByLesson, daysCount: days.length + new Set(viaTeach.map(s => localDay(s.opened_at))).size, expected, offPace, furthestLessonId };
 }
 
 // Rewrite a class's question log against a confirmed schedule.
@@ -120,4 +129,22 @@ export function migrateQuestionLog({ entries, myRotaSequence, confirmedLessonIds
     out.push({ ...e, last_seen_lesson: newLast, next_due_lesson: newDue, teacher_email: email });
   }
   return out;
+}
+
+// Combine the server's schedule entries with this device's on login.
+// - A server entry wins, unless this device has an edit that hasn't synced yet.
+// - A device-only entry that never synced (e.g. saved before the rules were
+//   published) is kept so it can be sent again.
+// - A device-only entry that did sync was removed elsewhere, so it's dropped.
+// Returns the merged list (server copies marked _synced) and what to re-send.
+export function mergeSchedules(remote, local, email) {
+  const localById = new Map(local.map(e => [e.id, e]));
+  const remoteIds = new Set(remote.map(e => e.id));
+  const merged = remote.map(r => {
+    const l = localById.get(r.id);
+    return l && !l._synced ? l : { ...r, _synced: true };
+  });
+  const localOnly = local.filter(e => !remoteIds.has(e.id) && !e._synced && e.teacher_email === email);
+  const all = [...merged, ...localOnly];
+  return { entries: all, toPush: all.filter(e => !e._synced) };
 }

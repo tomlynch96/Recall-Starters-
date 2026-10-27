@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link, Navigate } from 'react-router-dom';
 import { getTeachers, getCurrentTeacher, updateTeacherRota, updateTeacherStarterSize, appendSession, getActiveQuestions } from '../utils/storage.js';
 import {
   getTeacher, getMySchedule, getClassTimeline, getRotaSequence, getNextLesson, setPlannedNext,
-  needsReboarding, autoConfirmIfNew, autoFinalize, startTeach, undoLastLesson,
+  needsReboarding, autoConfirmIfNew, autoFinalize, startTeach, undoLastLesson, recoverSchedule, isRecheck,
 } from '../utils/schedule.js';
 import { useHydrated } from '../utils/useHydrated.js';
 import { topicColour, getLessonMeta, lessonLabel } from '../utils/topicColours.js';
@@ -53,6 +53,7 @@ export default function LessonPage() {
   // check for teachers with nothing to check
   useEffect(() => {
     if (!hydrated || !teacher) return;
+    recoverSchedule(decodedClassId, email);
     autoFinalize(decodedClassId, email);
     autoConfirmIfNew(decodedClassId, email);
     refresh();
@@ -231,6 +232,7 @@ export default function LessonPage() {
               email={email}
               rotaId={teacher.rota_id}
               mode={blocked ? 'reboard' : 'edit'}
+              recheck={blocked && isRecheck(decodedClassId, email)}
               onDone={() => { setEditingHistory(false); refresh(); }}
               onCancel={blocked ? null : () => setEditingHistory(false)}
             />

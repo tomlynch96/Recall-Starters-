@@ -1,6 +1,7 @@
 import { doc, setDoc, deleteDoc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase.js';
 import { QUESTIONS, CHALLENGE_PLUS, ROTAS } from '../data/staticData.js';
+import { mergeSchedules } from './scheduleLogic.js';
 
 const KEYS = {
   TEACHERS: 'rs_teachers',
@@ -32,6 +33,15 @@ function getJSON(key, fallback) {
 
 function setJSON(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+// A failed Firestore write is logged and announced, so the app can warn that
+// changes aren't reaching the server (usually because rules aren't published)
+function logWriteError(err) {
+  console.error('Firestore write failed:', err?.code, err?.message);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('rs-write-error', { detail: { code: err?.code || 'unknown' } }));
+  }
 }
 
 // Encodes arbitrary strings into valid Firestore document ID segments
@@ -123,10 +133,14 @@ export async function hydrateFromFirestore(userId, email) {
     // entries for the combined class timeline. Guarded so a missing rule
     // can't break login.
     try {
-      const entries = isHoD
+      const remote = isHoD
         ? (await getDocs(collection(db, 'lesson_schedule'))).docs.map(d => d.data())
         : await getDocsForClasses('lesson_schedule', myClasses);
+      // Merge rather than replace, so lessons that never reached the server
+      // aren't wiped (see mergeSchedules), and re-send them
+      const { entries, toPush } = mergeSchedules(remote, getScheduleEntries(), email);
       setJSON(KEYS.SCHEDULE, entries);
+      toPush.forEach(pushScheduleEntry);
     } catch (err) {
       console.error('Could not load lesson schedules:', err.code, err.message);
     }
@@ -180,7 +194,7 @@ export function enrollTeacher(entry) {
 
   if (_userId && db) {
     const seg = encodeFirestoreId(entry.class_id || 'hod');
-    setDoc(doc(db, 'teachers', `${_userId}__${seg}`), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'teachers', `${_userId}__${seg}`), entry).catch(logWriteError);
   }
 }
 
@@ -191,7 +205,7 @@ export function unenrollTeacher(email, classId) {
 
   if (_userId && db) {
     deleteDoc(doc(db, 'teachers', `${_userId}__${encodeFirestoreId(classId)}`))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -204,7 +218,7 @@ export function updateTeacherRota(classId, email, rotaId) {
 
   if (_userId && db) {
     const docId = `${_userId}__${encodeFirestoreId(classId)}`;
-    setDoc(doc(db, 'teachers', docId), { rota_id: rotaId }, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'teachers', docId), { rota_id: rotaId }, { merge: true }).catch(logWriteError);
   }
 }
 
@@ -217,7 +231,7 @@ export function updateTeacherStarterSize(classId, email, size) {
 
   if (_userId && db) {
     const docId = `${_userId}__${encodeFirestoreId(classId)}`;
-    setDoc(doc(db, 'teachers', docId), { starter_size: size }, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'teachers', docId), { starter_size: size }, { merge: true }).catch(logWriteError);
   }
 }
 
@@ -231,7 +245,7 @@ export function updateTeacherFields(classId, email, fields) {
 
   if (_userId && db) {
     const docId = `${_userId}__${encodeFirestoreId(classId)}`;
-    setDoc(doc(db, 'teachers', docId), fields, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'teachers', docId), fields, { merge: true }).catch(logWriteError);
   }
 }
 
@@ -252,9 +266,9 @@ export function updateHoDFlag(email, isHoD) {
         class_id: null,
         rota_id: null,
         created_at: new Date().toISOString(),
-      }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      }).catch(logWriteError);
     } else {
-      deleteDoc(docRef).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      deleteDoc(docRef).catch(logWriteError);
     }
   }
 }
@@ -291,7 +305,7 @@ export function addClassOption(classObj) {
   setJSON(KEYS.CLASS_OPTIONS, all);
 
   if (_userId && db) {
-    setDoc(doc(db, 'classes', encodeFirestoreId(classObj.class_id)), classObj).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'classes', encodeFirestoreId(classObj.class_id)), classObj).catch(logWriteError);
   }
 }
 
@@ -302,7 +316,7 @@ export function removeClassOption(id) {
   setJSON(KEYS.CLASS_OPTIONS, all.filter(o => o.id !== id));
 
   if (_userId && db && removed) {
-    deleteDoc(doc(db, 'classes', encodeFirestoreId(removed.class_id))).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    deleteDoc(doc(db, 'classes', encodeFirestoreId(removed.class_id))).catch(logWriteError);
   }
 }
 
@@ -343,7 +357,7 @@ export function upsertQuestionLogEntry(classId, questionId, updates) {
 
   if (_userId && db) {
     const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(questionId)}`;
-    setDoc(doc(db, 'question_log', docId), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'question_log', docId), entry).catch(logWriteError);
   }
 
   return log;
@@ -355,7 +369,7 @@ export function flushQuestionLogToFirestore(classId) {
   const entries = getQuestionLog().filter(e => e.class_id === classId);
   for (const e of entries) {
     const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
-    setDoc(doc(db, 'question_log', docId), e).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'question_log', docId), e).catch(logWriteError);
   }
 }
 
@@ -369,12 +383,12 @@ export function replaceClassQuestionLog(classId, entries) {
   if (_userId && db) {
     for (const e of entries) {
       const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
-      setDoc(doc(db, 'question_log', docId), e).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      setDoc(doc(db, 'question_log', docId), e).catch(logWriteError);
     }
     for (const e of before) {
       if (keep.has(e.question_id)) continue;
       const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
-      deleteDoc(doc(db, 'question_log', docId)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      deleteDoc(doc(db, 'question_log', docId)).catch(logWriteError);
     }
   }
 }
@@ -388,17 +402,25 @@ export function getScheduleEntries() {
   return getJSON(KEYS.SCHEDULE, []);
 }
 
+// Local copies carry `_synced: true` once the server has them
+function pushScheduleEntry(entry) {
+  if (!_userId || !db) return;
+  const { _synced, ...data } = entry;
+  setDoc(doc(db, 'lesson_schedule', data.id), data)
+    .then(() => setJSON(KEYS.SCHEDULE, getScheduleEntries().map(e => (e.id === data.id ? { ...e, _synced: true } : e))))
+    .catch(logWriteError);
+}
+
 export function saveScheduleEntry(entry) {
-  setJSON(KEYS.SCHEDULE, [...getScheduleEntries().filter(e => e.id !== entry.id), entry]);
-  if (_userId && db) {
-    setDoc(doc(db, 'lesson_schedule', entry.id), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
-  }
+  const { _synced, ...data } = entry;
+  setJSON(KEYS.SCHEDULE, [...getScheduleEntries().filter(e => e.id !== data.id), data]);
+  pushScheduleEntry(data);
 }
 
 export function deleteScheduleEntry(id) {
   setJSON(KEYS.SCHEDULE, getScheduleEntries().filter(e => e.id !== id));
   if (_userId && db) {
-    deleteDoc(doc(db, 'lesson_schedule', id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    deleteDoc(doc(db, 'lesson_schedule', id)).catch(logWriteError);
   }
 }
 
@@ -430,11 +452,11 @@ export function resetClassProgress(classId, email) {
   // 5. Mirror the deletes to Firestore
   if (_userId && db) {
     for (const s of removedSessions) {
-      if (s.id) deleteDoc(doc(db, 'session_log', s.id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      if (s.id) deleteDoc(doc(db, 'session_log', s.id)).catch(logWriteError);
     }
     for (const e of removedQ) {
       const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
-      deleteDoc(doc(db, 'question_log', docId)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      deleteDoc(doc(db, 'question_log', docId)).catch(logWriteError);
     }
   }
 
@@ -468,7 +490,7 @@ export async function resetAllProgress() {
       ...qlSnap.docs.map(d => deleteDoc(d.ref)),
       ...psSnap.docs.map(d => deleteDoc(d.ref)),
       ...lsSnap.docs.map(d => deleteDoc(d.ref)),
-    ]).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    ]).catch(logWriteError);
   }
 }
 
@@ -482,7 +504,7 @@ export function removeTeacherFromClass(teacher) {
 
   if (_userId && db && teacher._docId) {
     deleteDoc(doc(db, 'teachers', teacher._docId))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -504,7 +526,7 @@ export function saveCustomQuestions(questions) {
     setDoc(doc(db, 'config', 'custom_questions'), {
       questions,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
 }
 
@@ -520,7 +542,7 @@ export function clearCustomQuestions() {
   localStorage.removeItem(KEYS.CUSTOM_QUESTIONS);
   if (_userId && db) {
     deleteDoc(doc(db, 'config', 'custom_questions'))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -580,9 +602,9 @@ export function saveMyEdit(email, original, field, value) {
   };
   if (_userId && db) {
     setDoc(doc(db, 'question_overrides', override.id), override)
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
     setDoc(doc(db, 'edit_suggestions', suggestion.id), suggestion)
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   } else if (!db) {
     // No Firebase (local mode): keep suggestions on this device
     setJSON(KEYS.LOCAL_SUGGESTIONS, [...getJSON(KEYS.LOCAL_SUGGESTIONS, []).filter(x => x.id !== suggestion.id), suggestion]);
@@ -594,8 +616,8 @@ export function removeMyEdit(email, questionId) {
   const id = editDocId(email, questionId);
   setJSON(KEYS.OVERRIDES, getJSON(KEYS.OVERRIDES, []).filter(o => o.id !== id));
   if (_userId && db) {
-    deleteDoc(doc(db, 'question_overrides', id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
-    deleteDoc(doc(db, 'edit_suggestions', id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    deleteDoc(doc(db, 'question_overrides', id)).catch(logWriteError);
+    deleteDoc(doc(db, 'edit_suggestions', id)).catch(logWriteError);
   } else if (!db) {
     setJSON(KEYS.LOCAL_SUGGESTIONS, getJSON(KEYS.LOCAL_SUGGESTIONS, []).filter(x => x.id !== id));
   }
@@ -620,8 +642,8 @@ export function acceptSuggestion(s) {
   if (!db) setLocalSuggestionStatus(s.id, 'accepted');
   if (db) {
     setDoc(doc(db, 'edit_suggestions', s.id), { status: 'accepted', decided_at: new Date().toISOString() }, { merge: true })
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
-    deleteDoc(doc(db, 'question_overrides', s.id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
+    deleteDoc(doc(db, 'question_overrides', s.id)).catch(logWriteError);
   }
 }
 
@@ -630,7 +652,7 @@ export function dismissSuggestion(s) {
   if (!db) setLocalSuggestionStatus(s.id, 'dismissed');
   if (db) {
     setDoc(doc(db, 'edit_suggestions', s.id), { status: 'dismissed', decided_at: new Date().toISOString() }, { merge: true })
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -651,7 +673,7 @@ export function saveCustomChallengePlus(entries) {
     setDoc(doc(db, 'config', 'challenge_plus'), {
       entries,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
 }
 
@@ -659,7 +681,7 @@ export function clearCustomChallengePlus() {
   localStorage.removeItem(KEYS.CUSTOM_CHALLENGE_PLUS);
   if (_userId && db) {
     deleteDoc(doc(db, 'config', 'challenge_plus'))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -690,7 +712,7 @@ export function saveHiddenLessons(ids) {
     setDoc(doc(db, 'config', 'hidden_lessons'), {
       ids,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
 }
 
@@ -721,7 +743,7 @@ export function saveCustomRotas(entries) {
     setDoc(doc(db, 'config', 'custom_rotas'), {
       entries,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
 }
 
@@ -729,7 +751,7 @@ export function clearCustomRotas() {
   localStorage.removeItem(KEYS.CUSTOM_ROTAS);
   if (_userId && db) {
     deleteDoc(doc(db, 'config', 'custom_rotas'))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -749,7 +771,7 @@ export function pushQuestionVersion(entry) {
     setDoc(doc(db, 'config', 'questions_history'), {
       versions,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
   return versions;
 }
@@ -789,7 +811,7 @@ export function updatePlazaStats(email) {
     email,
     sessions: count,
     updated_at: new Date().toISOString(),
-  }, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }, { merge: true }).catch(logWriteError);
 }
 
 export async function fetchPlazaStats() {
@@ -818,14 +840,14 @@ export async function fetchPlazaMessages(email) {
 export function leavePlazaMessage(msg) {
   if (!db) return;
   setDoc(doc(db, 'plaza_messages', msg.id), msg)
-    .catch(err => console.error('Firestore write failed:', err.code, err.message));
+    .catch(logWriteError);
 }
 
 // Delete a message once it's been read
 export function deletePlazaMessage(docId) {
   if (!db) return;
   deleteDoc(doc(db, 'plaza_messages', docId))
-    .catch(err => console.error('Firestore write failed:', err.code, err.message));
+    .catch(logWriteError);
 }
 
 // ─── Session log ─────────────────────────────────────────────────────────────
@@ -845,7 +867,7 @@ export function appendSession(entry) {
   setJSON(KEYS.SESSION_LOG, all);
 
   if (_userId && db) {
-    setDoc(doc(db, 'session_log', entry.id), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'session_log', entry.id), entry).catch(logWriteError);
   }
 
   // Keep the plaza brain size in sync with real usage
@@ -857,7 +879,7 @@ export function deleteSession(id) {
   const removed = getSessionLog().find(s => s.id === id);
   setJSON(KEYS.SESSION_LOG, getSessionLog().filter(s => s.id !== id));
   if (_userId && db) {
-    deleteDoc(doc(db, 'session_log', id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    deleteDoc(doc(db, 'session_log', id)).catch(logWriteError);
   }
   if (removed?.teacher_email) updatePlazaStats(removed.teacher_email);
 }

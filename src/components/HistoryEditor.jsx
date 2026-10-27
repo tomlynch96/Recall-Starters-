@@ -8,7 +8,7 @@ function formatDay(iso) {
 
 // Tick which lessons have been taught. Used once for reboarding (prefilled
 // from old session history) and later to correct the lesson history.
-export default function HistoryEditor({ classId, email, rotaId, mode, onDone, onCancel }) {
+export default function HistoryEditor({ classId, email, rotaId, mode, recheck = false, onDone, onCancel }) {
   const seq = useMemo(() => getRotaSequence(rotaId), [rotaId]);
   const inferred = useMemo(() => (mode === 'reboard' ? inferHistoryFor(classId, email) : null), [classId, email, mode]);
   const scheduleDates = useMemo(
@@ -17,9 +17,12 @@ export default function HistoryEditor({ classId, email, rotaId, mode, onDone, on
   );
   const dateOf = id => scheduleDates[id] || inferred?.dateByLesson[id] || null;
 
-  const [checked, setChecked] = useState(() => new Set(
-    mode === 'reboard' ? inferred.lessonIds : getMySchedule(classId, email).map(e => e.lesson_id),
-  ));
+  // Prefill with everything known: lessons still on the schedule, plus (when
+  // checking) the lessons worked out from past starters
+  const [checked, setChecked] = useState(() => new Set([
+    ...getMySchedule(classId, email).map(e => e.lesson_id),
+    ...(mode === 'reboard' ? inferred.lessonIds : []),
+  ]));
 
   function toggle(id) {
     setChecked(prev => {
@@ -48,8 +51,13 @@ export default function HistoryEditor({ classId, email, rotaId, mode, onDone, on
       {mode === 'reboard' ? (
         <>
           <h2 className="text-lg font-bold text-gray-800">Check your lesson history</h2>
+          {recheck && (
+            <p className="text-sm text-amber-800 bg-amber-50 rounded-lg px-3 py-2 mt-2">
+              Some of the lessons you'd taught didn't save, so we've rebuilt your history from your past starters. Please check it's right.
+            </p>
+          )}
           <p className="text-sm text-gray-600 mt-1">
-            Recall starters now only use lessons you've actually taught. From your past starters we think this class is up to{' '}
+            Recall starters only use lessons you've actually taught. From your past starters we think this class is up to{' '}
             <strong>{lastTicked ? lessonLabel(lastTicked) : 'the start'}</strong>
             {' '}({inferred.daysCount} day{inferred.daysCount === 1 ? '' : 's'} with a starter).
           </p>
