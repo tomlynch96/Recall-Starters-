@@ -8,6 +8,7 @@ import {
 } from '../utils/schedule.js';
 import { LESSONS } from '../data/staticData.js';
 import QuestionCard from '../components/QuestionCard.jsx';
+import StarterGrid from '../components/StarterGrid.jsx';
 import SettingsMenu from '../components/SettingsMenu.jsx';
 import FlagResolutionModal from '../components/FlagResolutionModal.jsx';
 
@@ -352,33 +353,29 @@ export default function StarterPage() {
         </main>
       ) : (
         <main className="flex-1 min-h-0 flex flex-col gap-3 px-4 pb-4">
-          {/* Grid: 2 cols × 3 rows (6 questions) or 2 × 4 (8 questions) */}
-          <div className={`flex-[3] min-h-0 grid grid-cols-2 gap-3 ${questions.length > 6 ? 'grid-rows-4' : 'grid-rows-3'}`}>
-            {shownQuestions.map((q, i) => (
-              q ? (
-                <QuestionCard
-                  key={q.id}
-                  question={q}
-                  index={i}
-                  scaffoldAll={scaffoldAll}
-                  revealAll={revealAll}
-                  onFlag={handleFlag}
-                  onSwap={handleSwap}
-                  onRemove={handleRemove}
-                />
-              ) : (
-                <EmptySlot key={`empty-${i}`} onAdd={() => handleAddAt(i)} />
-              )
-            ))}
-            {questions.length === 0 && (
-              <div className="col-span-2 row-span-3 flex items-center justify-center text-gray-400">
-                <div className="text-center">
-                  <p className="text-3xl">No recall questions yet.</p>
-                  <p className="text-xl mt-2">They build up from the lessons you've taught this class.</p>
-                </div>
+          {/* Question tiles, sized to suit each question */}
+          <StarterGrid
+            items={shownQuestions}
+            emptyMessage={(
+              <div className="text-center">
+                <p className="text-3xl">No recall questions yet.</p>
+                <p className="text-xl mt-2">They build up from the lessons you've taught this class.</p>
               </div>
             )}
-          </div>
+            renderItem={(q, i) => (q ? (
+              <QuestionCard
+                question={q}
+                index={i}
+                scaffoldAll={scaffoldAll}
+                revealAll={revealAll}
+                onFlag={handleFlag}
+                onSwap={handleSwap}
+                onRemove={handleRemove}
+              />
+            ) : (
+              <EmptySlot onAdd={() => handleAddAt(i)} />
+            ))}
+          />
 
           {/* Challenge+ pill and the route on to today's learning outcomes */}
           <div className="shrink-0 flex gap-3">

@@ -13,6 +13,7 @@ import {
 import { generateFillerQuestions } from '../utils/fillerScheduler.js';
 import { getDeliveredMap, getNextIndex } from '../utils/schedule.js';
 import QuestionCard from '../components/QuestionCard.jsx';
+import StarterGrid from '../components/StarterGrid.jsx';
 import SettingsMenu from '../components/SettingsMenu.jsx';
 import FlagResolutionModal from '../components/FlagResolutionModal.jsx';
 
@@ -249,12 +250,19 @@ export default function FillerPage() {
       {/* Extra space between header and grid */}
       <div className="shrink-0 h-4" />
 
-      {/* Grid: 2 cols × 3 rows */}
-      <main className="flex-1 min-h-0 grid grid-cols-2 grid-rows-3 gap-3 px-4 pb-4">
-        {withMyEdits(questions, email).map((q, i) => (
-          q ? (
+      {/* Question tiles, sized to suit each question */}
+      <main className="flex-1 min-h-0 flex flex-col px-4 pb-4">
+        <StarterGrid
+          className="flex-1"
+          items={withMyEdits(questions, email)}
+          emptyMessage={(
+            <div className="text-center">
+              <p className="text-3xl">No questions available for a filler lesson yet.</p>
+              <p className="text-xl mt-2">Teach some lessons first to build up the question bank.</p>
+            </div>
+          )}
+          renderItem={(q, i) => (q ? (
             <QuestionCard
-              key={q.id}
               question={q}
               index={i}
               scaffoldAll={scaffoldAll}
@@ -264,17 +272,9 @@ export default function FillerPage() {
               onRemove={handleRemove}
             />
           ) : (
-            <EmptySlot key={`empty-${i}`} onAdd={() => handleAddAt(i)} />
-          )
-        ))}
-        {questions.length === 0 && (
-          <div className="col-span-2 row-span-3 flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <p className="text-3xl">No questions available for a filler lesson yet.</p>
-              <p className="text-xl mt-2">Teach some lessons first to build up the question bank.</p>
-            </div>
-          </div>
-        )}
+            <EmptySlot onAdd={() => handleAddAt(i)} />
+          ))}
+        />
       </main>
     </div>
   );
