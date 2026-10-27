@@ -153,12 +153,16 @@ export async function hydrateFromFirestore(userId, email) {
       console.error('Could not load question edits:', err.code, err.message);
     }
 
-    // Phase 2 (background): fetch question log + session log
-    if (myClasses.length > 0) {
+    // Phase 2 (background): question log for my classes, and the session log —
+    // for my classes, or for every class if I'm the HoD (the HoD dashboard
+    // counts everyone's sessions)
+    if (myClasses.length > 0 || isHoD) {
       const fetchBackground = async () => {
         const [qLogEntries, sLogEntries] = await Promise.all([
-          getDocsForClasses('question_log', myClasses),
-          getDocsForClasses('session_log', myClasses),
+          myClasses.length > 0 ? getDocsForClasses('question_log', myClasses) : [],
+          isHoD
+            ? getDocs(collection(db, 'session_log')).then(snap => snap.docs.map(d => d.data()))
+            : getDocsForClasses('session_log', myClasses),
         ]);
         setJSON(KEYS.QUESTION_LOG, qLogEntries);
         setJSON(KEYS.SESSION_LOG, sLogEntries);

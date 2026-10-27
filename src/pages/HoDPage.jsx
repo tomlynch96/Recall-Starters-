@@ -6,6 +6,7 @@ import { QUESTIONS, CHALLENGE_PLUS, LESSONS } from '../data/staticData.js';
 import { parseQuestionWorkbook, assignIds, buildQuestionWorkbook, diffLessonOrder, reorderRotasByFileOrder } from '../utils/questionFiles.js';
 import RotaEditor from '../components/RotaEditor.jsx';
 import { getMySchedule, getClassTimeline } from '../utils/schedule.js';
+import { useHydrated } from '../utils/useHydrated.js';
 import { lessonLabel } from '../utils/topicColours.js';
 import QuestionPreview from '../components/QuestionPreview.jsx';
 
@@ -39,6 +40,8 @@ export default function HoDPage() {
 
   const [section, setSection] = useState('analytics');
   const [timelineClass, setTimelineClass] = useState(null);
+  // Re-render once every class's sessions have loaded, so counts aren't stuck at zero
+  useHydrated();
   const [suggestions, setSuggestions] = useState([]);
 
   // Teachers' suggested question edits
