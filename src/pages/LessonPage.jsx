@@ -170,6 +170,7 @@ export default function LessonPage() {
       {drawerLessonId && (
         <LessonDrawer
           lessonId={drawerLessonId}
+          email={email}
           status={lessonStatus(drawerLessonId)}
           onClose={() => setDrawerLessonId(null)}
           onPlan={blocked || drawerLessonId === next.lessonId ? null : () => planNext(drawerLessonId)}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Navigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getQuestionLog, upsertQuestionLogEntry, getActiveChallengePlus, getActiveQuestions, saveActiveSession, getActiveSession } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getQuestionLog, upsertQuestionLogEntry, getActiveChallengePlus, getActiveQuestions, saveActiveSession, getActiveSession, withMyEdits } from '../utils/storage.js';
 import { generateStarterQuestions } from '../utils/scheduler.js';
 import {
   getMySchedule, getDeliveredMap, getNextIndex, getOpenEntry, finalizeEntry,
@@ -68,7 +68,8 @@ export default function StarterPage() {
   const prevLessonId = getMySchedule(decodedClassId, email).filter(e => e.index < lessonIndex).at(-1)?.lesson_id;
   const challengeQ = prevLessonId ? getActiveChallengePlus().find(c => c.lesson_id === prevLessonId) : null;
   const starterSize = teacher?.starter_size === 8 ? 8 : 6;
-  const outcomes = getActiveQuestions().filter(q => q.lesson_id === decodedLessonId);
+  // Today's lesson questions, with this teacher's own versions applied
+  const outcomes = withMyEdits(getActiveQuestions().filter(q => q.lesson_id === decodedLessonId), email);
 
   // questions may contain null entries — placeholders where a question was removed
   const [questions, setQuestions] = useState([]);
@@ -130,6 +131,9 @@ export default function StarterPage() {
   if (isTeach && !openEntry && !ended) return <Navigate to={classPath} replace />;
 
   const liveQuestions = questions.filter(Boolean);
+  // The teacher's own question edits are applied at display time, so an edit
+  // made while previewing is what the class sees when it's taught
+  const shownQuestions = withMyEdits(questions, email);
   const nextUp = getNextLesson(decodedClassId, email);
   const canTeachFromPreview = !isTeach && nextUp.lessonId === decodedLessonId && !needsReboarding(decodedClassId, email);
 
@@ -331,7 +335,7 @@ export default function StarterPage() {
         <main className="flex-1 min-h-0 flex flex-col gap-3 px-4 pb-4">
           {/* Grid: 2 cols × 3 rows (6 questions) or 2 × 4 (8 questions) */}
           <div className={`flex-[3] min-h-0 grid grid-cols-2 gap-3 ${questions.length > 6 ? 'grid-rows-4' : 'grid-rows-3'}`}>
-            {questions.map((q, i) => (
+            {shownQuestions.map((q, i) => (
               q ? (
                 <QuestionCard
                   key={q.id}

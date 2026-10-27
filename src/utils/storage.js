@@ -14,6 +14,8 @@ const KEYS = {
   HIDDEN_LESSONS: 'rs_hidden_lessons',
   QUESTION_VERSIONS: 'rs_question_versions',
   SCHEDULE: 'rs_lesson_schedule',
+  OVERRIDES: 'rs_question_overrides',
+  LOCAL_SUGGESTIONS: 'rs_edit_suggestions',
 };
 
 // Keep at most this many full version snapshots (Firestore doc size limit)
@@ -127,6 +129,14 @@ export async function hydrateFromFirestore(userId, email) {
       setJSON(KEYS.SCHEDULE, entries);
     } catch (err) {
       console.error('Could not load lesson schedules:', err.code, err.message);
+    }
+
+    // This teacher's personal question edits (guarded like schedules)
+    try {
+      const snap = await getDocs(query(collection(db, 'question_overrides'), where('email', '==', email)));
+      setJSON(KEYS.OVERRIDES, snap.docs.map(d => d.data()));
+    } catch (err) {
+      console.error('Could not load question edits:', err.code, err.message);
     }
 
     // Phase 2 (background): fetch question log + session log
@@ -510,6 +520,116 @@ export function clearCustomQuestions() {
   localStorage.removeItem(KEYS.CUSTOM_QUESTIONS);
   if (_userId && db) {
     deleteDoc(doc(db, 'config', 'custom_questions'))
+      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+// ─── Personal question edits + suggestions to the HoD ───────────────────────
+// A teacher's edit only changes the question for them (in their starters,
+// learning outcomes and browsing). Each edit is also sent to the HoD as a
+// suggestion; accepting it updates the question for everyone.
+
+const EDITABLE = ['question', 'answer', 'scaffolded'];
+const editDocId = (email, questionId) => `${encodeFirestoreId(email)}__${encodeFirestoreId(questionId)}`;
+
+export function getMyOverrides(email) {
+  return getJSON(KEYS.OVERRIDES, []).filter(o => o.email === email);
+}
+
+// Apply a teacher's personal edits to a list of questions
+export function withMyEdits(questions, email) {
+  const map = new Map(getMyOverrides(email).map(o => [o.question_id, o]));
+  if (map.size === 0) return questions;
+  return questions.map(q => {
+    if (!q) return q;
+    const o = map.get(q.id);
+    if (!o) return q;
+    const patch = {};
+    for (const f of EDITABLE) if (o[f] != null) patch[f] = o[f];
+    return { ...q, ...patch, my_edit: true };
+  });
+}
+
+// Save a personal edit of one field and (re)send it to the HoD as a suggestion.
+// `original` is the bank version of the question.
+export function saveMyEdit(email, original, field, value) {
+  const existing = getMyOverrides(email).find(o => o.question_id === original.id);
+  const now = new Date().toISOString();
+  const proposed = {};
+  for (const f of EDITABLE) proposed[f] = (existing && existing[f] != null ? existing[f] : original[f]) ?? '';
+  proposed[field] = value;
+
+  // Back to the original text → nothing to keep or suggest
+  if (EDITABLE.every(f => (proposed[f] || '') === (original[f] || ''))) {
+    removeMyEdit(email, original.id);
+    return;
+  }
+
+  const override = { id: editDocId(email, original.id), email, question_id: original.id, ...proposed, updated_at: now };
+  setJSON(KEYS.OVERRIDES, [...getJSON(KEYS.OVERRIDES, []).filter(o => o.id !== override.id), override]);
+
+  const suggestion = {
+    id: override.id,
+    question_id: original.id,
+    lesson_id: original.lesson_id,
+    from_email: email,
+    original: Object.fromEntries(EDITABLE.map(f => [f, original[f] || ''])),
+    proposed,
+    status: 'pending',
+    updated_at: now,
+  };
+  if (_userId && db) {
+    setDoc(doc(db, 'question_overrides', override.id), override)
+      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'edit_suggestions', suggestion.id), suggestion)
+      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+  } else if (!db) {
+    // No Firebase (local mode): keep suggestions on this device
+    setJSON(KEYS.LOCAL_SUGGESTIONS, [...getJSON(KEYS.LOCAL_SUGGESTIONS, []).filter(x => x.id !== suggestion.id), suggestion]);
+  }
+}
+
+// Drop a personal edit and withdraw its suggestion
+export function removeMyEdit(email, questionId) {
+  const id = editDocId(email, questionId);
+  setJSON(KEYS.OVERRIDES, getJSON(KEYS.OVERRIDES, []).filter(o => o.id !== id));
+  if (_userId && db) {
+    deleteDoc(doc(db, 'question_overrides', id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    deleteDoc(doc(db, 'edit_suggestions', id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  } else if (!db) {
+    setJSON(KEYS.LOCAL_SUGGESTIONS, getJSON(KEYS.LOCAL_SUGGESTIONS, []).filter(x => x.id !== id));
+  }
+}
+
+// HoD: pending suggestions from teachers
+export async function fetchPendingSuggestions() {
+  if (!db) return getJSON(KEYS.LOCAL_SUGGESTIONS, []).filter(x => x.status === 'pending');
+  const snap = await getDocs(query(collection(db, 'edit_suggestions'), where('status', '==', 'pending')));
+  return snap.docs.map(d => d.data()).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+}
+
+function setLocalSuggestionStatus(id, status) {
+  setJSON(KEYS.LOCAL_SUGGESTIONS, getJSON(KEYS.LOCAL_SUGGESTIONS, []).map(x => (x.id === id ? { ...x, status } : x)));
+}
+
+// HoD: accept — the bank takes the teacher's version, so their personal edit is no longer needed
+export function acceptSuggestion(s) {
+  updateQuestion(s.question_id, s.proposed);
+  // The teacher's personal version now matches the bank
+  setJSON(KEYS.OVERRIDES, getJSON(KEYS.OVERRIDES, []).filter(o => o.id !== s.id));
+  if (!db) setLocalSuggestionStatus(s.id, 'accepted');
+  if (db) {
+    setDoc(doc(db, 'edit_suggestions', s.id), { status: 'accepted', decided_at: new Date().toISOString() }, { merge: true })
+      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+    deleteDoc(doc(db, 'question_overrides', s.id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }
+}
+
+// HoD: dismiss — the teacher keeps their personal version
+export function dismissSuggestion(s) {
+  if (!db) setLocalSuggestionStatus(s.id, 'dismissed');
+  if (db) {
+    setDoc(doc(db, 'edit_suggestions', s.id), { status: 'dismissed', decided_at: new Date().toISOString() }, { merge: true })
       .catch(err => console.error('Firestore write failed:', err.code, err.message));
   }
 }

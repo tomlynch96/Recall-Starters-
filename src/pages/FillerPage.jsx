@@ -8,6 +8,7 @@ import {
   saveActiveSession,
   getActiveSession,
   clearActiveSession,
+  withMyEdits,
 } from '../utils/storage.js';
 import { generateFillerQuestions } from '../utils/fillerScheduler.js';
 import { getDeliveredMap, getNextIndex } from '../utils/schedule.js';
@@ -250,7 +251,7 @@ export default function FillerPage() {
 
       {/* Grid: 2 cols × 3 rows */}
       <main className="flex-1 min-h-0 grid grid-cols-2 grid-rows-3 gap-3 px-4 pb-4">
-        {questions.map((q, i) => (
+        {withMyEdits(questions, email).map((q, i) => (
           q ? (
             <QuestionCard
               key={q.id}

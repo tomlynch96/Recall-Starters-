@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, getRawRotas, saveCustomRotas, getQuestionVersions, pushQuestionVersion, resetClassProgress, resetAllProgress, removeTeacherFromClass } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, getRawRotas, saveCustomRotas, getQuestionVersions, pushQuestionVersion, resetClassProgress, resetAllProgress, removeTeacherFromClass, fetchPendingSuggestions, acceptSuggestion, dismissSuggestion } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
 import { QUESTIONS, CHALLENGE_PLUS, LESSONS } from '../data/staticData.js';
 import { parseQuestionWorkbook, assignIds, buildQuestionWorkbook, diffLessonOrder, reorderRotasByFileOrder } from '../utils/questionFiles.js';
@@ -39,6 +39,17 @@ export default function HoDPage() {
 
   const [section, setSection] = useState('analytics');
   const [timelineClass, setTimelineClass] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+
+  // Teachers' suggested question edits
+  useEffect(() => {
+    fetchPendingSuggestions().then(setSuggestions).catch(err => console.error('Could not load suggestions:', err));
+  }, []);
+
+  function decideSuggestion(s, accept) {
+    if (accept) acceptSuggestion(s); else dismissSuggestion(s);
+    setSuggestions(list => list.filter(x => x.id !== s.id));
+  }
   const [, forceRefresh] = useState(0);
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
@@ -362,6 +373,11 @@ export default function HoDPage() {
                 className={`w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium text-left transition-colors ${section === item.id ? 'bg-blue-700 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
               >
                 <span>{item.icon}</span> {item.label}
+                {item.id === 'questions' && suggestions.length > 0 && (
+                  <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${section === item.id ? 'bg-white text-blue-700' : 'bg-amber-400 text-white'}`}>
+                    {suggestions.length}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -581,6 +597,43 @@ export default function HoDPage() {
 
         {section === 'questions' && (
         <>
+        {/* ── Suggested edits from teachers ── */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-700 mb-1">Suggested edits</h2>
+          <p className="text-sm text-gray-400 mb-4">
+            When a teacher edits a question it changes only for them and is sent here. Accept to change it for everyone; dismiss to leave their version private.
+          </p>
+          {suggestions.length === 0 ? (
+            <p className="text-sm text-gray-400 bg-white border border-gray-200 rounded-xl px-4 py-3">No suggestions waiting.</p>
+          ) : (
+            <div className="space-y-3">
+              {suggestions.map(sg => (
+                <div key={sg.id} className="bg-white border border-gray-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
+                    <span className="font-semibold text-gray-600">{sg.from_email.split('@')[0]}</span>
+                    <span>·</span>
+                    <span>{lessonLabel(sg.lesson_id)}</span>
+                    {sg.updated_at && <span className="ml-auto">{new Date(sg.updated_at).toLocaleDateString('en-GB')}</span>}
+                  </div>
+                  <div className="space-y-2">
+                    {['question', 'answer', 'scaffolded'].filter(f => (sg.original[f] || '') !== (sg.proposed[f] || '')).map(f => (
+                      <div key={f} className="text-sm">
+                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{f === 'scaffolded' ? 'Scaffold' : f}</div>
+                        <div className="text-gray-400 line-through">{sg.original[f] || '—'}</div>
+                        <div className="text-gray-800">{sg.proposed[f] || '—'}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end gap-2 mt-3">
+                    <button onClick={() => decideSuggestion(sg, false)} className="px-4 py-1.5 text-sm text-gray-500 hover:text-gray-700">Dismiss</button>
+                    <button onClick={() => decideSuggestion(sg, true)} className="px-4 py-1.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700">Accept for everyone</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* ── Preview ── */}
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Preview</h2>
