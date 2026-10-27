@@ -109,12 +109,31 @@ export default function StarterPage() {
   const timerSS = String(timerSeconds % 60).padStart(2, '0');
   const timerStarted = timerActive || timerSeconds < TIMER_TOTAL;
 
+  // A held set keeps its questions, but follows the current "questions per
+  // starter" setting: top up with fresh picks, or drop empty slots first then
+  // the last ones
+  function fitToStarterSize(list) {
+    let qs = [...list];
+    while (qs.length > starterSize) {
+      const empty = qs.lastIndexOf(null);
+      qs.splice(empty >= 0 ? empty : qs.length - 1, 1);
+    }
+    if (qs.length < starterSize) {
+      const have = new Set(qs.filter(Boolean).map(q => q.id));
+      const extra = generateStarterQuestions(decodedClassId, lessonIndex, deliveredMap, getQuestionLog(), starterSize + 6)
+        .filter(q => !have.has(q.id))
+        .slice(0, starterSize - qs.length);
+      qs = [...qs, ...extra];
+    }
+    return qs;
+  }
+
   // Load the held question set (from an earlier preview or a reload), or build one
   useEffect(() => {
     if (!teacher || lessonIndex == null) return;
     const saved = getActiveSession(decodedClassId, cacheKey);
     if (saved?.questions?.some(Boolean)) {
-      setQuestions(saved.questions);
+      setQuestions(fitToStarterSize(saved.questions));
     } else {
       setQuestions(generateStarterQuestions(decodedClassId, lessonIndex, deliveredMap, getQuestionLog(), starterSize));
     }
