@@ -27,12 +27,20 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
   // If the scaffold text has no [brackets], treat it as a hint rather than a fill-in scaffold
   const isHint = !scaffold.includes('[');
 
+  // Lots of text → tighter padding, so the font doesn't have to shrink as far
+  const visibleText = (showScaffold && !isHint ? scaffold : question.question)
+    + (showScaffold && isHint && !isRevealed ? scaffold : '')
+    + (isRevealed ? question.answer || '' : '');
+  const compact = visibleText.length > 80;
+
   // Shrink content to fit the card whenever the visible content changes
-  const [fitRef, scale] = useFitText([question.id, isRevealed, showScaffold, scaffold]);
+  const [fitRef, scale] = useFitText([question.id, isRevealed, showScaffold, scaffold, compact]);
 
   return (
     <div
-      className={`group relative h-full rounded-2xl px-6 py-4 cursor-pointer select-none transition-all flex flex-col ${
+      className={`group relative h-full rounded-2xl cursor-pointer select-none transition-colors flex flex-col ${
+        compact ? 'px-3 py-2' : 'px-6 py-4'
+      } ${question.flagged ? (compact ? 'pb-6' : 'pb-7') : ''} ${
         question.flagged
           ? 'bg-amber-100 ring-2 ring-amber-400'
           : 'bg-orange-100 hover:bg-orange-50'
@@ -41,7 +49,7 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
     >
       {/* Hover controls */}
       <div
-        className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        className="absolute top-2 right-2 flex gap-1 rounded-xl bg-orange-50/95 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -86,14 +94,14 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
       >
         {showScaffold && !isHint ? (
           // Bracket-format scaffold: blanks revealed on click
-          <p className="text-gray-900 font-semibold leading-snug pr-16">
+          <p className="text-gray-900 font-semibold leading-snug">
             <span className="font-bold mr-2">{index + 1})</span>
             {renderScaffold(scaffold, isRevealed)}
           </p>
         ) : (
           <>
             {/* Question */}
-            <p className="text-gray-900 font-semibold leading-snug pr-16">
+            <p className="text-gray-900 font-semibold leading-snug">
               <span className="font-bold mr-2">{index + 1})</span>
               {question.question}
             </p>
@@ -114,7 +122,7 @@ export default function QuestionCard({ question, index, onFlag, onSwap, onRemove
       </div>
 
       {question.flagged && (
-        <span className="absolute bottom-3 left-5 text-amber-600 text-sm font-semibold">⚑ flagged</span>
+        <span className={`absolute text-amber-600 text-sm font-semibold ${compact ? 'bottom-1 left-3' : 'bottom-2 left-6'}`}>⚑ flagged</span>
       )}
     </div>
   );

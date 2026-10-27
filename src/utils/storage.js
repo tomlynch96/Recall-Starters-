@@ -1,6 +1,7 @@
 import { doc, setDoc, deleteDoc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase.js';
 import { QUESTIONS, CHALLENGE_PLUS, ROTAS } from '../data/staticData.js';
+import { mergeSchedules } from './scheduleLogic.js';
 
 const KEYS = {
   TEACHERS: 'rs_teachers',
@@ -13,6 +14,9 @@ const KEYS = {
   CUSTOM_ROTAS: 'rs_custom_rotas',
   HIDDEN_LESSONS: 'rs_hidden_lessons',
   QUESTION_VERSIONS: 'rs_question_versions',
+  SCHEDULE: 'rs_lesson_schedule',
+  OVERRIDES: 'rs_question_overrides',
+  LOCAL_SUGGESTIONS: 'rs_edit_suggestions',
 };
 
 // Keep at most this many full version snapshots (Firestore doc size limit)
@@ -31,6 +35,15 @@ function setJSON(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+// A failed Firestore write is logged and announced, so the app can warn that
+// changes aren't reaching the server (usually because rules aren't published)
+function logWriteError(err) {
+  console.error('Firestore write failed:', err?.code, err?.message);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('rs-write-error', { detail: { code: err?.code || 'unknown' } }));
+  }
+}
+
 // Encodes arbitrary strings into valid Firestore document ID segments
 function encodeFirestoreId(str) {
   if (!str) return 'null';
@@ -44,11 +57,30 @@ export function setFirebaseUserId(uid) {
   _userId = uid;
 }
 
+// Resolves once a login's hydration (including the background logs) has
+// finished, so pages that make decisions from history wait for fresh data.
+let _hydrated = Promise.resolve();
+export function whenHydrated() {
+  return _hydrated;
+}
+
+// Fetch docs from a collection for a list of class ids ('in' queries take ≤30)
+async function getDocsForClasses(collectionName, classIds) {
+  const out = [];
+  for (let i = 0; i < classIds.length; i += 30) {
+    const snap = await getDocs(query(collection(db, collectionName), where('class_id', 'in', classIds.slice(i, i + 30))));
+    out.push(...snap.docs.map(d => d.data()));
+  }
+  return out;
+}
+
 // ─── Hydrate localStorage from Firestore on login ───────────────────────────
 
 export async function hydrateFromFirestore(userId, email) {
   if (!db) return;
   _userId = userId;
+  let markHydrated;
+  _hydrated = new Promise(resolve => { markHydrated = resolve; });
   try {
     // Phase 1 (blocking): fetch teachers, classes, custom questions
     const [teachersSnap, classesSnap, customQSnap, challengeSnap, rotasSnap, historySnap, hiddenSnap] = await Promise.all([
@@ -91,30 +123,58 @@ export async function hydrateFromFirestore(userId, email) {
       localStorage.removeItem(KEYS.HIDDEN_LESSONS);
     }
 
-    // Phase 2 (background): fetch question log + session log — not needed until StarterPage
     const myClasses = teachers
       .filter(t => t.email === email && t.class_id)
       .map(t => t.class_id);
+    const isHoD = teachers.some(t => t.email === email && t.is_hod);
 
-    if (myClasses.length > 0) {
+    // Lesson schedules (what each teacher has actually taught). The HoD loads
+    // every class; teachers load their own classes, including co-teachers'
+    // entries for the combined class timeline. Guarded so a missing rule
+    // can't break login.
+    try {
+      const remote = isHoD
+        ? (await getDocs(collection(db, 'lesson_schedule'))).docs.map(d => d.data())
+        : await getDocsForClasses('lesson_schedule', myClasses);
+      // Merge rather than replace, so lessons that never reached the server
+      // aren't wiped (see mergeSchedules), and re-send them
+      const { entries, toPush } = mergeSchedules(remote, getScheduleEntries(), email);
+      setJSON(KEYS.SCHEDULE, entries);
+      toPush.forEach(pushScheduleEntry);
+    } catch (err) {
+      console.error('Could not load lesson schedules:', err.code, err.message);
+    }
+
+    // This teacher's personal question edits (guarded like schedules)
+    try {
+      const snap = await getDocs(query(collection(db, 'question_overrides'), where('email', '==', email)));
+      setJSON(KEYS.OVERRIDES, snap.docs.map(d => d.data()));
+    } catch (err) {
+      console.error('Could not load question edits:', err.code, err.message);
+    }
+
+    // Phase 2 (background): question log for my classes, and the session log —
+    // for my classes, or for every class if I'm the HoD (the HoD dashboard
+    // counts everyone's sessions)
+    if (myClasses.length > 0 || isHoD) {
       const fetchBackground = async () => {
-        const qLogEntries = [];
-        const sLogEntries = [];
-        for (let i = 0; i < myClasses.length; i += 30) {
-          const batch = myClasses.slice(i, i + 30);
-          const [qlSnap, slSnap] = await Promise.all([
-            getDocs(query(collection(db, 'question_log'), where('class_id', 'in', batch))),
-            getDocs(query(collection(db, 'session_log'), where('class_id', 'in', batch))),
-          ]);
-          qLogEntries.push(...qlSnap.docs.map(d => d.data()));
-          sLogEntries.push(...slSnap.docs.map(d => d.data()));
-        }
+        const [qLogEntries, sLogEntries] = await Promise.all([
+          myClasses.length > 0 ? getDocsForClasses('question_log', myClasses) : [],
+          isHoD
+            ? getDocs(collection(db, 'session_log')).then(snap => snap.docs.map(d => d.data()))
+            : getDocsForClasses('session_log', myClasses),
+        ]);
         setJSON(KEYS.QUESTION_LOG, qLogEntries);
         setJSON(KEYS.SESSION_LOG, sLogEntries);
       };
-      fetchBackground().catch(err => console.error('Firestore background hydration error:', err));
+      fetchBackground()
+        .catch(err => console.error('Firestore background hydration error:', err))
+        .finally(() => markHydrated());
+    } else {
+      markHydrated();
     }
   } catch (err) {
+    markHydrated();
     console.error('Firestore hydration error:', err);
     throw err; // re-throw so AuthContext can surface it
   }
@@ -138,7 +198,7 @@ export function enrollTeacher(entry) {
 
   if (_userId && db) {
     const seg = encodeFirestoreId(entry.class_id || 'hod');
-    setDoc(doc(db, 'teachers', `${_userId}__${seg}`), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'teachers', `${_userId}__${seg}`), entry).catch(logWriteError);
   }
 }
 
@@ -149,7 +209,7 @@ export function unenrollTeacher(email, classId) {
 
   if (_userId && db) {
     deleteDoc(doc(db, 'teachers', `${_userId}__${encodeFirestoreId(classId)}`))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -162,7 +222,7 @@ export function updateTeacherRota(classId, email, rotaId) {
 
   if (_userId && db) {
     const docId = `${_userId}__${encodeFirestoreId(classId)}`;
-    setDoc(doc(db, 'teachers', docId), { rota_id: rotaId }, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'teachers', docId), { rota_id: rotaId }, { merge: true }).catch(logWriteError);
   }
 }
 
@@ -175,7 +235,21 @@ export function updateTeacherStarterSize(classId, email, size) {
 
   if (_userId && db) {
     const docId = `${_userId}__${encodeFirestoreId(classId)}`;
-    setDoc(doc(db, 'teachers', docId), { starter_size: size }, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'teachers', docId), { starter_size: size }, { merge: true }).catch(logWriteError);
+  }
+}
+
+// Merge arbitrary fields into the current teacher's enrollment for a class
+// (e.g. schedule_confirmed, planned_next)
+export function updateTeacherFields(classId, email, fields) {
+  const all = getTeachers().map(t =>
+    t.class_id === classId && t.email === email ? { ...t, ...fields } : t
+  );
+  setJSON(KEYS.TEACHERS, all);
+
+  if (_userId && db) {
+    const docId = `${_userId}__${encodeFirestoreId(classId)}`;
+    setDoc(doc(db, 'teachers', docId), fields, { merge: true }).catch(logWriteError);
   }
 }
 
@@ -196,9 +270,9 @@ export function updateHoDFlag(email, isHoD) {
         class_id: null,
         rota_id: null,
         created_at: new Date().toISOString(),
-      }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      }).catch(logWriteError);
     } else {
-      deleteDoc(docRef).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      deleteDoc(docRef).catch(logWriteError);
     }
   }
 }
@@ -235,7 +309,7 @@ export function addClassOption(classObj) {
   setJSON(KEYS.CLASS_OPTIONS, all);
 
   if (_userId && db) {
-    setDoc(doc(db, 'classes', encodeFirestoreId(classObj.class_id)), classObj).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'classes', encodeFirestoreId(classObj.class_id)), classObj).catch(logWriteError);
   }
 }
 
@@ -246,7 +320,7 @@ export function removeClassOption(id) {
   setJSON(KEYS.CLASS_OPTIONS, all.filter(o => o.id !== id));
 
   if (_userId && db && removed) {
-    deleteDoc(doc(db, 'classes', encodeFirestoreId(removed.class_id))).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    deleteDoc(doc(db, 'classes', encodeFirestoreId(removed.class_id))).catch(logWriteError);
   }
 }
 
@@ -287,7 +361,7 @@ export function upsertQuestionLogEntry(classId, questionId, updates) {
 
   if (_userId && db) {
     const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(questionId)}`;
-    setDoc(doc(db, 'question_log', docId), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'question_log', docId), entry).catch(logWriteError);
   }
 
   return log;
@@ -299,7 +373,58 @@ export function flushQuestionLogToFirestore(classId) {
   const entries = getQuestionLog().filter(e => e.class_id === classId);
   for (const e of entries) {
     const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
-    setDoc(doc(db, 'question_log', docId), e).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'question_log', docId), e).catch(logWriteError);
+  }
+}
+
+// Replace a class's question log entries wholesale (used by undo / history
+// edits): writes the new set and deletes any docs that no longer exist.
+export function replaceClassQuestionLog(classId, entries) {
+  const before = getQuestionLog().filter(e => e.class_id === classId);
+  const keep = new Set(entries.map(e => e.question_id));
+  saveQuestionLog([...getQuestionLog().filter(e => e.class_id !== classId), ...entries]);
+
+  if (_userId && db) {
+    for (const e of entries) {
+      const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
+      setDoc(doc(db, 'question_log', docId), e).catch(logWriteError);
+    }
+    for (const e of before) {
+      if (keep.has(e.question_id)) continue;
+      const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
+      deleteDoc(doc(db, 'question_log', docId)).catch(logWriteError);
+    }
+  }
+}
+
+// ─── Lesson schedule (what each teacher has actually taught) ─────────────────
+// Entry: { id, class_id, teacher_email, lesson_id, index, taught_at, source,
+//          finalized }. `index` is the teacher's own lesson count for the
+// class (1, 2, 3…) and is the clock spaced repetition runs on.
+
+export function getScheduleEntries() {
+  return getJSON(KEYS.SCHEDULE, []);
+}
+
+// Local copies carry `_synced: true` once the server has them
+function pushScheduleEntry(entry) {
+  if (!_userId || !db) return;
+  const { _synced, ...data } = entry;
+  setDoc(doc(db, 'lesson_schedule', data.id), data)
+    .then(() => setJSON(KEYS.SCHEDULE, getScheduleEntries().map(e => (e.id === data.id ? { ...e, _synced: true } : e))))
+    .catch(logWriteError);
+}
+
+export function saveScheduleEntry(entry) {
+  const { _synced, ...data } = entry;
+  setJSON(KEYS.SCHEDULE, [...getScheduleEntries().filter(e => e.id !== data.id), data]);
+  pushScheduleEntry(data);
+}
+
+export function deleteScheduleEntry(id) {
+  setJSON(KEYS.SCHEDULE, getScheduleEntries().filter(e => e.id !== id));
+  if (_userId && db) {
+    deleteDoc(doc(db, 'lesson_schedule', id)).catch(logWriteError);
   }
 }
 
@@ -323,14 +448,19 @@ export function resetClassProgress(classId, email) {
     if (k && k.startsWith(`rs_active_session__${classId}__`)) localStorage.removeItem(k);
   }
 
-  // 4. Mirror the deletes to Firestore
+  // 4. Lesson schedule — remove this teacher's taught lessons for the class
+  for (const e of getScheduleEntries().filter(s => s.class_id === classId && s.teacher_email === email)) {
+    deleteScheduleEntry(e.id);
+  }
+
+  // 5. Mirror the deletes to Firestore
   if (_userId && db) {
     for (const s of removedSessions) {
-      if (s.id) deleteDoc(doc(db, 'session_log', s.id)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      if (s.id) deleteDoc(doc(db, 'session_log', s.id)).catch(logWriteError);
     }
     for (const e of removedQ) {
       const docId = `${encodeFirestoreId(classId)}__${encodeFirestoreId(e.question_id)}`;
-      deleteDoc(doc(db, 'question_log', docId)).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      deleteDoc(doc(db, 'question_log', docId)).catch(logWriteError);
     }
   }
 
@@ -345,23 +475,26 @@ export async function resetAllProgress() {
   // Local
   setJSON(KEYS.SESSION_LOG, []);
   setJSON(KEYS.QUESTION_LOG, []);
+  setJSON(KEYS.SCHEDULE, []);
   for (let i = localStorage.length - 1; i >= 0; i--) {
     const k = localStorage.key(i);
     if (k && k.startsWith('rs_active_session__')) localStorage.removeItem(k);
   }
 
-  // Firestore — delete every doc in the shared logs (and plaza stats)
+  // Firestore — delete every doc in the shared logs, schedules and plaza stats
   if (_userId && db) {
-    const [slSnap, qlSnap, psSnap] = await Promise.all([
+    const [slSnap, qlSnap, psSnap, lsSnap] = await Promise.all([
       getDocs(collection(db, 'session_log')),
       getDocs(collection(db, 'question_log')),
       getDocs(collection(db, 'plaza_stats')),
+      getDocs(collection(db, 'lesson_schedule')).catch(() => ({ docs: [] })),
     ]);
     await Promise.all([
       ...slSnap.docs.map(d => deleteDoc(d.ref)),
       ...qlSnap.docs.map(d => deleteDoc(d.ref)),
       ...psSnap.docs.map(d => deleteDoc(d.ref)),
-    ]).catch(err => console.error('Firestore write failed:', err.code, err.message));
+      ...lsSnap.docs.map(d => deleteDoc(d.ref)),
+    ]).catch(logWriteError);
   }
 }
 
@@ -375,7 +508,7 @@ export function removeTeacherFromClass(teacher) {
 
   if (_userId && db && teacher._docId) {
     deleteDoc(doc(db, 'teachers', teacher._docId))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -397,7 +530,7 @@ export function saveCustomQuestions(questions) {
     setDoc(doc(db, 'config', 'custom_questions'), {
       questions,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
 }
 
@@ -413,7 +546,117 @@ export function clearCustomQuestions() {
   localStorage.removeItem(KEYS.CUSTOM_QUESTIONS);
   if (_userId && db) {
     deleteDoc(doc(db, 'config', 'custom_questions'))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
+  }
+}
+
+// ─── Personal question edits + suggestions to the HoD ───────────────────────
+// A teacher's edit only changes the question for them (in their starters,
+// learning outcomes and browsing). Each edit is also sent to the HoD as a
+// suggestion; accepting it updates the question for everyone.
+
+const EDITABLE = ['question', 'answer', 'scaffolded'];
+const editDocId = (email, questionId) => `${encodeFirestoreId(email)}__${encodeFirestoreId(questionId)}`;
+
+export function getMyOverrides(email) {
+  return getJSON(KEYS.OVERRIDES, []).filter(o => o.email === email);
+}
+
+// Apply a teacher's personal edits to a list of questions
+export function withMyEdits(questions, email) {
+  const map = new Map(getMyOverrides(email).map(o => [o.question_id, o]));
+  if (map.size === 0) return questions;
+  return questions.map(q => {
+    if (!q) return q;
+    const o = map.get(q.id);
+    if (!o) return q;
+    const patch = {};
+    for (const f of EDITABLE) if (o[f] != null) patch[f] = o[f];
+    return { ...q, ...patch, my_edit: true };
+  });
+}
+
+// Save a personal edit of one field and (re)send it to the HoD as a suggestion.
+// `original` is the bank version of the question.
+export function saveMyEdit(email, original, field, value) {
+  const existing = getMyOverrides(email).find(o => o.question_id === original.id);
+  const now = new Date().toISOString();
+  const proposed = {};
+  for (const f of EDITABLE) proposed[f] = (existing && existing[f] != null ? existing[f] : original[f]) ?? '';
+  proposed[field] = value;
+
+  // Back to the original text → nothing to keep or suggest
+  if (EDITABLE.every(f => (proposed[f] || '') === (original[f] || ''))) {
+    removeMyEdit(email, original.id);
+    return;
+  }
+
+  const override = { id: editDocId(email, original.id), email, question_id: original.id, ...proposed, updated_at: now };
+  setJSON(KEYS.OVERRIDES, [...getJSON(KEYS.OVERRIDES, []).filter(o => o.id !== override.id), override]);
+
+  const suggestion = {
+    id: override.id,
+    question_id: original.id,
+    lesson_id: original.lesson_id,
+    from_email: email,
+    original: Object.fromEntries(EDITABLE.map(f => [f, original[f] || ''])),
+    proposed,
+    status: 'pending',
+    updated_at: now,
+  };
+  if (_userId && db) {
+    setDoc(doc(db, 'question_overrides', override.id), override)
+      .catch(logWriteError);
+    setDoc(doc(db, 'edit_suggestions', suggestion.id), suggestion)
+      .catch(logWriteError);
+  } else if (!db) {
+    // No Firebase (local mode): keep suggestions on this device
+    setJSON(KEYS.LOCAL_SUGGESTIONS, [...getJSON(KEYS.LOCAL_SUGGESTIONS, []).filter(x => x.id !== suggestion.id), suggestion]);
+  }
+}
+
+// Drop a personal edit and withdraw its suggestion
+export function removeMyEdit(email, questionId) {
+  const id = editDocId(email, questionId);
+  setJSON(KEYS.OVERRIDES, getJSON(KEYS.OVERRIDES, []).filter(o => o.id !== id));
+  if (_userId && db) {
+    deleteDoc(doc(db, 'question_overrides', id)).catch(logWriteError);
+    deleteDoc(doc(db, 'edit_suggestions', id)).catch(logWriteError);
+  } else if (!db) {
+    setJSON(KEYS.LOCAL_SUGGESTIONS, getJSON(KEYS.LOCAL_SUGGESTIONS, []).filter(x => x.id !== id));
+  }
+}
+
+// HoD: pending suggestions from teachers
+export async function fetchPendingSuggestions() {
+  if (!db) return getJSON(KEYS.LOCAL_SUGGESTIONS, []).filter(x => x.status === 'pending');
+  const snap = await getDocs(query(collection(db, 'edit_suggestions'), where('status', '==', 'pending')));
+  return snap.docs.map(d => d.data()).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+}
+
+function setLocalSuggestionStatus(id, status) {
+  setJSON(KEYS.LOCAL_SUGGESTIONS, getJSON(KEYS.LOCAL_SUGGESTIONS, []).map(x => (x.id === id ? { ...x, status } : x)));
+}
+
+// HoD: accept — the bank takes the teacher's version, so their personal edit is no longer needed
+export function acceptSuggestion(s) {
+  updateQuestion(s.question_id, s.proposed);
+  // The teacher's personal version now matches the bank
+  setJSON(KEYS.OVERRIDES, getJSON(KEYS.OVERRIDES, []).filter(o => o.id !== s.id));
+  if (!db) setLocalSuggestionStatus(s.id, 'accepted');
+  if (db) {
+    setDoc(doc(db, 'edit_suggestions', s.id), { status: 'accepted', decided_at: new Date().toISOString() }, { merge: true })
+      .catch(logWriteError);
+    deleteDoc(doc(db, 'question_overrides', s.id)).catch(logWriteError);
+  }
+}
+
+// HoD: dismiss — the teacher keeps their personal version
+export function dismissSuggestion(s) {
+  if (!db) setLocalSuggestionStatus(s.id, 'dismissed');
+  if (db) {
+    setDoc(doc(db, 'edit_suggestions', s.id), { status: 'dismissed', decided_at: new Date().toISOString() }, { merge: true })
+      .catch(logWriteError);
   }
 }
 
@@ -434,7 +677,7 @@ export function saveCustomChallengePlus(entries) {
     setDoc(doc(db, 'config', 'challenge_plus'), {
       entries,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
 }
 
@@ -442,7 +685,7 @@ export function clearCustomChallengePlus() {
   localStorage.removeItem(KEYS.CUSTOM_CHALLENGE_PLUS);
   if (_userId && db) {
     deleteDoc(doc(db, 'config', 'challenge_plus'))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -473,7 +716,7 @@ export function saveHiddenLessons(ids) {
     setDoc(doc(db, 'config', 'hidden_lessons'), {
       ids,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
 }
 
@@ -504,7 +747,7 @@ export function saveCustomRotas(entries) {
     setDoc(doc(db, 'config', 'custom_rotas'), {
       entries,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
 }
 
@@ -512,7 +755,7 @@ export function clearCustomRotas() {
   localStorage.removeItem(KEYS.CUSTOM_ROTAS);
   if (_userId && db) {
     deleteDoc(doc(db, 'config', 'custom_rotas'))
-      .catch(err => console.error('Firestore write failed:', err.code, err.message));
+      .catch(logWriteError);
   }
 }
 
@@ -532,7 +775,7 @@ export function pushQuestionVersion(entry) {
     setDoc(doc(db, 'config', 'questions_history'), {
       versions,
       updated_at: new Date().toISOString(),
-    }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    }).catch(logWriteError);
   }
   return versions;
 }
@@ -572,7 +815,7 @@ export function updatePlazaStats(email) {
     email,
     sessions: count,
     updated_at: new Date().toISOString(),
-  }, { merge: true }).catch(err => console.error('Firestore write failed:', err.code, err.message));
+  }, { merge: true }).catch(logWriteError);
 }
 
 export async function fetchPlazaStats() {
@@ -601,14 +844,14 @@ export async function fetchPlazaMessages(email) {
 export function leavePlazaMessage(msg) {
   if (!db) return;
   setDoc(doc(db, 'plaza_messages', msg.id), msg)
-    .catch(err => console.error('Firestore write failed:', err.code, err.message));
+    .catch(logWriteError);
 }
 
 // Delete a message once it's been read
 export function deletePlazaMessage(docId) {
   if (!db) return;
   deleteDoc(doc(db, 'plaza_messages', docId))
-    .catch(err => console.error('Firestore write failed:', err.code, err.message));
+    .catch(logWriteError);
 }
 
 // ─── Session log ─────────────────────────────────────────────────────────────
@@ -628,9 +871,19 @@ export function appendSession(entry) {
   setJSON(KEYS.SESSION_LOG, all);
 
   if (_userId && db) {
-    setDoc(doc(db, 'session_log', entry.id), entry).catch(err => console.error('Firestore write failed:', err.code, err.message));
+    setDoc(doc(db, 'session_log', entry.id), entry).catch(logWriteError);
   }
 
   // Keep the plaza brain size in sync with real usage
   if (entry.teacher_email) updatePlazaStats(entry.teacher_email);
+}
+
+// Remove a session entry (used when a taught lesson is undone)
+export function deleteSession(id) {
+  const removed = getSessionLog().find(s => s.id === id);
+  setJSON(KEYS.SESSION_LOG, getSessionLog().filter(s => s.id !== id));
+  if (_userId && db) {
+    deleteDoc(doc(db, 'session_log', id)).catch(logWriteError);
+  }
+  if (removed?.teacher_email) updatePlazaStats(removed.teacher_email);
 }

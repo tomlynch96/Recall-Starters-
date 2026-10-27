@@ -1,10 +1,13 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, getRawRotas, saveCustomRotas, getQuestionVersions, pushQuestionVersion, resetClassProgress, resetAllProgress, removeTeacherFromClass } from '../utils/storage.js';
+import { getTeachers, getCurrentTeacher, getSessionLog, getClassOptions, addClassOption, removeClassOption, getCustomQuestions, saveCustomQuestions, clearCustomQuestions, getActiveQuestions, getCustomChallengePlus, saveCustomChallengePlus, clearCustomChallengePlus, getActiveChallengePlus, getActiveRotas, getRawRotas, saveCustomRotas, getQuestionVersions, pushQuestionVersion, resetClassProgress, resetAllProgress, removeTeacherFromClass, fetchPendingSuggestions, acceptSuggestion, dismissSuggestion } from '../utils/storage.js';
 import { generateUUID } from '../utils/uuid.js';
 import { QUESTIONS, CHALLENGE_PLUS, LESSONS } from '../data/staticData.js';
 import { parseQuestionWorkbook, assignIds, buildQuestionWorkbook, diffLessonOrder, reorderRotasByFileOrder } from '../utils/questionFiles.js';
 import RotaEditor from '../components/RotaEditor.jsx';
+import { getMySchedule, getClassTimeline } from '../utils/schedule.js';
+import { useHydrated } from '../utils/useHydrated.js';
+import { lessonLabel } from '../utils/topicColours.js';
 import QuestionPreview from '../components/QuestionPreview.jsx';
 
 function getRotaName(rotaId) {
@@ -36,6 +39,20 @@ export default function HoDPage() {
   const teachers = getTeachers();
 
   const [section, setSection] = useState('analytics');
+  const [timelineClass, setTimelineClass] = useState(null);
+  // Re-render once every class's sessions have loaded, so counts aren't stuck at zero
+  useHydrated();
+  const [suggestions, setSuggestions] = useState([]);
+
+  // Teachers' suggested question edits
+  useEffect(() => {
+    fetchPendingSuggestions().then(setSuggestions).catch(err => console.error('Could not load suggestions:', err));
+  }, []);
+
+  function decideSuggestion(s, accept) {
+    if (accept) acceptSuggestion(s); else dismissSuggestion(s);
+    setSuggestions(list => list.filter(x => x.id !== s.id));
+  }
   const [, forceRefresh] = useState(0);
   const [classOptions, setClassOptions] = useState(() => getClassOptions());
   const [newClassName, setNewClassName] = useState('');
@@ -262,6 +279,8 @@ export default function HoDPage() {
           lastSession: sessions[0]?.opened_at || null,
           termSessions: sessions.filter(s => new Date(s.opened_at) >= thisTermStart).length,
           recentSessions: sessions.filter(s => new Date(s.opened_at) >= twoWeeksAgo).length,
+          taught: getMySchedule(t.class_id, x.email),
+          historyChecked: !!x.schedule_confirmed,
         };
       });
     return { class_id: t.class_id, teacherStats };
@@ -286,6 +305,31 @@ export default function HoDPage() {
         <button onClick={() => navigate('/')} className="text-blue-600 hover:underline text-sm">← Back</button>
         <h1 className="text-xl font-bold text-blue-800">HoD Dashboard</h1>
       </header>
+
+      {/* Combined class timeline: every teacher's taught lessons for one class */}
+      {timelineClass && (
+        <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-6" onClick={() => setTimelineClass(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center mb-1">
+              <h2 className="font-bold text-gray-800 text-lg">{timelineClass} — class timeline</h2>
+              <button onClick={() => setTimelineClass(null)} className="ml-auto text-gray-400 hover:text-gray-700 text-2xl leading-none">×</button>
+            </div>
+            <p className="text-xs text-gray-400 mb-4">Every lesson taught to this class, by all its teachers.</p>
+            <div className="max-h-[60vh] overflow-y-auto space-y-1">
+              {getClassTimeline(timelineClass).length === 0 && <p className="text-sm text-gray-400 italic">Nothing taught yet.</p>}
+              {getClassTimeline(timelineClass).map(e => (
+                <div key={e.id} className="flex items-center gap-3 py-1.5 text-sm">
+                  <span className="text-xs text-gray-400 w-16 shrink-0">
+                    {e.taught_at ? new Date(e.taught_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}
+                  </span>
+                  <span className="flex-1 text-gray-700 truncate">{lessonLabel(e.lesson_id)}</span>
+                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{e.teacher_email.split('@')[0]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lesson-order mismatch prompt */}
       {pendingOrder && (
@@ -332,6 +376,11 @@ export default function HoDPage() {
                 className={`w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium text-left transition-colors ${section === item.id ? 'bg-blue-700 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
               >
                 <span>{item.icon}</span> {item.label}
+                {item.id === 'questions' && suggestions.length > 0 && (
+                  <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${section === item.id ? 'bg-white text-blue-700' : 'bg-amber-400 text-white'}`}>
+                    {suggestions.length}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -447,7 +496,7 @@ export default function HoDPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Class', 'Teacher', 'Rota', 'Last session', 'This term', 'Last 2 weeks', 'Status', ''].map((h, i) => (
+                  {['Class', 'Teacher', 'Rota', 'Taught', 'History check', 'Last session', 'This term', 'Last 2 weeks', 'Status', ''].map((h, i) => (
                     <th key={h || `col${i}`} className="px-4 py-3 text-left text-gray-600 font-semibold">{h}</th>
                   ))}
                 </tr>
@@ -458,7 +507,7 @@ export default function HoDPage() {
                     return [(
                       <tr key={row.class_id} className="hover:bg-gray-50">
                         <td className="px-4 py-3 font-medium text-gray-800">{row.class_id}</td>
-                        <td className="px-4 py-3 text-gray-300 italic" colSpan={7}>No teachers assigned yet</td>
+                        <td className="px-4 py-3 text-gray-300 italic" colSpan={9}>No teachers assigned yet</td>
                       </tr>
                     )];
                   }
@@ -467,10 +516,27 @@ export default function HoDPage() {
                       {i === 0 && (
                         <td rowSpan={row.teacherStats.length} className="px-4 py-3 font-medium text-gray-800 align-top border-r border-gray-50">
                           {row.class_id}
+                          <button
+                            onClick={() => setTimelineClass(row.class_id)}
+                            className="block mt-1 text-xs font-normal text-blue-600 hover:underline"
+                          >
+                            Timeline
+                          </button>
                         </td>
                       )}
                       <td className="px-4 py-3 text-gray-600">{ts.email.split('@')[0]}</td>
                       <td className="px-4 py-3 text-gray-500">{getRotaName(ts.rota_id)}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {ts.taught.length}
+                        {ts.taught.length > 0 && (
+                          <div className="text-xs text-gray-400 whitespace-nowrap">last: {lessonLabel(ts.taught[ts.taught.length - 1].lesson_id)}</div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {ts.historyChecked
+                          ? <span className="text-xs text-green-700">✓ Checked</span>
+                          : <span className="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full whitespace-nowrap">Not checked</span>}
+                      </td>
                       <td className="px-4 py-3 text-gray-500">
                         {ts.lastSession ? new Date(ts.lastSession).toLocaleDateString() : '—'}
                       </td>
@@ -534,6 +600,43 @@ export default function HoDPage() {
 
         {section === 'questions' && (
         <>
+        {/* ── Suggested edits from teachers ── */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-700 mb-1">Suggested edits</h2>
+          <p className="text-sm text-gray-400 mb-4">
+            When a teacher edits a question it changes only for them and is sent here. Accept to change it for everyone; dismiss to leave their version private.
+          </p>
+          {suggestions.length === 0 ? (
+            <p className="text-sm text-gray-400 bg-white border border-gray-200 rounded-xl px-4 py-3">No suggestions waiting.</p>
+          ) : (
+            <div className="space-y-3">
+              {suggestions.map(sg => (
+                <div key={sg.id} className="bg-white border border-gray-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
+                    <span className="font-semibold text-gray-600">{sg.from_email.split('@')[0]}</span>
+                    <span>·</span>
+                    <span>{lessonLabel(sg.lesson_id)}</span>
+                    {sg.updated_at && <span className="ml-auto">{new Date(sg.updated_at).toLocaleDateString('en-GB')}</span>}
+                  </div>
+                  <div className="space-y-2">
+                    {['question', 'answer', 'scaffolded'].filter(f => (sg.original[f] || '') !== (sg.proposed[f] || '')).map(f => (
+                      <div key={f} className="text-sm">
+                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{f === 'scaffolded' ? 'Scaffold' : f}</div>
+                        <div className="text-gray-400 line-through">{sg.original[f] || '—'}</div>
+                        <div className="text-gray-800">{sg.proposed[f] || '—'}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end gap-2 mt-3">
+                    <button onClick={() => decideSuggestion(sg, false)} className="px-4 py-1.5 text-sm text-gray-500 hover:text-gray-700">Dismiss</button>
+                    <button onClick={() => decideSuggestion(sg, true)} className="px-4 py-1.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700">Accept for everyone</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* ── Preview ── */}
         <section>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Preview</h2>
